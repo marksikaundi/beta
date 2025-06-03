@@ -6,13 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ChevronRight, Play, CheckCircle, Lock } from "lucide-react";
 
-interface Lesson {
-  title: string;
-  duration: string;
-  completed: boolean;
-  locked?: boolean;
-}
-
 const lessonData = {
   title: "Python Fundamentals",
   description: "Master the basics of Python programming",
@@ -25,19 +18,16 @@ const lessonData = {
           title: "Introduction to Python",
           duration: "10 min",
           completed: true,
-          locked: false,
         },
         {
           title: "Setting up Your Environment",
           duration: "15 min",
           completed: true,
-          locked: false,
         },
         {
           title: "Basic Syntax and Variables",
           duration: "20 min",
           completed: false,
-          locked: false,
         },
       ],
     },
@@ -115,41 +105,37 @@ export default function LessonsPage() {
             {lessonData.modules[activeModule].title}
           </h2>
           <div className="space-y-3">
-            {lessonData.modules[activeModule].lessons.map(
-              (lesson: Lesson, index) => (
-                <div
-                  key={index}
-                  className={`p-4 rounded-lg border ${
-                    lesson.locked
-                      ? "bg-gray-50"
-                      : "hover:border-blue-200 cursor-pointer"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {lesson.completed ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : lesson.locked ? (
-                        <Lock className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Play className="h-5 w-5 text-blue-500" />
-                      )}
-                      <div>
-                        <h3 className="font-medium">{lesson.title}</h3>
-                        <p className="text-sm text-gray-500">
-                          {lesson.duration}
-                        </p>
-                      </div>
-                    </div>
-                    {!lesson.locked && !lesson.completed && (
-                      <Button variant="ghost" size="sm">
-                        Start
-                      </Button>
+            {lessonData.modules[activeModule].lessons.map((lesson, index) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border ${
+                  lesson.locked
+                    ? "bg-gray-50"
+                    : "hover:border-blue-200 cursor-pointer"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {lesson.completed ? (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : lesson.locked ? (
+                      <Lock className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Play className="h-5 w-5 text-blue-500" />
                     )}
+                    <div>
+                      <h3 className="font-medium">{lesson.title}</h3>
+                      <p className="text-sm text-gray-500">{lesson.duration}</p>
+                    </div>
                   </div>
+                  {!lesson.locked && !lesson.completed && (
+                    <Button variant="ghost" size="sm">
+                      Start
+                    </Button>
+                  )}
                 </div>
-              )
-            )}
+              </div>
+            ))}
           </div>
         </Card>
       </div>

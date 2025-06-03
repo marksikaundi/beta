@@ -2,7 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Home, LayoutDashboard, BookOpen, Award, Settings, LogOut } from "lucide-react";
+import {
+  Home,
+  LayoutDashboard,
+  BookOpen,
+  Award,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -58,7 +65,10 @@ export function AdminSidebar() {
         </nav>
       </div>
       <div className="border-t border-gray-800 p-4">
-        <Button variant="ghost" className="w-full justify-start text-gray-300 hover:text-white">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-gray-300 hover:text-white"
+        >
           <LogOut className="mr-3 h-5 w-5" />
           Logout
         </Button>
