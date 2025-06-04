@@ -15,16 +15,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Clock,
-  Users,
-  Star,
   Play,
   CheckCircle,
   Circle,
   Lock,
   Trophy,
   Target,
-  TrendingUp,
-  Calendar,
   ArrowLeft,
   Code,
   FileText,
@@ -32,7 +28,6 @@ import {
   HelpCircle,
   Award,
 } from "lucide-react";
-import { useState } from "react";
 
 interface Track {
   _id: string;

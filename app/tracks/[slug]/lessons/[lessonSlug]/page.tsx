@@ -67,14 +67,6 @@ interface Lesson {
   videoDuration?: number;
 }
 
-interface Progress {
-  status: "not-started" | "in-progress" | "completed" | "skipped";
-  completedAt?: string;
-  timeSpent: number;
-  score?: number;
-  submittedCode?: string;
-}
-
 function getLessonIcon(type: string) {
   switch (type) {
     case "reading":
