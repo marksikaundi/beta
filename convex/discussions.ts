@@ -28,13 +28,13 @@ async function getOrCreateUser(ctx: MutationCtx, identity: any) {
       createdAt: now,
       updatedAt: now,
     });
-    
+
     user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("Failed to create user");
     }
   }
-  
+
   return user;
 }
 
