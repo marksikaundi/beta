@@ -194,14 +194,11 @@ export const updateStreak = mutation({
     // Check for streak achievements
     if (newStreakDays === 7 || newStreakDays === 30 || newStreakDays === 100) {
       await ctx.db.insert("achievements", {
-        userId: args.clerkId,
+        userId: user._id,
         type: "streak",
         title: `${newStreakDays} Day Streak!`,
         description: `You've maintained a ${newStreakDays} day learning streak!`,
-        icon: "flame",
-        color: "#f59e0b",
-        metadata: { streakDays: newStreakDays },
-        earnedAt: new Date().toISOString(),
+        earnedAt: Date.now(),
       });
     }
 
@@ -238,7 +235,7 @@ export const getUserStats = query({
     // Get achievements count
     const achievements = await ctx.db
       .query("achievements")
-      .withIndex("by_user", (q) => q.eq("userId", args.clerkId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Calculate total time spent
