@@ -11,15 +11,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { 
-  MessageSquare, 
-  ThumbsUp, 
-  ThumbsDown, 
-  Eye, 
-  Clock, 
+import {
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
+  Eye,
+  Clock,
   CheckCircle,
   Pin,
   Plus,
@@ -27,7 +39,7 @@ import {
   Filter,
   Users,
   TrendingUp,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -35,7 +47,9 @@ export default function CommunityPage() {
   const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"recent" | "popular" | "unanswered">("recent");
+  const [sortBy, setSortBy] = useState<"recent" | "popular" | "unanswered">(
+    "recent"
+  );
   const [showNewDiscussion, setShowNewDiscussion] = useState(false);
 
   // Form state for new discussion
@@ -62,7 +76,7 @@ export default function CommunityPage() {
         content: newContent,
         tags: newTags,
       });
-      
+
       setNewTitle("");
       setNewContent("");
       setNewTags([]);
@@ -80,7 +94,7 @@ export default function CommunityPage() {
   };
 
   const removeTag = (tagToRemove: string) => {
-    setNewTags(newTags.filter(tag => tag !== tagToRemove));
+    setNewTags(newTags.filter((tag) => tag !== tagToRemove));
   };
 
   const handleVote = async (discussionId: string, voteType: "up" | "down") => {
@@ -93,8 +107,18 @@ export default function CommunityPage() {
 
   // Popular tags (this could be cached or computed)
   const popularTags = [
-    "javascript", "python", "react", "nodejs", "css", "html", 
-    "backend", "frontend", "databases", "algorithms", "debugging", "career"
+    "javascript",
+    "python",
+    "react",
+    "nodejs",
+    "css",
+    "html",
+    "backend",
+    "frontend",
+    "databases",
+    "algorithms",
+    "debugging",
+    "career",
   ];
 
   return (
@@ -107,7 +131,7 @@ export default function CommunityPage() {
               Connect with fellow learners, ask questions, and share knowledge
             </p>
           </div>
-          
+
           <Dialog open={showNewDiscussion} onOpenChange={setShowNewDiscussion}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
@@ -129,7 +153,7 @@ export default function CommunityPage() {
                     onChange={(e) => setNewTitle(e.target.value)}
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="content">Description</Label>
                   <Textarea
@@ -140,7 +164,7 @@ export default function CommunityPage() {
                     onChange={(e) => setNewContent(e.target.value)}
                   />
                 </div>
-                
+
                 <div>
                   <Label>Tags</Label>
                   <div className="flex items-center gap-2 mb-2">
@@ -155,14 +179,18 @@ export default function CommunityPage() {
                         }
                       }}
                     />
-                    <Button type="button" variant="outline" onClick={handleAddTag}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddTag}
+                    >
                       Add
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {newTags.map((tag) => (
-                      <Badge 
-                        key={tag} 
+                      <Badge
+                        key={tag}
                         variant="secondary"
                         className="cursor-pointer"
                         onClick={() => removeTag(tag)}
@@ -172,9 +200,12 @@ export default function CommunityPage() {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowNewDiscussion(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowNewDiscussion(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleCreateDiscussion}>
@@ -192,43 +223,51 @@ export default function CommunityPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Discussions</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total Discussions
+                  </p>
                   <p className="text-2xl font-bold">1,234</p>
                 </div>
                 <MessageSquare className="h-8 w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Members</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Active Members
+                  </p>
                   <p className="text-2xl font-bold">567</p>
                 </div>
                 <Users className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Questions Answered</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Questions Answered
+                  </p>
                   <p className="text-2xl font-bold">89%</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-purple-500" />
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">This Week</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    This Week
+                  </p>
                   <p className="text-2xl font-bold">+42</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-orange-500" />
@@ -248,8 +287,11 @@ export default function CommunityPage() {
               className="pl-10"
             />
           </div>
-          
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+
+          <Select
+            value={sortBy}
+            onValueChange={(value: any) => setSortBy(value)}
+          >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -265,7 +307,7 @@ export default function CommunityPage() {
         <div className="mb-6">
           <p className="text-sm font-medium mb-3">Popular Tags:</p>
           <div className="flex flex-wrap gap-2">
-            <Badge 
+            <Badge
               variant={selectedTag === "" ? "default" : "outline"}
               className="cursor-pointer"
               onClick={() => setSelectedTag("")}
@@ -273,7 +315,7 @@ export default function CommunityPage() {
               All
             </Badge>
             {popularTags.map((tag) => (
-              <Badge 
+              <Badge
                 key={tag}
                 variant={selectedTag === tag ? "default" : "outline"}
                 className="cursor-pointer"
@@ -289,7 +331,10 @@ export default function CommunityPage() {
       {/* Discussions List */}
       <div className="space-y-4">
         {discussions?.map((discussion) => (
-          <Card key={discussion._id} className="hover:shadow-md transition-shadow">
+          <Card
+            key={discussion._id}
+            className="hover:shadow-md transition-shadow"
+          >
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <Avatar className="h-10 w-10">
@@ -298,7 +343,7 @@ export default function CommunityPage() {
                     {discussion.author?.name?.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -313,28 +358,34 @@ export default function CommunityPage() {
                           {discussion.title}
                         </h3>
                       </div>
-                      
+
                       <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
                         {discussion.content.substring(0, 200)}...
                       </p>
-                      
+
                       <div className="flex flex-wrap gap-1 mb-3">
                         {discussion.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span>
-                        by {discussion.author?.name} • {formatDistanceToNow(new Date(discussion.createdAt))} ago
+                        by {discussion.author?.name} •{" "}
+                        {formatDistanceToNow(new Date(discussion.createdAt))}{" "}
+                        ago
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1">
                         <Button
@@ -346,7 +397,7 @@ export default function CommunityPage() {
                           <ThumbsUp className="h-4 w-4" />
                           <span className="ml-1">{discussion.upvotes}</span>
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -357,12 +408,12 @@ export default function CommunityPage() {
                           <span className="ml-1">{discussion.downvotes}</span>
                         </Button>
                       </div>
-                      
+
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <MessageCircle className="h-4 w-4" />
                         <span>{discussion.replyCount}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Eye className="h-4 w-4" />
                         <span>{discussion.viewCount}</span>
@@ -374,12 +425,14 @@ export default function CommunityPage() {
             </CardContent>
           </Card>
         ))}
-        
+
         {discussions?.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
               <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No discussions found</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No discussions found
+              </h3>
               <p className="text-muted-foreground mb-4">
                 Be the first to start a discussion in this topic!
               </p>

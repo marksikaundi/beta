@@ -17,17 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  BookOpen, 
-  Clock, 
-  Users, 
+import {
+  BookOpen,
+  Clock,
+  Users,
   Star,
   Search,
   Filter,
   TrendingUp,
   Award,
   ArrowRight,
-  Play
+  Play,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -62,18 +62,27 @@ function getDifficultyColor(difficulty: string) {
   }
 }
 
-function TrackCard({ track, isEnrolled = false }: { track: Track; isEnrolled?: boolean }) {
+function TrackCard({
+  track,
+  isEnrolled = false,
+}: {
+  track: Track;
+  isEnrolled?: boolean;
+}) {
   return (
     <Card className="learning-card hover:shadow-lg transition-all duration-200 group">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div 
+          <div
             className="w-4 h-4 rounded-full shrink-0 mt-1"
             style={{ backgroundColor: track.color }}
           />
           <div className="flex gap-2">
             {track.isPremium && (
-              <Badge variant="secondary" className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800">
+              <Badge
+                variant="secondary"
+                className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800"
+              >
                 <Award className="h-3 w-3 mr-1" />
                 Premium
               </Badge>
@@ -83,17 +92,15 @@ function TrackCard({ track, isEnrolled = false }: { track: Track; isEnrolled?: b
             </Badge>
           </div>
         </div>
-        
+
         <CardTitle className="text-lg group-hover:text-primary transition-colors">
-          <Link href={`/tracks/${track.slug}`}>
-            {track.title}
-          </Link>
+          <Link href={`/tracks/${track.slug}`}>{track.title}</Link>
         </CardTitle>
-        
+
         <p className="text-sm text-muted-foreground line-clamp-2">
           {track.description}
         </p>
-        
+
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center space-x-4">
             <span className="flex items-center">
@@ -113,7 +120,7 @@ function TrackCard({ track, isEnrolled = false }: { track: Track; isEnrolled?: b
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-1 mb-4">
           {track.tags.slice(0, 3).map((tag) => (
@@ -127,7 +134,7 @@ function TrackCard({ track, isEnrolled = false }: { track: Track; isEnrolled?: b
             </Badge>
           )}
         </div>
-        
+
         <Button asChild className="w-full">
           <Link href={`/tracks/${track.slug}`}>
             {isEnrolled ? (
@@ -152,13 +159,19 @@ function TrackCard({ track, isEnrolled = false }: { track: Track; isEnrolled?: b
 export default function TracksPage() {
   const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
 
   // Get all tracks
   const allTracks = useQuery(api.tracks.getAllTracks, {
-    category: selectedCategory || undefined,
-    difficulty: selectedDifficulty as any || undefined,
+    category:
+      selectedCategory && selectedCategory !== "all"
+        ? selectedCategory
+        : undefined,
+    difficulty:
+      selectedDifficulty && selectedDifficulty !== "all"
+        ? (selectedDifficulty as any)
+        : undefined,
   });
 
   // Get user enrollments to show enrolled status
@@ -167,17 +180,24 @@ export default function TracksPage() {
     user ? { userId: user.id } : "skip"
   );
 
-  const enrolledTrackIds = userEnrollments?.map(e => e.track?._id).filter(Boolean) || [];
+  const enrolledTrackIds =
+    userEnrollments?.map((e) => e.track?._id).filter(Boolean) || [];
 
   // Filter tracks based on search
-  const filteredTracks = allTracks?.filter(track =>
-    track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  ) || [];
+  const filteredTracks =
+    allTracks?.filter(
+      (track) =>
+        track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        track.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        track.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    ) || [];
 
   // Get unique categories for filter
-  const categories = [...new Set(allTracks?.map(track => track.category) || [])];
+  const categories = [
+    ...new Set(allTracks?.map((track) => track.category) || []),
+  ];
 
   if (!allTracks) {
     return (
@@ -189,13 +209,13 @@ export default function TracksPage() {
               <Skeleton className="h-12 w-64 mx-auto mb-4" />
               <Skeleton className="h-6 w-96 mx-auto" />
             </div>
-            
+
             <div className="flex gap-4">
               <Skeleton className="h-10 flex-1" />
               <Skeleton className="h-10 w-40" />
               <Skeleton className="h-10 w-40" />
             </div>
-            
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(6)].map((_, i) => (
                 <Card key={i}>
@@ -226,12 +246,10 @@ export default function TracksPage() {
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">
-              Learning Tracks
-            </h1>
+            <h1 className="text-4xl font-bold mb-4">Learning Tracks</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Master new skills with our structured learning paths. 
-              From beginner-friendly introductions to advanced concepts.
+              Master new skills with our structured learning paths. From
+              beginner-friendly introductions to advanced concepts.
             </p>
           </div>
 
@@ -246,14 +264,17 @@ export default function TracksPage() {
                 className="pl-10"
               />
             </div>
-            
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
               <SelectTrigger className="w-full sm:w-40">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -262,13 +283,16 @@ export default function TracksPage() {
               </SelectContent>
             </Select>
 
-            <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+            <Select
+              value={selectedDifficulty}
+              onValueChange={setSelectedDifficulty}
+            >
               <SelectTrigger className="w-full sm:w-40">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Difficulty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Levels</SelectItem>
+                <SelectItem value="all">All Levels</SelectItem>
                 <SelectItem value="beginner">Beginner</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
                 <SelectItem value="advanced">Advanced</SelectItem>
@@ -280,14 +304,18 @@ export default function TracksPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">{allTracks.length}</div>
-                <div className="text-sm text-muted-foreground">Total Tracks</div>
+                <div className="text-2xl font-bold text-primary">
+                  {allTracks.length}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Total Tracks
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {allTracks.filter(t => t.difficulty === "beginner").length}
+                  {allTracks.filter((t) => t.difficulty === "beginner").length}
                 </div>
                 <div className="text-sm text-muted-foreground">Beginner</div>
               </CardContent>
@@ -295,15 +323,20 @@ export default function TracksPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-yellow-600">
-                  {allTracks.filter(t => t.difficulty === "intermediate").length}
+                  {
+                    allTracks.filter((t) => t.difficulty === "intermediate")
+                      .length
+                  }
                 </div>
-                <div className="text-sm text-muted-foreground">Intermediate</div>
+                <div className="text-sm text-muted-foreground">
+                  Intermediate
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-red-600">
-                  {allTracks.filter(t => t.difficulty === "advanced").length}
+                  {allTracks.filter((t) => t.difficulty === "advanced").length}
                 </div>
                 <div className="text-sm text-muted-foreground">Advanced</div>
               </CardContent>
@@ -314,10 +347,11 @@ export default function TracksPage() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">
-                {searchQuery || selectedCategory || selectedDifficulty 
-                  ? `Filtered Results (${filteredTracks.length})` 
-                  : "All Learning Tracks"
-                }
+                {searchQuery ||
+                (selectedCategory && selectedCategory !== "all") ||
+                (selectedDifficulty && selectedDifficulty !== "all")
+                  ? `Filtered Results (${filteredTracks.length})`
+                  : "All Learning Tracks"}
               </h2>
               {user && enrolledTrackIds.length > 0 && (
                 <Button variant="outline" asChild>
@@ -333,15 +367,17 @@ export default function TracksPage() {
               <Card>
                 <CardContent className="py-16 text-center">
                   <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No tracks found</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    No tracks found
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     Try adjusting your search criteria or browse all tracks.
                   </p>
-                  <Button 
+                  <Button
                     onClick={() => {
                       setSearchQuery("");
-                      setSelectedCategory("");
-                      setSelectedDifficulty("");
+                      setSelectedCategory("all");
+                      setSelectedDifficulty("all");
                     }}
                   >
                     Clear Filters

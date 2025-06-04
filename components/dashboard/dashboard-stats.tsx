@@ -2,13 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  BookOpen, 
-  Clock, 
-  Trophy, 
+import {
+  BookOpen,
+  Clock,
+  Trophy,
   Target,
   TrendingUp,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 
 interface DashboardStatsProps {
@@ -54,7 +54,9 @@ export function DashboardStats({ stats, isLoading }: DashboardStatsProps) {
     },
     {
       title: "Study Time",
-      value: `${Math.floor((stats?.totalTimeSpent || 0) / 60)}h ${(stats?.totalTimeSpent || 0) % 60}m`,
+      value: `${Math.floor((stats?.totalTimeSpent || 0) / 60)}h ${
+        (stats?.totalTimeSpent || 0) % 60
+      }m`,
       description: "Total learning time",
       icon: Clock,
       color: "text-green-600",

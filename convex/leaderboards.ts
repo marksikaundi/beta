@@ -5,7 +5,9 @@ import { Doc, Id } from "./_generated/dataModel";
 // Get global leaderboard
 export const getGlobalLeaderboard = query({
   args: {
-    period: v.optional(v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))),
+    period: v.optional(
+      v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -14,10 +16,10 @@ export const getGlobalLeaderboard = query({
 
     // Get all users with their stats
     const users = await ctx.db.query("users").collect();
-    
+
     // Calculate scores based on period
     let leaderboardData = [];
-    
+
     for (const user of users) {
       let experienceGained = 0;
       let lessonsCompleted = 0;
@@ -26,20 +28,20 @@ export const getGlobalLeaderboard = query({
       if (period === "all-time") {
         experienceGained = user.experience;
         score = user.experience;
-        
+
         // Count completed lessons
         const completedLessons = await ctx.db
           .query("progress")
           .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
           .filter((q) => q.eq(q.field("status"), "completed"))
           .collect();
-        
+
         lessonsCompleted = completedLessons.length;
       } else {
         // For weekly/monthly, we need to filter by date
         const now = new Date();
         let startDate: Date;
-        
+
         if (period === "weekly") {
           startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         } else {
@@ -50,7 +52,7 @@ export const getGlobalLeaderboard = query({
         const progressInPeriod = await ctx.db
           .query("progress")
           .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
-          .filter((q) => 
+          .filter((q) =>
             q.and(
               q.eq(q.field("status"), "completed"),
               q.gte(q.field("completedAt"), startDate.toISOString())
@@ -59,7 +61,7 @@ export const getGlobalLeaderboard = query({
           .collect();
 
         lessonsCompleted = progressInPeriod.length;
-        
+
         // Calculate experience from lessons completed in period
         for (const progress of progressInPeriod) {
           const lesson = await ctx.db.get(progress.lessonId);
@@ -67,7 +69,7 @@ export const getGlobalLeaderboard = query({
             experienceGained += lesson.experiencePoints;
           }
         }
-        
+
         score = experienceGained;
       }
 
@@ -98,7 +100,9 @@ export const getGlobalLeaderboard = query({
 export const getTrackLeaderboard = query({
   args: {
     trackId: v.id("tracks"),
-    period: v.optional(v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))),
+    period: v.optional(
+      v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -129,14 +133,14 @@ export const getTrackLeaderboard = query({
         // Get all completed lessons in this track
         const completedLessons = await ctx.db
           .query("progress")
-          .withIndex("by_user_and_track", (q) => 
+          .withIndex("by_user_and_track", (q) =>
             q.eq("userId", enrollment.userId).eq("trackId", args.trackId)
           )
           .filter((q) => q.eq(q.field("status"), "completed"))
           .collect();
 
         lessonsCompleted = completedLessons.length;
-        
+
         // Calculate total experience from this track
         for (const progress of completedLessons) {
           const lesson = await ctx.db.get(progress.lessonId);
@@ -151,7 +155,7 @@ export const getTrackLeaderboard = query({
         // Filter by period for weekly/monthly
         const now = new Date();
         let startDate: Date;
-        
+
         if (period === "weekly") {
           startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         } else {
@@ -160,10 +164,10 @@ export const getTrackLeaderboard = query({
 
         const progressInPeriod = await ctx.db
           .query("progress")
-          .withIndex("by_user_and_track", (q) => 
+          .withIndex("by_user_and_track", (q) =>
             q.eq("userId", enrollment.userId).eq("trackId", args.trackId)
           )
-          .filter((q) => 
+          .filter((q) =>
             q.and(
               q.eq(q.field("status"), "completed"),
               q.gte(q.field("completedAt"), startDate.toISOString())
@@ -172,14 +176,14 @@ export const getTrackLeaderboard = query({
           .collect();
 
         lessonsCompleted = progressInPeriod.length;
-        
+
         for (const progress of progressInPeriod) {
           const lesson = await ctx.db.get(progress.lessonId);
           if (lesson) {
             experienceGained += lesson.experiencePoints;
           }
         }
-        
+
         score = experienceGained;
       }
 
@@ -209,36 +213,40 @@ export const getTrackLeaderboard = query({
 
 // Get user's rank in global leaderboard
 export const getUserGlobalRank = query({
-  args: { 
+  args: {
     userId: v.string(),
-    period: v.optional(v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))),
+    period: v.optional(
+      v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))
+    ),
   },
   handler: async (ctx, args) => {
-    const leaderboard = await getGlobalLeaderboard(ctx, { 
+    const leaderboard = await getGlobalLeaderboard(ctx, {
       period: args.period,
-      limit: 1000 // Get more entries to find user's rank
+      limit: 1000, // Get more entries to find user's rank
     });
-    
-    const userEntry = leaderboard.find(entry => entry.userId === args.userId);
+
+    const userEntry = leaderboard.find((entry) => entry.userId === args.userId);
     return userEntry?.rank || null;
   },
 });
 
 // Get user's rank in track leaderboard
 export const getUserTrackRank = query({
-  args: { 
+  args: {
     userId: v.string(),
     trackId: v.id("tracks"),
-    period: v.optional(v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))),
+    period: v.optional(
+      v.union(v.literal("weekly"), v.literal("monthly"), v.literal("all-time"))
+    ),
   },
   handler: async (ctx, args) => {
     const leaderboard = await getTrackLeaderboard(ctx, {
       trackId: args.trackId,
       period: args.period,
-      limit: 1000
+      limit: 1000,
     });
-    
-    const userEntry = leaderboard.find(entry => entry.userId === args.userId);
+
+    const userEntry = leaderboard.find((entry) => entry.userId === args.userId);
     return userEntry?.rank || null;
   },
 });
@@ -249,18 +257,18 @@ export const getLeaderboardStats = query({
     const totalUsers = await ctx.db.query("users").collect();
     const totalTracks = await ctx.db.query("tracks").collect();
     const totalLessons = await ctx.db.query("lessons").collect();
-    
+
     // Get top performers this week
-    const weeklyLeaderboard = await getGlobalLeaderboard(ctx, { 
-      period: "weekly", 
-      limit: 3 
+    const weeklyLeaderboard = await getGlobalLeaderboard(ctx, {
+      period: "weekly",
+      limit: 3,
     });
 
     // Get most active tracks
     const trackEnrollments = await ctx.db.query("enrollments").collect();
     const trackStats = new Map<string, number>();
-    
-    trackEnrollments.forEach(enrollment => {
+
+    trackEnrollments.forEach((enrollment) => {
       const current = trackStats.get(enrollment.trackId) || 0;
       trackStats.set(enrollment.trackId, current + 1);
     });
@@ -291,12 +299,23 @@ export const updateLeaderboardCache = mutation({
   handler: async (ctx) => {
     const now = new Date();
     const currentWeek = `${now.getFullYear()}-W${Math.ceil(now.getDate() / 7)}`;
-    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonth = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
 
     // Update global leaderboards
-    const globalWeekly = await getGlobalLeaderboard(ctx, { period: "weekly", limit: 100 });
-    const globalMonthly = await getGlobalLeaderboard(ctx, { period: "monthly", limit: 100 });
-    const globalAllTime = await getGlobalLeaderboard(ctx, { period: "all-time", limit: 100 });
+    const globalWeekly = await getGlobalLeaderboard(ctx, {
+      period: "weekly",
+      limit: 100,
+    });
+    const globalMonthly = await getGlobalLeaderboard(ctx, {
+      period: "monthly",
+      limit: 100,
+    });
+    const globalAllTime = await getGlobalLeaderboard(ctx, {
+      period: "all-time",
+      limit: 100,
+    });
 
     // Store or update leaderboard entries
     await ctx.db.insert("leaderboards", {
@@ -308,7 +327,7 @@ export const updateLeaderboardCache = mutation({
     });
 
     await ctx.db.insert("leaderboards", {
-      type: "monthly", 
+      type: "monthly",
       period: currentMonth,
       entries: globalMonthly,
       lastUpdated: now.toISOString(),

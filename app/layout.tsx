@@ -12,11 +12,18 @@ export const metadata: Metadata = {
   title: "DevLearn - Master Backend Development",
   description:
     "Master backend development with hands-on projects, interactive coding challenges, and structured learning paths. Learn programming like a pro.",
-  keywords: ["backend development", "programming", "coding", "learn to code", "software engineering"],
+  keywords: [
+    "backend development",
+    "programming",
+    "coding",
+    "learn to code",
+    "software engineering",
+  ],
   authors: [{ name: "DevLearn Team" }],
   openGraph: {
     title: "DevLearn - Master Backend Development",
-    description: "Master backend development with hands-on projects and structured learning paths.",
+    description:
+      "Master backend development with hands-on projects and structured learning paths.",
     type: "website",
   },
 };
@@ -37,9 +44,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ConvexClientProvider>
-              <div className="flex min-h-screen flex-col">
-                {children}
-              </div>
+              <div className="flex min-h-screen flex-col">{children}</div>
               <Toaster />
             </ConvexClientProvider>
           </ThemeProvider>

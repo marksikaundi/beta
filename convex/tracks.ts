@@ -5,7 +5,13 @@ import { mutation, query } from "./_generated/server";
 export const getAllTracks = query({
   args: {
     category: v.optional(v.string()),
-    difficulty: v.optional(v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced"))),
+    difficulty: v.optional(
+      v.union(
+        v.literal("beginner"),
+        v.literal("intermediate"),
+        v.literal("advanced")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     let query = ctx.db
@@ -17,12 +23,16 @@ export const getAllTracks = query({
     // Filter by category if provided
     let filteredTracks = tracks;
     if (args.category) {
-      filteredTracks = tracks.filter(track => track.category === args.category);
+      filteredTracks = tracks.filter(
+        (track) => track.category === args.category
+      );
     }
 
     // Filter by difficulty if provided
     if (args.difficulty) {
-      filteredTracks = filteredTracks.filter(track => track.difficulty === args.difficulty);
+      filteredTracks = filteredTracks.filter(
+        (track) => track.difficulty === args.difficulty
+      );
     }
 
     // Sort by order
@@ -43,7 +53,7 @@ export const getTrackBySlug = query({
 
 // Get track with lessons
 export const getTrackWithLessons = query({
-  args: { 
+  args: {
     slug: v.string(),
     userId: v.optional(v.string()),
   },
@@ -67,16 +77,20 @@ export const getTrackWithLessons = query({
     // Get user's progress if userId provided
     let userProgress = null;
     let enrollment = null;
-    
+
     if (args.userId) {
       const progressData = await ctx.db
         .query("progress")
-        .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", track._id))
+        .withIndex("by_user_and_track", (q) =>
+          q.eq("userId", args.userId).eq("trackId", track._id)
+        )
         .collect();
 
       enrollment = await ctx.db
         .query("enrollments")
-        .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", track._id))
+        .withIndex("by_user_and_track", (q) =>
+          q.eq("userId", args.userId).eq("trackId", track._id)
+        )
         .first();
 
       userProgress = progressData.reduce((acc, progress) => {
@@ -87,10 +101,12 @@ export const getTrackWithLessons = query({
 
     return {
       track,
-      lessons: lessons.sort((a, b) => a.order - b.order).map(lesson => ({
-        lesson,
-        progress: userProgress ? userProgress[lesson._id] : null,
-      })),
+      lessons: lessons
+        .sort((a, b) => a.order - b.order)
+        .map((lesson) => ({
+          lesson,
+          progress: userProgress ? userProgress[lesson._id] : null,
+        })),
       enrollment,
     };
   },
@@ -106,7 +122,9 @@ export const enrollInTrack = mutation({
     // Check if already enrolled
     const existingEnrollment = await ctx.db
       .query("enrollments")
-      .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", args.trackId))
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", args.userId).eq("trackId", args.trackId)
+      )
       .first();
 
     if (existingEnrollment) {
@@ -176,7 +194,7 @@ export const getUserEnrollments = query({
       })
     );
 
-    return tracksWithProgress.filter(item => item.track);
+    return tracksWithProgress.filter((item) => item.track);
   },
 });
 
@@ -187,7 +205,11 @@ export const createTrack = mutation({
     slug: v.string(),
     description: v.string(),
     longDescription: v.string(),
-    difficulty: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+    difficulty: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced")
+    ),
     estimatedHours: v.number(),
     thumbnail: v.string(),
     color: v.string(),
@@ -211,7 +233,7 @@ export const createTrack = mutation({
 
     // Get the next order number
     const tracks = await ctx.db.query("tracks").collect();
-    const maxOrder = Math.max(...tracks.map(t => t.order), 0);
+    const maxOrder = Math.max(...tracks.map((t) => t.order), 0);
 
     const now = new Date().toISOString();
 
@@ -249,10 +271,12 @@ export const getTrackCategories = query({
       .withIndex("by_published", (q) => q.eq("isPublished", true))
       .collect();
 
-    const categories = [...new Set(tracks.map(track => track.category))];
-    
-    return categories.map(category => {
-      const categoryTracks = tracks.filter(track => track.category === category);
+    const categories = [...new Set(tracks.map((track) => track.category))];
+
+    return categories.map((category) => {
+      const categoryTracks = tracks.filter(
+        (track) => track.category === category
+      );
       return {
         name: category,
         count: categoryTracks.length,
@@ -280,21 +304,26 @@ export const searchTracks = query({
     // Filter by search term
     if (args.searchTerm) {
       const searchLower = args.searchTerm.toLowerCase();
-      filteredTracks = filteredTracks.filter(track =>
-        track.title.toLowerCase().includes(searchLower) ||
-        track.description.toLowerCase().includes(searchLower) ||
-        track.tags.some(tag => tag.toLowerCase().includes(searchLower))
+      filteredTracks = filteredTracks.filter(
+        (track) =>
+          track.title.toLowerCase().includes(searchLower) ||
+          track.description.toLowerCase().includes(searchLower) ||
+          track.tags.some((tag) => tag.toLowerCase().includes(searchLower))
       );
     }
 
     // Filter by category
     if (args.category) {
-      filteredTracks = filteredTracks.filter(track => track.category === args.category);
+      filteredTracks = filteredTracks.filter(
+        (track) => track.category === args.category
+      );
     }
 
     // Filter by difficulty
     if (args.difficulty) {
-      filteredTracks = filteredTracks.filter(track => track.difficulty === args.difficulty);
+      filteredTracks = filteredTracks.filter(
+        (track) => track.difficulty === args.difficulty
+      );
     }
 
     return filteredTracks.sort((a, b) => a.order - b.order);
@@ -303,7 +332,7 @@ export const searchTracks = query({
 
 // Get user enrollment for a specific track
 export const getUserEnrollmentForTrack = query({
-  args: { 
+  args: {
     userId: v.string(),
     trackSlug: v.string(),
   },
@@ -319,7 +348,9 @@ export const getUserEnrollmentForTrack = query({
 
     return await ctx.db
       .query("enrollments")
-      .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", track._id))
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", args.userId).eq("trackId", track._id)
+      )
       .first();
   },
 });

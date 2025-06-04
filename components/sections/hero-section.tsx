@@ -6,30 +6,32 @@ import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Code2, 
-  Play, 
-  CheckCircle, 
-  Users, 
+import {
+  Code2,
+  Play,
+  CheckCircle,
+  Users,
   Trophy,
   Zap,
   ArrowRight,
   Star,
   BookOpen,
   Target,
-  Clock
+  Clock,
 } from "lucide-react";
 
 const features = [
   {
     icon: Code2,
     title: "Interactive Coding",
-    description: "Write and run code directly in your browser with instant feedback",
+    description:
+      "Write and run code directly in your browser with instant feedback",
   },
   {
     icon: Target,
     title: "Project-Based Learning",
-    description: "Build real-world projects that showcase your skills to employers",
+    description:
+      "Build real-world projects that showcase your skills to employers",
   },
   {
     icon: Trophy,
@@ -54,19 +56,22 @@ const testimonials = [
   {
     name: "Sarah Chen",
     role: "Backend Developer at Google",
-    content: "DevLearn's hands-on approach helped me transition from frontend to backend development in just 6 months.",
+    content:
+      "DevLearn's hands-on approach helped me transition from frontend to backend development in just 6 months.",
     avatar: "SC",
   },
   {
     name: "Mike Rodriguez",
     role: "Senior Engineer at Microsoft",
-    content: "The progressive difficulty and real-world projects made learning backend concepts intuitive and engaging.",
+    content:
+      "The progressive difficulty and real-world projects made learning backend concepts intuitive and engaging.",
     avatar: "MR",
   },
   {
     name: "Emily Johnson",
     role: "Full-Stack Developer",
-    content: "I love the gamified experience. The XP system and achievements kept me motivated throughout my learning journey.",
+    content:
+      "I love the gamified experience. The XP system and achievements kept me motivated throughout my learning journey.",
     avatar: "EJ",
   },
 ];
@@ -88,15 +93,15 @@ export function HeroSection() {
 
           {/* Hero Title */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Master{" "}
-            <span className="text-gradient">Backend Development</span>{" "}
+            Master <span className="text-gradient">Backend Development</span>{" "}
             Like a Pro
           </h1>
 
           {/* Hero Subtitle */}
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Learn programming through hands-on projects, interactive coding challenges, 
-            and real-world scenarios. Join thousands of developers advancing their careers.
+            Learn programming through hands-on projects, interactive coding
+            challenges, and real-world scenarios. Join thousands of developers
+            advancing their careers.
           </p>
 
           {/* CTA Buttons */}
@@ -107,7 +112,12 @@ export function HeroSection() {
                 Start Learning Free
               </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6" asChild>
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 py-6"
+              asChild
+            >
               <Link href="/tracks">
                 <BookOpen className="h-5 w-5 mr-2" />
                 Explore Tracks
@@ -138,7 +148,9 @@ export function HeroSection() {
                 <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -153,7 +165,7 @@ export function HeroSection() {
               Why Choose DevLearn?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We combine the best of interactive learning, real-world projects, 
+              We combine the best of interactive learning, real-world projects,
               and community support to accelerate your growth.
             </p>
           </div>
@@ -167,7 +179,9 @@ export function HeroSection() {
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mb-4">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {feature.title}
+                    </h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       {feature.description}
                     </p>
@@ -186,27 +200,33 @@ export function HeroSection() {
             Loved by Developers Worldwide
           </h2>
           <p className="text-xl text-muted-foreground mb-12">
-            Join thousands of successful developers who transformed their careers with DevLearn
+            Join thousands of successful developers who transformed their
+            careers with DevLearn
           </p>
 
           <Card className="p-8 md:p-12">
             <CardContent className="p-0">
               <div className="flex justify-center mb-6">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-500 fill-current" />
+                  <Star
+                    key={i}
+                    className="h-5 w-5 text-yellow-500 fill-current"
+                  />
                 ))}
               </div>
-              
+
               <blockquote className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
                 "{testimonials[currentTestimonial].content}"
               </blockquote>
-              
+
               <div className="flex items-center justify-center space-x-4">
                 <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
                   {testimonials[currentTestimonial].avatar}
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold">{testimonials[currentTestimonial].name}</div>
+                  <div className="font-semibold">
+                    {testimonials[currentTestimonial].name}
+                  </div>
                   <div className="text-sm text-muted-foreground">
                     {testimonials[currentTestimonial].role}
                   </div>
@@ -237,12 +257,13 @@ export function HeroSection() {
             Ready to Start Your Journey?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join our community of learners and start building your backend development skills today.
+            Join our community of learners and start building your backend
+            development skills today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="secondary" 
+            <Button
+              size="lg"
+              variant="secondary"
               className="text-lg px-8 py-6"
               asChild
             >
@@ -251,15 +272,13 @@ export function HeroSection() {
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="text-lg px-8 py-6 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
               asChild
             >
-              <Link href="/tracks">
-                View All Tracks
-              </Link>
+              <Link href="/tracks">View All Tracks</Link>
             </Button>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { mutation, query } from "./_generated/server";
 
 // Get lesson by slug
 export const getLessonBySlug = query({
-  args: { 
+  args: {
     slug: v.string(),
     userId: v.optional(v.string()),
   },
@@ -25,7 +25,9 @@ export const getLessonBySlug = query({
     if (args.userId) {
       progress = await ctx.db
         .query("progress")
-        .withIndex("by_user_and_lesson", (q) => q.eq("userId", args.userId).eq("lessonId", lesson._id))
+        .withIndex("by_user_and_lesson", (q) =>
+          q.eq("userId", args.userId).eq("lessonId", lesson._id)
+        )
         .first();
     }
 
@@ -37,9 +39,13 @@ export const getLessonBySlug = query({
       .collect();
 
     const sortedLessons = trackLessons.sort((a, b) => a.order - b.order);
-    const currentIndex = sortedLessons.findIndex(l => l._id === lesson._id);
-    const previousLesson = currentIndex > 0 ? sortedLessons[currentIndex - 1] : null;
-    const nextLesson = currentIndex < sortedLessons.length - 1 ? sortedLessons[currentIndex + 1] : null;
+    const currentIndex = sortedLessons.findIndex((l) => l._id === lesson._id);
+    const previousLesson =
+      currentIndex > 0 ? sortedLessons[currentIndex - 1] : null;
+    const nextLesson =
+      currentIndex < sortedLessons.length - 1
+        ? sortedLessons[currentIndex + 1]
+        : null;
 
     return {
       lesson,
@@ -79,7 +85,9 @@ export const updateLessonProgress = mutation({
     // Get existing progress
     const existingProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user_and_lesson", (q) => q.eq("userId", args.userId).eq("lessonId", args.lessonId))
+      .withIndex("by_user_and_lesson", (q) =>
+        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+      )
       .first();
 
     const now = new Date().toISOString();
@@ -101,7 +109,8 @@ export const updateLessonProgress = mutation({
 
     if (existingProgress) {
       // Update existing progress
-      progressData.timeSpent = existingProgress.timeSpent + (args.timeSpent || 0);
+      progressData.timeSpent =
+        existingProgress.timeSpent + (args.timeSpent || 0);
       if (args.status === "completed" && !existingProgress.completedAt) {
         progressData.completedAt = now;
       }
@@ -117,7 +126,10 @@ export const updateLessonProgress = mutation({
     }
 
     // If lesson completed, award experience points
-    if (args.status === "completed" && (!existingProgress || existingProgress.status !== "completed")) {
+    if (
+      args.status === "completed" &&
+      (!existingProgress || existingProgress.status !== "completed")
+    ) {
       // Award experience points
       const user = await ctx.db
         .query("users")
@@ -190,9 +202,10 @@ export const submitCode = mutation({
       expectedOutput: testCase.expectedOutput,
     }));
 
-    const passedTests = testResults.filter(r => r.passed).length;
+    const passedTests = testResults.filter((r) => r.passed).length;
     const totalTests = testResults.length;
-    const score = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+    const score =
+      totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
     const status = score >= 70 ? "passed" : "failed";
 
     // Save submission
@@ -233,10 +246,12 @@ export const submitQuiz = mutation({
   args: {
     userId: v.string(),
     lessonId: v.id("lessons"),
-    answers: v.array(v.object({
-      questionIndex: v.number(),
-      answer: v.union(v.string(), v.number()),
-    })),
+    answers: v.array(
+      v.object({
+        questionIndex: v.number(),
+        answer: v.union(v.string(), v.number()),
+      })
+    ),
   },
   handler: async (ctx, args) => {
     const lesson = await ctx.db.get(args.lessonId);
@@ -248,9 +263,10 @@ export const submitQuiz = mutation({
     let maxScore = 0;
 
     const results = lesson.questions.map((question, index) => {
-      const userAnswer = args.answers.find(a => a.questionIndex === index);
-      const isCorrect = userAnswer && userAnswer.answer === question.correctAnswer;
-      
+      const userAnswer = args.answers.find((a) => a.questionIndex === index);
+      const isCorrect =
+        userAnswer && userAnswer.answer === question.correctAnswer;
+
       if (isCorrect) {
         totalScore += question.points;
       }
@@ -267,7 +283,8 @@ export const submitQuiz = mutation({
       };
     });
 
-    const percentageScore = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+    const percentageScore =
+      maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
     const passed = percentageScore >= 70;
 
     // Update lesson progress
@@ -303,7 +320,11 @@ export const createLesson = mutation({
       v.literal("project"),
       v.literal("video")
     ),
-    difficulty: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+    difficulty: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced")
+    ),
     estimatedMinutes: v.number(),
     experiencePoints: v.number(),
     tags: v.array(v.string()),
@@ -326,7 +347,7 @@ export const createLesson = mutation({
       .withIndex("by_track", (q) => q.eq("trackId", args.trackId))
       .collect();
 
-    const maxOrder = Math.max(...trackLessons.map(l => l.order), 0);
+    const maxOrder = Math.max(...trackLessons.map((l) => l.order), 0);
 
     const now = new Date().toISOString();
 
@@ -370,7 +391,7 @@ export const createSampleCodingLessons = mutation({
       .query("lessons")
       .withIndex("by_slug", (q) => q.eq("slug", "javascript-basics-variables"))
       .first();
-    
+
     if (existingLesson) {
       return { message: "Sample lessons already exist" };
     }
@@ -380,7 +401,7 @@ export const createSampleCodingLessons = mutation({
       .query("tracks")
       .withIndex("by_slug", (q) => q.eq("slug", "javascript-fundamentals"))
       .first();
-    
+
     if (!track) {
       throw new Error("JavaScript Fundamentals track not found");
     }
@@ -419,19 +440,19 @@ function createGreeting(name) {
           {
             input: '["Alice"]',
             expectedOutput: "Hello, Alice!",
-            description: "Should greet Alice"
+            description: "Should greet Alice",
           },
           {
             input: '["Bob"]',
             expectedOutput: "Hello, Bob!",
-            description: "Should greet Bob"
+            description: "Should greet Bob",
           },
           {
             input: '["World"]',
             expectedOutput: "Hello, World!",
-            description: "Should greet World"
-          }
-        ]
+            description: "Should greet World",
+          },
+        ],
       },
       {
         title: "JavaScript Arrays",
@@ -463,26 +484,26 @@ function sumArray(numbers) {
 }`,
         testCases: [
           {
-            input: '[[1, 2, 3, 4]]',
+            input: "[[1, 2, 3, 4]]",
             expectedOutput: "10",
-            description: "Should sum [1, 2, 3, 4] to 10"
+            description: "Should sum [1, 2, 3, 4] to 10",
           },
           {
-            input: '[[5, 10, 15]]',
+            input: "[[5, 10, 15]]",
             expectedOutput: "30",
-            description: "Should sum [5, 10, 15] to 30"
+            description: "Should sum [5, 10, 15] to 30",
           },
           {
-            input: '[[]]',
+            input: "[[]]",
             expectedOutput: "0",
-            description: "Should sum empty array to 0"
+            description: "Should sum empty array to 0",
           },
           {
-            input: '[[-1, 1, -2, 2]]',
+            input: "[[-1, 1, -2, 2]]",
             expectedOutput: "0",
-            description: "Should handle negative numbers"
-          }
-        ]
+            description: "Should handle negative numbers",
+          },
+        ],
       },
       {
         title: "FizzBuzz Challenge",
@@ -518,22 +539,23 @@ function fizzBuzz(n) {
 }`,
         testCases: [
           {
-            input: '[15]',
-            expectedOutput: '["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]',
-            description: "Should handle FizzBuzz for n=15"
+            input: "[15]",
+            expectedOutput:
+              '["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]',
+            description: "Should handle FizzBuzz for n=15",
           },
           {
-            input: '[5]',
+            input: "[5]",
             expectedOutput: '["1","2","Fizz","4","Buzz"]',
-            description: "Should handle smaller input n=5"
+            description: "Should handle smaller input n=5",
           },
           {
-            input: '[3]',
+            input: "[3]",
             expectedOutput: '["1","2","Fizz"]',
-            description: "Should handle n=3"
-          }
-        ]
-      }
+            description: "Should handle n=3",
+          },
+        ],
+      },
     ];
 
     // Insert the lessons
@@ -543,9 +565,9 @@ function fizzBuzz(n) {
       insertedLessons.push({ id: lessonId, slug: lessonData.slug });
     }
 
-    return { 
+    return {
       message: `Created ${insertedLessons.length} sample coding lessons`,
-      lessons: insertedLessons
+      lessons: insertedLessons,
     };
   },
 });
@@ -562,18 +584,23 @@ async function updateTrackProgress(ctx: any, userId: string, trackId: string) {
   // Get user's progress for this track
   const userProgress = await ctx.db
     .query("progress")
-    .withIndex("by_user_and_track", (q) => q.eq("userId", userId).eq("trackId", trackId))
+    .withIndex("by_user_and_track", (q) =>
+      q.eq("userId", userId).eq("trackId", trackId)
+    )
     .collect();
 
-  const completedLessons = userProgress.filter(p => p.status === "completed");
-  const progressPercentage = trackLessons.length > 0 
-    ? Math.round((completedLessons.length / trackLessons.length) * 100) 
-    : 0;
+  const completedLessons = userProgress.filter((p) => p.status === "completed");
+  const progressPercentage =
+    trackLessons.length > 0
+      ? Math.round((completedLessons.length / trackLessons.length) * 100)
+      : 0;
 
   // Update enrollment
   const enrollment = await ctx.db
     .query("enrollments")
-    .withIndex("by_user_and_track", (q) => q.eq("userId", userId).eq("trackId", trackId))
+    .withIndex("by_user_and_track", (q) =>
+      q.eq("userId", userId).eq("trackId", trackId)
+    )
     .first();
 
   if (enrollment) {

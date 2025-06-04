@@ -14,7 +14,11 @@ export default defineSchema({
     experience: v.number(), // Total XP earned
     streakDays: v.number(), // Current learning streak
     lastActiveDate: v.string(),
-    subscriptionTier: v.union(v.literal("free"), v.literal("pro"), v.literal("premium")),
+    subscriptionTier: v.union(
+      v.literal("free"),
+      v.literal("pro"),
+      v.literal("premium")
+    ),
     githubUsername: v.optional(v.string()),
     linkedinUrl: v.optional(v.string()),
     websiteUrl: v.optional(v.string()),
@@ -33,7 +37,11 @@ export default defineSchema({
     slug: v.string(),
     description: v.string(),
     longDescription: v.string(),
-    difficulty: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+    difficulty: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced")
+    ),
     estimatedHours: v.number(),
     thumbnail: v.string(),
     banner: v.optional(v.string()),
@@ -71,45 +79,70 @@ export default defineSchema({
       v.literal("project"),
       v.literal("video")
     ),
-    difficulty: v.union(v.literal("beginner"), v.literal("intermediate"), v.literal("advanced")),
+    difficulty: v.union(
+      v.literal("beginner"),
+      v.literal("intermediate"),
+      v.literal("advanced")
+    ),
     estimatedMinutes: v.number(),
     order: v.number(), // Order within the track
     isPublished: v.boolean(),
     isPremium: v.boolean(),
     experiencePoints: v.number(), // XP earned upon completion
-    
+
     // For coding lessons
     starterCode: v.optional(v.string()),
     solutionCode: v.optional(v.string()),
     language: v.optional(v.string()), // "javascript", "python", "go", etc.
-    testCases: v.optional(v.array(v.object({
-      input: v.string(),
-      expectedOutput: v.string(),
-      description: v.string(),
-    }))),
-    
+    testCases: v.optional(
+      v.array(
+        v.object({
+          input: v.string(),
+          expectedOutput: v.string(),
+          description: v.string(),
+        })
+      )
+    ),
+
     // For quiz lessons
-    questions: v.optional(v.array(v.object({
-      question: v.string(),
-      type: v.union(v.literal("multiple-choice"), v.literal("true-false"), v.literal("code-completion")),
-      options: v.optional(v.array(v.string())),
-      correctAnswer: v.union(v.string(), v.number()),
-      explanation: v.string(),
-      points: v.number(),
-    }))),
-    
+    questions: v.optional(
+      v.array(
+        v.object({
+          question: v.string(),
+          type: v.union(
+            v.literal("multiple-choice"),
+            v.literal("true-false"),
+            v.literal("code-completion")
+          ),
+          options: v.optional(v.array(v.string())),
+          correctAnswer: v.union(v.string(), v.number()),
+          explanation: v.string(),
+          points: v.number(),
+        })
+      )
+    ),
+
     // For video lessons
     videoUrl: v.optional(v.string()),
     videoDuration: v.optional(v.number()),
     transcript: v.optional(v.string()),
-    
+
     // Common metadata
     tags: v.array(v.string()),
-    resources: v.optional(v.array(v.object({
-      title: v.string(),
-      url: v.string(),
-      type: v.union(v.literal("documentation"), v.literal("article"), v.literal("tool"), v.literal("repo")),
-    }))),
+    resources: v.optional(
+      v.array(
+        v.object({
+          title: v.string(),
+          url: v.string(),
+          type: v.union(
+            v.literal("documentation"),
+            v.literal("article"),
+            v.literal("tool"),
+            v.literal("repo")
+          ),
+        })
+      )
+    ),
     createdAt: v.string(),
     updatedAt: v.string(),
   })
@@ -134,15 +167,15 @@ export default defineSchema({
     attempts: v.number(), // Number of attempts for coding/quiz lessons
     score: v.optional(v.number()), // Score for quiz lessons (0-100)
     lastAccessedAt: v.string(),
-    
+
     // For coding lessons
     submittedCode: v.optional(v.string()),
     testsPassed: v.optional(v.number()),
     totalTests: v.optional(v.number()),
-    
+
     // For reading lessons
     readingProgress: v.optional(v.number()), // Percentage read (0-100)
-    
+
     createdAt: v.string(),
     updatedAt: v.string(),
   })
@@ -161,7 +194,7 @@ export default defineSchema({
     certificateIssued: v.boolean(),
     certificateId: v.optional(v.string()),
     currentLessonId: v.optional(v.id("lessons")),
-    
+
     // Learning analytics
     totalTimeSpent: v.number(), // Total minutes spent
     averageScore: v.optional(v.number()),
@@ -230,13 +263,19 @@ export default defineSchema({
     trackId: v.id("tracks"),
     code: v.string(),
     language: v.string(),
-    status: v.union(v.literal("pending"), v.literal("passed"), v.literal("failed")),
-    testResults: v.array(v.object({
-      test: v.string(),
-      passed: v.boolean(),
-      output: v.string(),
-      expectedOutput: v.string(),
-    })),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("passed"),
+      v.literal("failed")
+    ),
+    testResults: v.array(
+      v.object({
+        test: v.string(),
+        passed: v.boolean(),
+        output: v.string(),
+        expectedOutput: v.string(),
+      })
+    ),
     executionTime: v.optional(v.number()),
     memoryUsage: v.optional(v.number()),
     score: v.number(), // 0-100
@@ -250,18 +289,25 @@ export default defineSchema({
 
   // Leaderboards and competitions
   leaderboards: defineTable({
-    type: v.union(v.literal("global"), v.literal("track"), v.literal("weekly"), v.literal("monthly")),
+    type: v.union(
+      v.literal("global"),
+      v.literal("track"),
+      v.literal("weekly"),
+      v.literal("monthly")
+    ),
     trackId: v.optional(v.id("tracks")),
     period: v.string(), // "2024-06", "2024-W23", "all-time"
-    entries: v.array(v.object({
-      userId: v.string(),
-      username: v.string(),
-      avatar: v.optional(v.string()),
-      score: v.number(),
-      rank: v.number(),
-      experienceGained: v.number(),
-      lessonsCompleted: v.number(),
-    })),
+    entries: v.array(
+      v.object({
+        userId: v.string(),
+        username: v.string(),
+        avatar: v.optional(v.string()),
+        score: v.number(),
+        rank: v.number(),
+        experienceGained: v.number(),
+        lessonsCompleted: v.number(),
+      })
+    ),
     lastUpdated: v.string(),
     createdAt: v.string(),
   })
@@ -282,12 +328,14 @@ export default defineSchema({
     ),
     title: v.string(),
     message: v.string(),
-    data: v.optional(v.object({
-      trackId: v.optional(v.id("tracks")),
-      lessonId: v.optional(v.id("lessons")),
-      achievementId: v.optional(v.id("achievements")),
-      url: v.optional(v.string()),
-    })),
+    data: v.optional(
+      v.object({
+        trackId: v.optional(v.id("tracks")),
+        lessonId: v.optional(v.id("lessons")),
+        achievementId: v.optional(v.id("achievements")),
+        url: v.optional(v.string()),
+      })
+    ),
     isRead: v.boolean(),
     createdAt: v.string(),
   })
@@ -300,7 +348,11 @@ export default defineSchema({
     lessonId: v.optional(v.id("lessons")),
     trackId: v.optional(v.id("tracks")),
     discussionId: v.optional(v.id("discussions")),
-    type: v.union(v.literal("lesson"), v.literal("track"), v.literal("discussion")),
+    type: v.union(
+      v.literal("lesson"),
+      v.literal("track"),
+      v.literal("discussion")
+    ),
     createdAt: v.string(),
   })
     .index("by_user", ["userId"])

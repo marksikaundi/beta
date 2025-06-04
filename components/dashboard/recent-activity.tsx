@@ -5,15 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Activity, 
-  BookOpen, 
-  Trophy, 
-  Clock, 
+import {
+  Activity,
+  BookOpen,
+  Trophy,
+  Clock,
   CheckCircle,
   Code,
   PlayCircle,
-  Target
+  Target,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -162,26 +162,30 @@ export function RecentActivity({ activity, isLoading }: RecentActivityProps) {
             {activity.map((item, index) => {
               const Icon = getActivityIcon(item.type, item.lesson?.type);
               const isAchievement = item.type === "achievement";
-              
+
               return (
                 <div key={index} className="flex items-start space-x-3">
                   {/* Icon */}
-                  <div className={`p-2 rounded-full ${
-                    isAchievement 
-                      ? "bg-yellow-100" 
-                      : item.track 
-                        ? "bg-blue-100" 
+                  <div
+                    className={`p-2 rounded-full ${
+                      isAchievement
+                        ? "bg-yellow-100"
+                        : item.track
+                        ? "bg-blue-100"
                         : "bg-gray-100"
-                  }`}>
-                    <Icon className={`h-4 w-4 ${
-                      isAchievement 
-                        ? "text-yellow-600" 
-                        : item.track 
-                          ? "text-blue-600" 
+                    }`}
+                  >
+                    <Icon
+                      className={`h-4 w-4 ${
+                        isAchievement
+                          ? "text-yellow-600"
+                          : item.track
+                          ? "text-blue-600"
                           : "text-gray-600"
-                    }`} />
+                      }`}
+                    />
                   </div>
-                  
+
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     {isAchievement && item.achievement ? (
@@ -196,8 +200,10 @@ export function RecentActivity({ activity, isLoading }: RecentActivityProps) {
                     ) : (
                       <>
                         <p className="text-sm font-medium">
-                          {item.progress?.status === "completed" ? "Completed" : "Started"}{" "}
-                          <Link 
+                          {item.progress?.status === "completed"
+                            ? "Completed"
+                            : "Started"}{" "}
+                          <Link
                             href={`/tracks/${item.track?.slug}/lessons/${item.lesson?.slug}`}
                             className="text-blue-600 hover:underline"
                           >
@@ -206,7 +212,7 @@ export function RecentActivity({ activity, isLoading }: RecentActivityProps) {
                         </p>
                         <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                           <span>in</span>
-                          <Link 
+                          <Link
                             href={`/tracks/${item.track?.slug}`}
                             className="text-blue-600 hover:underline"
                           >
@@ -227,13 +233,15 @@ export function RecentActivity({ activity, isLoading }: RecentActivityProps) {
                         </div>
                       </>
                     )}
-                    
+
                     {/* Status Badge */}
                     {item.progress && (
                       <div className="mt-1">
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs ${getStatusColor(item.progress.status)}`}
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${getStatusColor(
+                            item.progress.status
+                          )}`}
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           {getStatusText(item.progress.status)}
@@ -241,10 +249,12 @@ export function RecentActivity({ activity, isLoading }: RecentActivityProps) {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Timestamp */}
                   <div className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(item.timestamp), {
+                      addSuffix: true,
+                    })}
                   </div>
                 </div>
               );

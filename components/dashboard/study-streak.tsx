@@ -4,13 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Flame, 
-  Target, 
-  Calendar,
-  TrendingUp,
-  Zap
-} from "lucide-react";
+import { Flame, Target, Calendar, TrendingUp, Zap } from "lucide-react";
 
 interface StudyStreakProps {
   streakDays: number;
@@ -33,9 +27,12 @@ function getStreakColor(days: number) {
 }
 
 function getStreakBadge(days: number) {
-  if (days >= 30) return { label: "Legendary", color: "bg-purple-100 text-purple-800" };
-  if (days >= 14) return { label: "Amazing", color: "bg-orange-100 text-orange-800" };
-  if (days >= 7) return { label: "Great", color: "bg-yellow-100 text-yellow-800" };
+  if (days >= 30)
+    return { label: "Legendary", color: "bg-purple-100 text-purple-800" };
+  if (days >= 14)
+    return { label: "Amazing", color: "bg-orange-100 text-orange-800" };
+  if (days >= 7)
+    return { label: "Great", color: "bg-yellow-100 text-yellow-800" };
   if (days >= 3) return { label: "Good", color: "bg-blue-100 text-blue-800" };
   return { label: "Getting Started", color: "bg-gray-100 text-gray-800" };
 }
@@ -49,7 +46,11 @@ function getMotivationalMessage(days: number) {
   return "Legendary streak! You're unstoppable! 🚀";
 }
 
-export function StudyStreak({ streakDays, isLoading, studyStats }: StudyStreakProps) {
+export function StudyStreak({
+  streakDays,
+  isLoading,
+  studyStats,
+}: StudyStreakProps) {
   if (isLoading) {
     return (
       <Card>
@@ -76,7 +77,7 @@ export function StudyStreak({ streakDays, isLoading, studyStats }: StudyStreakPr
   const totalDays = studyStats?.totalStudyDays ?? Math.max(streak, 1);
   const weeklyGoal = studyStats?.weeklyGoal ?? 5; // Default to 5 days per week
   const weeklyProgress = studyStats?.weeklyProgress ?? Math.min(streak, 7);
-  
+
   const weeklyPercentage = Math.round((weeklyProgress / weeklyGoal) * 100);
   const streakBadge = getStreakBadge(streak);
 
@@ -97,9 +98,7 @@ export function StudyStreak({ streakDays, isLoading, studyStats }: StudyStreakPr
           <div className="text-sm text-muted-foreground mb-3">
             {streak === 1 ? "day" : "days"} in a row
           </div>
-          <Badge className={streakBadge.color}>
-            {streakBadge.label}
-          </Badge>
+          <Badge className={streakBadge.color}>{streakBadge.label}</Badge>
         </div>
 
         {/* Motivational Message */}
@@ -122,10 +121,12 @@ export function StudyStreak({ streakDays, isLoading, studyStats }: StudyStreakPr
           </div>
           <Progress value={weeklyPercentage} className="h-2" />
           <p className="text-xs text-muted-foreground">
-            {weeklyPercentage >= 100 
-              ? "🎉 Weekly goal achieved!" 
-              : `${Math.max(0, weeklyGoal - weeklyProgress)} more days to reach your weekly goal`
-            }
+            {weeklyPercentage >= 100
+              ? "🎉 Weekly goal achieved!"
+              : `${Math.max(
+                  0,
+                  weeklyGoal - weeklyProgress
+                )} more days to reach your weekly goal`}
           </p>
         </div>
 

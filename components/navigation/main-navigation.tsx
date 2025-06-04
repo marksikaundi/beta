@@ -7,17 +7,17 @@ import { useAuth, UserButton, SignInButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { 
-  Code2, 
-  Menu, 
-  BookOpen, 
-  Trophy, 
-  Users, 
+import {
+  Code2,
+  Menu,
+  BookOpen,
+  Trophy,
+  Users,
   TrendingUp,
   Zap,
   GraduationCap,
   Home,
-  User
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsDropdown } from "./notifications-dropdown";
@@ -57,8 +57,8 @@ export function MainNavigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const filteredItems = navigationItems.filter(item => 
-    !item.authRequired || isSignedIn
+  const filteredItems = navigationItems.filter(
+    (item) => !item.authRequired || isSignedIn
   );
 
   return (
@@ -77,9 +77,10 @@ export function MainNavigation() {
           <nav className="hidden md:flex items-center space-x-1">
             {filteredItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || 
+              const isActive =
+                pathname === item.href ||
                 (item.href !== "/" && pathname.startsWith(item.href));
-              
+
               return (
                 <Link
                   key={item.name}
@@ -122,12 +123,12 @@ export function MainNavigation() {
             {isLoaded && (
               <div className="flex items-center space-x-2">
                 {isSignedIn ? (
-                  <UserButton 
+                  <UserButton
                     afterSignOutUrl="/"
                     appearance={{
                       elements: {
-                        avatarBox: "h-8 w-8"
-                      }
+                        avatarBox: "h-8 w-8",
+                      },
                     }}
                   />
                 ) : (
@@ -138,9 +139,7 @@ export function MainNavigation() {
                       </Button>
                     </SignInButton>
                     <SignInButton mode="modal">
-                      <Button size="sm">
-                        Get Started
-                      </Button>
+                      <Button size="sm">Get Started</Button>
                     </SignInButton>
                   </div>
                 )}
@@ -159,16 +158,18 @@ export function MainNavigation() {
                   {/* Mobile user info */}
                   {isSignedIn && (
                     <div className="flex items-center space-x-3 p-4 bg-accent rounded-lg">
-                      <UserButton 
+                      <UserButton
                         appearance={{
                           elements: {
-                            avatarBox: "h-10 w-10"
-                          }
+                            avatarBox: "h-10 w-10",
+                          },
                         }}
                       />
                       <div className="flex-1">
                         <p className="text-sm font-medium">Welcome back!</p>
-                        <p className="text-xs text-muted-foreground">Level 1 • 0 XP</p>
+                        <p className="text-xs text-muted-foreground">
+                          Level 1 • 0 XP
+                        </p>
                       </div>
                       <NotificationsDropdown />
                     </div>
@@ -178,9 +179,10 @@ export function MainNavigation() {
                   <nav className="flex flex-col space-y-2">
                     {filteredItems.map((item) => {
                       const Icon = item.icon;
-                      const isActive = pathname === item.href || 
+                      const isActive =
+                        pathname === item.href ||
                         (item.href !== "/" && pathname.startsWith(item.href));
-                      
+
                       return (
                         <Link
                           key={item.name}
@@ -209,9 +211,7 @@ export function MainNavigation() {
                         </Button>
                       </SignInButton>
                       <SignInButton mode="modal">
-                        <Button className="w-full">
-                          Get Started Free
-                        </Button>
+                        <Button className="w-full">Get Started Free</Button>
                       </SignInButton>
                     </div>
                   )}

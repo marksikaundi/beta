@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { 
-  BookOpen, 
-  Clock, 
-  Users, 
+import {
+  BookOpen,
+  Clock,
+  Users,
   Star,
   Play,
   CheckCircle,
@@ -30,7 +30,7 @@ import {
   FileText,
   Video,
   HelpCircle,
-  Award
+  Award,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -113,49 +113,55 @@ function getStatusIcon(status: string) {
   }
 }
 
-function LessonCard({ 
-  lesson, 
-  progress, 
+function LessonCard({
+  lesson,
+  progress,
   trackSlug,
-  isLocked = false 
-}: { 
-  lesson: Lesson; 
+  isLocked = false,
+}: {
+  lesson: Lesson;
   progress?: Progress;
   trackSlug: string;
   isLocked?: boolean;
 }) {
   const LessonIcon = getLessonIcon(lesson.type);
   const StatusIcon = getStatusIcon(progress?.status || "not-started");
-  
+
   return (
-    <Card className={`transition-all duration-200 hover:shadow-md ${
-      progress?.status === "completed" ? "ring-2 ring-green-200 bg-green-50" : ""
-    } ${isLocked ? "opacity-50" : ""}`}>
+    <Card
+      className={`transition-all duration-200 hover:shadow-md ${
+        progress?.status === "completed"
+          ? "ring-2 ring-green-200 bg-green-50"
+          : ""
+      } ${isLocked ? "opacity-50" : ""}`}
+    >
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1">
             <div className="flex items-center space-x-2">
-              <div className={`p-2 rounded-lg ${
-                progress?.status === "completed" 
-                  ? "bg-green-100 text-green-600" 
-                  : "bg-gray-100 text-gray-600"
-              }`}>
+              <div
+                className={`p-2 rounded-lg ${
+                  progress?.status === "completed"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
                 <LessonIcon className="h-4 w-4" />
               </div>
-              <StatusIcon className={`h-5 w-5 ${
-                progress?.status === "completed" 
-                  ? "text-green-500" 
-                  : progress?.status === "in-progress" 
-                  ? "text-blue-500" 
-                  : "text-gray-400"
-              }`} />
+              <StatusIcon
+                className={`h-5 w-5 ${
+                  progress?.status === "completed"
+                    ? "text-green-500"
+                    : progress?.status === "in-progress"
+                    ? "text-blue-500"
+                    : "text-gray-400"
+                }`}
+              />
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-sm truncate">
-                  {lesson.title}
-                </h3>
+                <h3 className="font-medium text-sm truncate">{lesson.title}</h3>
                 {lesson.isPremium && (
                   <Badge variant="secondary" className="text-xs">
                     <Award className="h-3 w-3 mr-1" />
@@ -175,13 +181,16 @@ function LessonCard({
                   <Target className="h-3 w-3 mr-1" />
                   {lesson.experiencePoints} XP
                 </span>
-                <Badge className={getDifficultyColor(lesson.difficulty)} variant="outline">
+                <Badge
+                  className={getDifficultyColor(lesson.difficulty)}
+                  variant="outline"
+                >
                   {lesson.difficulty}
                 </Badge>
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2 ml-4">
             {progress?.score && (
               <Badge variant="secondary" className="text-xs">
@@ -245,11 +254,15 @@ export default function TrackDetailPage() {
         <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-8">
-            <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="mb-4"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
-            
+
             <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-2 space-y-6">
                 <Skeleton className="h-8 w-3/4" />
@@ -292,16 +305,22 @@ export default function TrackDetailPage() {
     );
   }
 
-  const completedLessons = lessons?.filter(l => l.progress?.status === "completed").length || 0;
+  const completedLessons =
+    lessons?.filter((l) => l.progress?.status === "completed").length || 0;
   const totalLessons = lessons?.length || 0;
-  const progressPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+  const progressPercentage =
+    totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
   return (
     <>
       <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Tracks
           </Button>
@@ -314,7 +333,7 @@ export default function TrackDetailPage() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
-                      <div 
+                      <div
                         className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
                         style={{ backgroundColor: track.color }}
                       >
@@ -322,13 +341,18 @@ export default function TrackDetailPage() {
                       </div>
                       <div>
                         <h1 className="text-3xl font-bold">{track.title}</h1>
-                        <p className="text-lg text-muted-foreground">{track.description}</p>
+                        <p className="text-lg text-muted-foreground">
+                          {track.description}
+                        </p>
                       </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     {track.isPremium && (
-                      <Badge variant="secondary" className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800">
+                      <Badge
+                        variant="secondary"
+                        className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800"
+                      >
                         <Award className="h-3 w-3 mr-1" />
                         Premium
                       </Badge>
@@ -348,8 +372,12 @@ export default function TrackDetailPage() {
                     </div>
                     <Progress value={progressPercentage} className="h-2" />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{completedLessons} of {totalLessons} lessons completed</span>
-                      <span>{trackProgress.totalTimeSpent || 0} minutes studied</span>
+                      <span>
+                        {completedLessons} of {totalLessons} lessons completed
+                      </span>
+                      <span>
+                        {trackProgress.totalTimeSpent || 0} minutes studied
+                      </span>
                     </div>
                   </div>
                 )}
@@ -373,14 +401,13 @@ export default function TrackDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold">Lessons</h2>
-                  <Badge variant="secondary">
-                    {totalLessons} lessons
-                  </Badge>
+                  <Badge variant="secondary">{totalLessons} lessons</Badge>
                 </div>
 
                 <div className="space-y-3">
                   {lessons?.map((lessonData, index) => {
-                    const isLocked = !trackProgress && lessonData.lesson.isPremium;
+                    const isLocked =
+                      !trackProgress && lessonData.lesson.isPremium;
                     return (
                       <LessonCard
                         key={lessonData.lesson._id}
@@ -411,10 +438,14 @@ export default function TrackDetailPage() {
                         <div className="text-3xl font-bold text-primary mb-1">
                           {Math.round(progressPercentage)}%
                         </div>
-                        <div className="text-sm text-muted-foreground">Complete</div>
+                        <div className="text-sm text-muted-foreground">
+                          Complete
+                        </div>
                       </div>
                       <Button className="w-full" asChild>
-                        <Link href={`/tracks/${trackSlug}/lessons/${lessons?.[0]?.lesson.slug}`}>
+                        <Link
+                          href={`/tracks/${trackSlug}/lessons/${lessons?.[0]?.lesson.slug}`}
+                        >
                           <Play className="h-4 w-4 mr-2" />
                           Continue Learning
                         </Link>
@@ -423,7 +454,9 @@ export default function TrackDetailPage() {
                   ) : (
                     <>
                       <div className="text-center py-4">
-                        <div className="text-lg font-semibold mb-2">Ready to start?</div>
+                        <div className="text-lg font-semibold mb-2">
+                          Ready to start?
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           Join {track.enrollmentCount.toLocaleString()} learners
                         </div>
@@ -445,25 +478,41 @@ export default function TrackDetailPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{track.totalLessons}</div>
-                      <div className="text-xs text-muted-foreground">Lessons</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {track.totalLessons}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Lessons
+                      </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{track.estimatedHours}h</div>
-                      <div className="text-xs text-muted-foreground">Duration</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {track.estimatedHours}h
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Duration
+                      </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{track.averageRating.toFixed(1)}</div>
-                      <div className="text-xs text-muted-foreground">Rating</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {track.averageRating.toFixed(1)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Rating
+                      </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{track.enrollmentCount.toLocaleString()}</div>
-                      <div className="text-xs text-muted-foreground">Students</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {track.enrollmentCount.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Students
+                      </div>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Category</span>
@@ -471,7 +520,10 @@ export default function TrackDetailPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Level</span>
-                      <Badge className={getDifficultyColor(track.difficulty)} variant="outline">
+                      <Badge
+                        className={getDifficultyColor(track.difficulty)}
+                        variant="outline"
+                      >
                         {track.difficulty}
                       </Badge>
                     </div>
@@ -487,7 +539,11 @@ export default function TrackDetailPage() {
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {track.tags.map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-xs">
+                      <Badge
+                        key={skill}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {skill}
                       </Badge>
                     ))}

@@ -14,11 +14,19 @@ export default function AdminPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [result, setResult] = useState<string>("");
 
-  const createSampleLessons = useMutation(api.lessons.createSampleCodingLessons);
-  const createSampleNotifications = useMutation(api.notifications.createSampleNotifications);
-  const clearNotifications = useMutation(api.notifications.clearAllUserNotifications);
+  const createSampleLessons = useMutation(
+    api.lessons.createSampleCodingLessons
+  );
+  const createSampleNotifications = useMutation(
+    api.notifications.createSampleNotifications
+  );
+  const clearNotifications = useMutation(
+    api.notifications.clearAllUserNotifications
+  );
   const triggerTestLevelUp = useMutation(api.notifications.triggerTestLevelUp);
-  const triggerTestAchievement = useMutation(api.notifications.triggerTestAchievement);
+  const triggerTestAchievement = useMutation(
+    api.notifications.triggerTestAchievement
+  );
 
   const handleCreateSampleLessons = async () => {
     setIsCreating(true);
@@ -37,7 +45,7 @@ export default function AdminPage() {
       setResult("Error: Please sign in to test notifications");
       return;
     }
-    
+
     setIsCreating(true);
     try {
       const result = await createSampleNotifications({ userId: user.id });
@@ -54,7 +62,7 @@ export default function AdminPage() {
       setResult("Error: Please sign in to clear notifications");
       return;
     }
-    
+
     setIsCreating(true);
     try {
       const result = await clearNotifications({ userId: user.id });
@@ -71,7 +79,7 @@ export default function AdminPage() {
       setResult("Error: Please sign in to test notifications");
       return;
     }
-    
+
     setIsCreating(true);
     try {
       const result = await triggerTestLevelUp({ userId: user.id });
@@ -88,7 +96,7 @@ export default function AdminPage() {
       setResult("Error: Please sign in to test notifications");
       return;
     }
-    
+
     setIsCreating(true);
     try {
       const result = await triggerTestAchievement({ userId: user.id });
@@ -121,7 +129,7 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Button 
+                <Button
                   onClick={handleCreateSampleLessons}
                   disabled={isCreating}
                   className="w-full"
@@ -134,11 +142,13 @@ export default function AdminPage() {
               </div>
 
               {result && (
-                <div className={`p-3 rounded-md text-sm ${
-                  result.startsWith("Success") 
-                    ? "bg-green-100 text-green-800 border border-green-200" 
-                    : "bg-red-100 text-red-800 border border-red-200"
-                }`}>
+                <div
+                  className={`p-3 rounded-md text-sm ${
+                    result.startsWith("Success")
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : "bg-red-100 text-red-800 border border-red-200"
+                  }`}
+                >
                   {result}
                 </div>
               )}
@@ -151,7 +161,7 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Button 
+                <Button
                   onClick={handleCreateSampleNotifications}
                   disabled={isCreating || !user}
                   className="w-full"
@@ -165,7 +175,7 @@ export default function AdminPage() {
               </div>
 
               <div className="space-y-2">
-                <Button 
+                <Button
                   onClick={handleClearNotifications}
                   disabled={isCreating || !user}
                   className="w-full"
@@ -179,7 +189,7 @@ export default function AdminPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <Button 
+                <Button
                   onClick={handleTriggerLevelUp}
                   disabled={isCreating || !user}
                   variant="outline"
@@ -187,7 +197,7 @@ export default function AdminPage() {
                 >
                   {isCreating ? "..." : "Test Level-Up"}
                 </Button>
-                <Button 
+                <Button
                   onClick={handleTriggerAchievement}
                   disabled={isCreating || !user}
                   variant="outline"
@@ -207,11 +217,13 @@ export default function AdminPage() {
               )}
 
               {result && (
-                <div className={`p-3 rounded-md text-sm ${
-                  result.startsWith("Success") 
-                    ? "bg-green-100 text-green-800 border border-green-200" 
-                    : "bg-red-100 text-red-800 border border-red-200"
-                }`}>
+                <div
+                  className={`p-3 rounded-md text-sm ${
+                    result.startsWith("Success")
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : "bg-red-100 text-red-800 border border-red-200"
+                  }`}
+                >
                   {result}
                 </div>
               )}
@@ -223,17 +235,29 @@ export default function AdminPage() {
               <CardTitle>Quick Links</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" asChild className="w-full justify-start">
+              <Button
+                variant="outline"
+                asChild
+                className="w-full justify-start"
+              >
                 <a href="/tracks" target="_blank">
                   View All Tracks
                 </a>
               </Button>
-              <Button variant="outline" asChild className="w-full justify-start">
+              <Button
+                variant="outline"
+                asChild
+                className="w-full justify-start"
+              >
                 <a href="/dashboard" target="_blank">
                   View Dashboard
                 </a>
               </Button>
-              <Button variant="outline" asChild className="w-full justify-start">
+              <Button
+                variant="outline"
+                asChild
+                className="w-full justify-start"
+              >
                 <a href="/tracks/javascript-fundamentals" target="_blank">
                   View JavaScript Fundamentals Track
                 </a>
@@ -243,8 +267,8 @@ export default function AdminPage() {
 
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              This admin panel is for development purposes only. 
-              In production, content would be managed through a proper CMS.
+              This admin panel is for development purposes only. In production,
+              content would be managed through a proper CMS.
             </p>
           </div>
         </div>

@@ -13,14 +13,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { 
-  User, 
-  Trophy, 
-  BookOpen, 
-  Calendar, 
-  MapPin, 
-  Link as LinkIcon, 
-  Github, 
+import {
+  User,
+  Trophy,
+  BookOpen,
+  Calendar,
+  MapPin,
+  Link as LinkIcon,
+  Github,
   Linkedin,
   Globe,
   Settings,
@@ -32,7 +32,7 @@ import {
   Target,
   Edit,
   Save,
-  X
+  X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -48,19 +48,23 @@ export default function ProfilePage() {
   });
 
   // Get user data from Convex
-  const userData = useQuery(api.users.getUserByClerkId, 
+  const userData = useQuery(
+    api.users.getUserByClerkId,
     user ? { clerkId: user.id } : "skip"
   );
 
-  const userEnrollments = useQuery(api.tracks.getUserEnrollments,
+  const userEnrollments = useQuery(
+    api.tracks.getUserEnrollments,
     user ? { userId: user.id } : "skip"
   );
 
-  const userAchievements = useQuery(api.progress.getUserAchievements,
+  const userAchievements = useQuery(
+    api.progress.getUserAchievements,
     user ? { userId: user.id } : "skip"
   );
 
-  const recentActivity = useQuery(api.progress.getRecentActivity,
+  const recentActivity = useQuery(
+    api.progress.getRecentActivity,
     user ? { userId: user.id, limit: 10 } : "skip"
   );
 
@@ -81,7 +85,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     if (!userData) return;
-    
+
     try {
       await updateUser({
         userId: userData._id,
@@ -115,19 +119,27 @@ export default function ProfilePage() {
     );
   }
 
-  const completedLessons = userEnrollments?.reduce((total, enrollment) => {
-    if (!enrollment.track) return total;
-    return total + Math.floor((enrollment.enrollment.progress / 100) * enrollment.track.totalLessons);
-  }, 0) || 0;
+  const completedLessons =
+    userEnrollments?.reduce((total, enrollment) => {
+      if (!enrollment.track) return total;
+      return (
+        total +
+        Math.floor(
+          (enrollment.enrollment.progress / 100) * enrollment.track.totalLessons
+        )
+      );
+    }, 0) || 0;
 
-  const totalLessonsInEnrolledTracks = userEnrollments?.reduce((total, enrollment) => {
-    if (!enrollment.track) return total;
-    return total + enrollment.track.totalLessons;
-  }, 0) || 0;
+  const totalLessonsInEnrolledTracks =
+    userEnrollments?.reduce((total, enrollment) => {
+      if (!enrollment.track) return total;
+      return total + enrollment.track.totalLessons;
+    }, 0) || 0;
 
-  const overallProgress = totalLessonsInEnrolledTracks > 0 
-    ? (completedLessons / totalLessonsInEnrolledTracks) * 100 
-    : 0;
+  const overallProgress =
+    totalLessonsInEnrolledTracks > 0
+      ? (completedLessons / totalLessonsInEnrolledTracks) * 100
+      : 0;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -139,10 +151,11 @@ export default function ProfilePage() {
               <Avatar className="h-24 w-24">
                 <AvatarImage src={user.imageUrl} />
                 <AvatarFallback className="text-lg">
-                  {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                  {user.firstName?.charAt(0)}
+                  {user.lastName?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1">
                 {isEditing ? (
                   <div className="space-y-4">
@@ -151,10 +164,12 @@ export default function ProfilePage() {
                       <Input
                         id="displayName"
                         value={editData.displayName}
-                        onChange={(e) => setEditData(prev => ({
-                          ...prev,
-                          displayName: e.target.value
-                        }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            displayName: e.target.value,
+                          }))
+                        }
                         placeholder="Your display name"
                       />
                     </div>
@@ -163,10 +178,12 @@ export default function ProfilePage() {
                       <Textarea
                         id="bio"
                         value={editData.bio}
-                        onChange={(e) => setEditData(prev => ({
-                          ...prev,
-                          bio: e.target.value
-                        }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            bio: e.target.value,
+                          }))
+                        }
                         placeholder="Tell us about yourself..."
                         rows={3}
                       />
@@ -176,7 +193,11 @@ export default function ProfilePage() {
                         <Save className="h-4 w-4 mr-2" />
                         Save
                       </Button>
-                      <Button onClick={handleCancel} variant="outline" size="sm">
+                      <Button
+                        onClick={handleCancel}
+                        variant="outline"
+                        size="sm"
+                      >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
                       </Button>
@@ -193,17 +214,20 @@ export default function ProfilePage() {
                         <Edit className="h-4 w-4" />
                       </Button>
                     </div>
-                    
-                    <p className="text-muted-foreground mb-3">@{userData.username}</p>
-                    
+
+                    <p className="text-muted-foreground mb-3">
+                      @{userData.username}
+                    </p>
+
                     {userData.bio && (
                       <p className="text-sm mb-4">{userData.bio}</p>
                     )}
-                    
+
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
-                        Joined {formatDistanceToNow(new Date(userData.createdAt))} ago
+                        Joined{" "}
+                        {formatDistanceToNow(new Date(userData.createdAt))} ago
                       </div>
                       <div className="flex items-center gap-1">
                         <Zap className="h-4 w-4" />
@@ -218,13 +242,17 @@ export default function ProfilePage() {
                 )}
               </div>
             </div>
-            
+
             {/* Social Links */}
             {!isEditing && (
               <div className="flex flex-wrap gap-2 mt-6">
                 {userData.githubUsername && (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={`https://github.com/${userData.githubUsername}`} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={`https://github.com/${userData.githubUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Github className="h-4 w-4 mr-2" />
                       GitHub
                     </a>
@@ -232,7 +260,11 @@ export default function ProfilePage() {
                 )}
                 {userData.linkedinUrl && (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={userData.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={userData.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Linkedin className="h-4 w-4 mr-2" />
                       LinkedIn
                     </a>
@@ -240,7 +272,11 @@ export default function ProfilePage() {
                 )}
                 {userData.websiteUrl && (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={userData.websiteUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={userData.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Globe className="h-4 w-4 mr-2" />
                       Website
                     </a>
@@ -267,8 +303,12 @@ export default function ProfilePage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total XP</p>
-                      <p className="text-2xl font-bold">{userData.experience.toLocaleString()}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Total XP
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {userData.experience.toLocaleString()}
+                      </p>
                     </div>
                     <Zap className="h-8 w-8 text-yellow-500" />
                   </div>
@@ -279,7 +319,9 @@ export default function ProfilePage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Level</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Level
+                      </p>
                       <p className="text-2xl font-bold">{userData.level}</p>
                     </div>
                     <Trophy className="h-8 w-8 text-orange-500" />
@@ -291,7 +333,9 @@ export default function ProfilePage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Completed
+                      </p>
                       <p className="text-2xl font-bold">{completedLessons}</p>
                     </div>
                     <BookOpen className="h-8 w-8 text-green-500" />
@@ -303,8 +347,12 @@ export default function ProfilePage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Streak</p>
-                      <p className="text-2xl font-bold">{userData.streakDays}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Streak
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {userData.streakDays}
+                      </p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-blue-500" />
                   </div>
@@ -326,15 +374,23 @@ export default function ProfilePage() {
                     </div>
                     <Progress value={overallProgress} className="h-2" />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">{completedLessons}</p>
-                      <p className="text-sm text-muted-foreground">Lessons Completed</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {completedLessons}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Lessons Completed
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">{userEnrollments?.length || 0}</p>
-                      <p className="text-sm text-muted-foreground">Tracks Enrolled</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {userEnrollments?.length || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Tracks Enrolled
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -350,14 +406,26 @@ export default function ProfilePage() {
                 {recentActivity && recentActivity.length > 0 ? (
                   <div className="space-y-3">
                     {recentActivity.map((activity: any, index: number) => (
-                      <div key={index} className="flex items-center gap-3 p-3 rounded-lg border">
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 rounded-lg border"
+                      >
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900">
                           <BookOpen className="h-4 w-4 text-green-600 dark:text-green-400" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Completed a lesson</p>
+                          <p className="text-sm font-medium">
+                            Completed a lesson
+                          </p>
                           <p className="text-xs text-muted-foreground">
-                            {activity.lesson?.title} • {formatDistanceToNow(new Date(activity.progress.completedAt || activity.timestamp))} ago
+                            {activity.lesson?.title} •{" "}
+                            {formatDistanceToNow(
+                              new Date(
+                                activity.progress.completedAt ||
+                                  activity.timestamp
+                              )
+                            )}{" "}
+                            ago
                           </p>
                         </div>
                         <Badge variant="secondary">
@@ -368,7 +436,8 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
-                    No recent activity. Start learning to see your progress here!
+                    No recent activity. Start learning to see your progress
+                    here!
                   </p>
                 )}
               </CardContent>
@@ -385,20 +454,43 @@ export default function ProfilePage() {
                 {userEnrollments && userEnrollments.length > 0 ? (
                   <div className="space-y-4">
                     {userEnrollments.map((enrollment) => (
-                      <div key={enrollment.enrollment._id} className="p-4 rounded-lg border">
+                      <div
+                        key={enrollment.enrollment._id}
+                        className="p-4 rounded-lg border"
+                      >
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold">{enrollment.track?.title || "Unknown Track"}</h3>
-                          <Badge variant={enrollment.enrollment.progress === 100 ? "default" : "secondary"}>
-                            {Math.round(enrollment.enrollment.progress)}% Complete
+                          <h3 className="font-semibold">
+                            {enrollment.track?.title || "Unknown Track"}
+                          </h3>
+                          <Badge
+                            variant={
+                              enrollment.enrollment.progress === 100
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {Math.round(enrollment.enrollment.progress)}%
+                            Complete
                           </Badge>
                         </div>
-                        <Progress value={enrollment.enrollment.progress} className="h-2 mb-2" />
+                        <Progress
+                          value={enrollment.enrollment.progress}
+                          className="h-2 mb-2"
+                        />
                         <div className="flex justify-between text-sm text-muted-foreground">
                           <span>
-                            {Math.floor((enrollment.enrollment.progress / 100) * (enrollment.track?.totalLessons || 0))} / {enrollment.track?.totalLessons || 0} lessons
+                            {Math.floor(
+                              (enrollment.enrollment.progress / 100) *
+                                (enrollment.track?.totalLessons || 0)
+                            )}{" "}
+                            / {enrollment.track?.totalLessons || 0} lessons
                           </span>
                           <span>
-                            Last studied {formatDistanceToNow(new Date(enrollment.enrollment.lastStudiedAt))} ago
+                            Last studied{" "}
+                            {formatDistanceToNow(
+                              new Date(enrollment.enrollment.lastStudiedAt)
+                            )}{" "}
+                            ago
                           </span>
                         </div>
                       </div>
@@ -406,7 +498,8 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
-                    You haven't enrolled in any tracks yet. Check out our available tracks!
+                    You haven't enrolled in any tracks yet. Check out our
+                    available tracks!
                   </p>
                 )}
               </CardContent>
@@ -423,7 +516,10 @@ export default function ProfilePage() {
                 {userAchievements && userAchievements.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {userAchievements.map((achievement: any) => (
-                      <div key={achievement._id} className="p-4 rounded-lg border bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+                      <div
+                        key={achievement._id}
+                        className="p-4 rounded-lg border bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20"
+                      >
                         <div className="flex items-center gap-3 mb-2">
                           <Award className="h-6 w-6 text-yellow-600" />
                           <h3 className="font-semibold">{achievement.title}</h3>
@@ -432,14 +528,17 @@ export default function ProfilePage() {
                           {achievement.description}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Earned {formatDistanceToNow(new Date(achievement.earnedAt))} ago
+                          Earned{" "}
+                          {formatDistanceToNow(new Date(achievement.earnedAt))}{" "}
+                          ago
                         </p>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
-                    No achievements yet. Keep learning to unlock your first achievement!
+                    No achievements yet. Keep learning to unlock your first
+                    achievement!
                   </p>
                 )}
               </CardContent>
@@ -461,10 +560,12 @@ export default function ProfilePage() {
                         <Input
                           id="github"
                           value={editData.githubUsername}
-                          onChange={(e) => setEditData(prev => ({
-                            ...prev,
-                            githubUsername: e.target.value
-                          }))}
+                          onChange={(e) =>
+                            setEditData((prev) => ({
+                              ...prev,
+                              githubUsername: e.target.value,
+                            }))
+                          }
                           placeholder="your-github-username"
                         />
                       </div>
@@ -473,10 +574,12 @@ export default function ProfilePage() {
                         <Input
                           id="linkedin"
                           value={editData.linkedinUrl}
-                          onChange={(e) => setEditData(prev => ({
-                            ...prev,
-                            linkedinUrl: e.target.value
-                          }))}
+                          onChange={(e) =>
+                            setEditData((prev) => ({
+                              ...prev,
+                              linkedinUrl: e.target.value,
+                            }))
+                          }
                           placeholder="https://linkedin.com/in/yourprofile"
                         />
                       </div>
@@ -486,10 +589,12 @@ export default function ProfilePage() {
                       <Input
                         id="website"
                         value={editData.websiteUrl}
-                        onChange={(e) => setEditData(prev => ({
-                          ...prev,
-                          websiteUrl: e.target.value
-                        }))}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            websiteUrl: e.target.value,
+                          }))
+                        }
                         placeholder="https://yourwebsite.com"
                       />
                     </div>
@@ -508,11 +613,18 @@ export default function ProfilePage() {
                         Edit
                       </Button>
                     </div>
-                    
+
                     <div className="p-4 border rounded-lg">
                       <h3 className="font-medium mb-2">Account Type</h3>
-                      <Badge variant={userData.subscriptionTier === "free" ? "outline" : "default"}>
-                        {userData.subscriptionTier.charAt(0).toUpperCase() + userData.subscriptionTier.slice(1)}
+                      <Badge
+                        variant={
+                          userData.subscriptionTier === "free"
+                            ? "outline"
+                            : "default"
+                        }
+                      >
+                        {userData.subscriptionTier.charAt(0).toUpperCase() +
+                          userData.subscriptionTier.slice(1)}
                       </Badge>
                     </div>
                   </div>

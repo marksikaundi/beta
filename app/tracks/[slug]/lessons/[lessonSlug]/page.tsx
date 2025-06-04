@@ -13,10 +13,10 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   ArrowRight,
-  Clock, 
+  Clock,
   Target,
   Play,
   CheckCircle,
@@ -29,13 +29,17 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  Terminal
+  Terminal,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { executeCode, type TestCase, type ExecutionResult } from "@/lib/code-execution";
+import {
+  executeCode,
+  type TestCase,
+  type ExecutionResult,
+} from "@/lib/code-execution";
 
 interface Lesson {
   _id: string;
@@ -99,33 +103,34 @@ function getLessonIcon(type: string) {
   }
 }
 
-function CodingChallenge({ 
-  lesson, 
-  onSubmit, 
-  isSubmitting 
-}: { 
-  lesson: Lesson; 
+function CodingChallenge({
+  lesson,
+  onSubmit,
+  isSubmitting,
+}: {
+  lesson: Lesson;
   onSubmit: (code: string) => void;
   isSubmitting: boolean;
 }) {
   const [code, setCode] = useState(lesson.starterCode || "");
   const [output, setOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
-  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+  const [executionResult, setExecutionResult] =
+    useState<ExecutionResult | null>(null);
 
   const handleRun = async () => {
     setIsRunning(true);
     setOutput("Running code...");
-    
+
     try {
       const result = await executeCode(
-        code, 
-        lesson.language || 'javascript',
+        code,
+        lesson.language || "javascript",
         lesson.testCases as TestCase[]
       );
-      
+
       setExecutionResult(result);
-      
+
       if (result.error) {
         setOutput(`Error: ${result.error}`);
       } else {
@@ -156,9 +161,9 @@ function CodingChallenge({
                 <RotateCcw className="h-4 w-4 mr-1" />
                 Reset
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleRun}
                 disabled={isRunning}
               >
@@ -167,7 +172,7 @@ function CodingChallenge({
               </Button>
             </div>
           </div>
-          
+
           <div className="relative">
             <Textarea
               value={code}
@@ -194,29 +199,53 @@ function CodingChallenge({
               {lesson.testCases.map((testCase, index) => {
                 const testResult = executionResult?.testResults?.[index];
                 return (
-                  <Card key={index} className={`text-sm ${
-                    testResult ? (testResult.passed ? 'ring-2 ring-green-200 bg-green-50' : 'ring-2 ring-red-200 bg-red-50') : ''
-                  }`}>
+                  <Card
+                    key={index}
+                    className={`text-sm ${
+                      testResult
+                        ? testResult.passed
+                          ? "ring-2 ring-green-200 bg-green-50"
+                          : "ring-2 ring-red-200 bg-red-50"
+                        : ""
+                    }`}
+                  >
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
-                        <div className="font-medium">{testCase.description}</div>
+                        <div className="font-medium">
+                          {testCase.description}
+                        </div>
                         {testResult && (
-                          <Badge variant={testResult.passed ? "default" : "destructive"}>
+                          <Badge
+                            variant={
+                              testResult.passed ? "default" : "destructive"
+                            }
+                          >
                             {testResult.passed ? "✅ PASS" : "❌ FAIL"}
                           </Badge>
                         )}
                       </div>
                       <div className="text-muted-foreground mt-1">
-                        Input: <code className="bg-gray-100 px-1 rounded">{testCase.input}</code>
+                        Input:{" "}
+                        <code className="bg-gray-100 px-1 rounded">
+                          {testCase.input}
+                        </code>
                       </div>
                       <div className="text-muted-foreground">
-                        Expected: <code className="bg-gray-100 px-1 rounded">{testCase.expectedOutput}</code>
+                        Expected:{" "}
+                        <code className="bg-gray-100 px-1 rounded">
+                          {testCase.expectedOutput}
+                        </code>
                       </div>
                       {testResult && (
                         <div className="text-muted-foreground">
-                          Actual: <code className={`px-1 rounded ${
-                            testResult.passed ? 'bg-green-100' : 'bg-red-100'
-                          }`}>{testResult.actual}</code>
+                          Actual:{" "}
+                          <code
+                            className={`px-1 rounded ${
+                              testResult.passed ? "bg-green-100" : "bg-red-100"
+                            }`}
+                          >
+                            {testResult.actual}
+                          </code>
                         </div>
                       )}
                     </CardContent>
@@ -229,7 +258,7 @@ function CodingChallenge({
       </div>
 
       <div className="flex justify-end">
-        <Button 
+        <Button
           onClick={() => onSubmit(code)}
           disabled={isSubmitting}
           className="min-w-24"
@@ -241,25 +270,27 @@ function CodingChallenge({
   );
 }
 
-function QuizChallenge({ 
-  lesson, 
-  onSubmit, 
-  isSubmitting 
-}: { 
-  lesson: Lesson; 
+function QuizChallenge({
+  lesson,
+  onSubmit,
+  isSubmitting,
+}: {
+  lesson: Lesson;
   onSubmit: (answers: Record<number, any>) => void;
   isSubmitting: boolean;
 }) {
   const [answers, setAnswers] = useState<Record<number, any>>({});
 
   const handleAnswerChange = (questionIndex: number, answer: any) => {
-    setAnswers(prev => ({
+    setAnswers((prev) => ({
       ...prev,
-      [questionIndex]: answer
+      [questionIndex]: answer,
     }));
   };
 
-  const allAnswered = lesson.questions?.every((_, index) => answers[index] !== undefined) || false;
+  const allAnswered =
+    lesson.questions?.every((_, index) => answers[index] !== undefined) ||
+    false;
 
   return (
     <div className="space-y-6">
@@ -268,20 +299,19 @@ function QuizChallenge({
           <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex items-start justify-between">
-                <h3 className="text-lg font-medium">
-                  Question {index + 1}
-                </h3>
-                <Badge variant="secondary">
-                  {question.points} points
-                </Badge>
+                <h3 className="text-lg font-medium">Question {index + 1}</h3>
+                <Badge variant="secondary">{question.points} points</Badge>
               </div>
-              
+
               <p className="text-muted-foreground">{question.question}</p>
 
               {question.type === "multiple-choice" && question.options && (
                 <div className="space-y-2">
                   {question.options.map((option, optionIndex) => (
-                    <label key={optionIndex} className="flex items-center space-x-2 cursor-pointer">
+                    <label
+                      key={optionIndex}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name={`question-${index}`}
@@ -328,7 +358,7 @@ function QuizChallenge({
       ))}
 
       <div className="flex justify-end">
-        <Button 
+        <Button
           onClick={() => onSubmit(answers)}
           disabled={isSubmitting || !allAnswered}
           className="min-w-24"
@@ -379,7 +409,7 @@ export default function LessonPage() {
     setIsSubmitting(true);
     try {
       const timeSpent = Math.round((Date.now() - startTime) / (1000 * 60)); // minutes
-      
+
       await completeLesson({
         userId: user.id,
         lessonId: lessonData.lesson._id,
@@ -389,7 +419,9 @@ export default function LessonPage() {
 
       // Redirect to next lesson or track overview
       if (lessonData.navigation.next) {
-        router.push(`/tracks/${trackSlug}/lessons/${lessonData.navigation.next.slug}`);
+        router.push(
+          `/tracks/${trackSlug}/lessons/${lessonData.navigation.next.slug}`
+        );
       } else {
         router.push(`/tracks/${trackSlug}`);
       }
@@ -454,15 +486,15 @@ export default function LessonPage() {
         <div className="space-y-6">
           {/* Breadcrumb */}
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Link 
-              href="/tracks" 
+            <Link
+              href="/tracks"
               className="hover:text-foreground transition-colors"
             >
               Tracks
             </Link>
             <ChevronRight className="h-4 w-4" />
-            <Link 
-              href={`/tracks/${trackSlug}`} 
+            <Link
+              href={`/tracks/${trackSlug}`}
               className="hover:text-foreground transition-colors"
             >
               {track.title}
@@ -481,7 +513,7 @@ export default function LessonPage() {
                 </Link>
               </Button>
               <div className="flex items-center space-x-2">
-                <div 
+                <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
                   style={{ backgroundColor: track.color }}
                 >
@@ -501,14 +533,18 @@ export default function LessonPage() {
               <div className="flex space-x-2">
                 {navigation.previous && (
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/tracks/${trackSlug}/lessons/${navigation.previous.slug}`}>
+                    <Link
+                      href={`/tracks/${trackSlug}/lessons/${navigation.previous.slug}`}
+                    >
                       <ChevronLeft className="h-4 w-4" />
                     </Link>
                   </Button>
                 )}
                 {navigation.next && (
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/tracks/${trackSlug}/lessons/${navigation.next.slug}`}>
+                    <Link
+                      href={`/tracks/${trackSlug}/lessons/${navigation.next.slug}`}
+                    >
                       <ChevronRight className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -527,7 +563,9 @@ export default function LessonPage() {
                       <ReactMarkdown
                         components={{
                           code({ className, children, ...props }: any) {
-                            const match = /language-(\w+)/.exec(className || "");
+                            const match = /language-(\w+)/.exec(
+                              className || ""
+                            );
                             return match ? (
                               <SyntaxHighlighter
                                 style={vscDarkPlus}
@@ -547,7 +585,7 @@ export default function LessonPage() {
                       >
                         {lesson.content}
                       </ReactMarkdown>
-                      
+
                       <div className="flex justify-end mt-8">
                         <Button onClick={() => handleSubmission({})}>
                           <CheckCircle className="h-4 w-4 mr-2" />
@@ -590,7 +628,9 @@ export default function LessonPage() {
                       <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
                         <div className="text-center">
                           <Video className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                          <p className="text-gray-500">Video content would be loaded here</p>
+                          <p className="text-gray-500">
+                            Video content would be loaded here
+                          </p>
                         </div>
                       </div>
                       <div className="prose prose-neutral dark:prose-invert max-w-none">
@@ -618,17 +658,21 @@ export default function LessonPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="text-center">
-                      <div className="text-lg font-bold text-primary">{lesson.estimatedMinutes}</div>
+                      <div className="text-lg font-bold text-primary">
+                        {lesson.estimatedMinutes}
+                      </div>
                       <div className="text-muted-foreground">Minutes</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-lg font-bold text-primary">{lesson.experiencePoints}</div>
+                      <div className="text-lg font-bold text-primary">
+                        {lesson.experiencePoints}
+                      </div>
                       <div className="text-muted-foreground">XP</div>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Type</span>
@@ -645,8 +689,12 @@ export default function LessonPage() {
                     {progress && (
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Status</span>
-                        <Badge 
-                          variant={progress.status === "completed" ? "default" : "secondary"}
+                        <Badge
+                          variant={
+                            progress.status === "completed"
+                              ? "default"
+                              : "secondary"
+                          }
                           className="capitalize"
                         >
                           {progress.status.replace("-", " ")}
@@ -664,24 +712,44 @@ export default function LessonPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {navigation.previous && (
-                    <Button variant="outline" className="w-full justify-start" asChild>
-                      <Link href={`/tracks/${trackSlug}/lessons/${navigation.previous.slug}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href={`/tracks/${trackSlug}/lessons/${navigation.previous.slug}`}
+                      >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         <div className="text-left">
-                          <div className="text-xs text-muted-foreground">Previous</div>
-                          <div className="text-sm truncate">{navigation.previous.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            Previous
+                          </div>
+                          <div className="text-sm truncate">
+                            {navigation.previous.title}
+                          </div>
                         </div>
                       </Link>
                     </Button>
                   )}
-                  
+
                   {navigation.next && (
-                    <Button variant="outline" className="w-full justify-start" asChild>
-                      <Link href={`/tracks/${trackSlug}/lessons/${navigation.next.slug}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link
+                        href={`/tracks/${trackSlug}/lessons/${navigation.next.slug}`}
+                      >
                         <ArrowRight className="h-4 w-4 mr-2" />
                         <div className="text-left">
-                          <div className="text-xs text-muted-foreground">Next</div>
-                          <div className="text-sm truncate">{navigation.next.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            Next
+                          </div>
+                          <div className="text-sm truncate">
+                            {navigation.next.title}
+                          </div>
                         </div>
                       </Link>
                     </Button>

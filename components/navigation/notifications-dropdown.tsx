@@ -15,16 +15,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Bell, 
-  Trophy, 
-  TrendingUp, 
-  BookOpen, 
-  MessageSquare, 
+import {
+  Bell,
+  Trophy,
+  TrendingUp,
+  BookOpen,
+  MessageSquare,
   Award,
   GraduationCap,
   Check,
-  X
+  X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -32,16 +32,20 @@ export function NotificationsDropdown() {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
 
-  const notifications = useQuery(api.notifications.getUserNotifications, 
+  const notifications = useQuery(
+    api.notifications.getUserNotifications,
     user ? { userId: user.id, limit: 10 } : "skip"
   );
 
-  const unreadCount = useQuery(api.notifications.getUnreadNotificationCount,
+  const unreadCount = useQuery(
+    api.notifications.getUnreadNotificationCount,
     user ? { userId: user.id } : "skip"
   );
 
   const markAsRead = useMutation(api.notifications.markNotificationAsRead);
-  const markAllAsRead = useMutation(api.notifications.markAllNotificationsAsRead);
+  const markAllAsRead = useMutation(
+    api.notifications.markAllNotificationsAsRead
+  );
   const deleteNotification = useMutation(api.notifications.deleteNotification);
 
   const getNotificationIcon = (type: string) => {
@@ -98,8 +102,8 @@ export function NotificationsDropdown() {
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount && unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
@@ -107,14 +111,14 @@ export function NotificationsDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      
+
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
           {unreadCount && unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleMarkAllAsRead}
               className="text-xs"
             >
@@ -122,9 +126,9 @@ export function NotificationsDropdown() {
             </Button>
           )}
         </DropdownMenuLabel>
-        
+
         <DropdownMenuSeparator />
-        
+
         <ScrollArea className="h-96">
           {notifications && notifications.length > 0 ? (
             <div className="space-y-1">
@@ -143,7 +147,7 @@ export function NotificationsDropdown() {
                   <div className="flex-shrink-0 mt-1">
                     {getNotificationIcon(notification.type)}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">
                       {notification.title}
@@ -152,10 +156,11 @@ export function NotificationsDropdown() {
                       {notification.message}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(notification.createdAt))} ago
+                      {formatDistanceToNow(new Date(notification.createdAt))}{" "}
+                      ago
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center gap-1">
                     {!notification.isRead && (
                       <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
@@ -182,7 +187,7 @@ export function NotificationsDropdown() {
             </div>
           )}
         </ScrollArea>
-        
+
         {notifications && notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />

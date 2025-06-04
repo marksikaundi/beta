@@ -97,10 +97,13 @@ export const updateProfile = mutation({
     };
 
     if (args.bio !== undefined) updateData.bio = args.bio;
-    if (args.githubUsername !== undefined) updateData.githubUsername = args.githubUsername;
-    if (args.linkedinUrl !== undefined) updateData.linkedinUrl = args.linkedinUrl;
+    if (args.githubUsername !== undefined)
+      updateData.githubUsername = args.githubUsername;
+    if (args.linkedinUrl !== undefined)
+      updateData.linkedinUrl = args.linkedinUrl;
     if (args.websiteUrl !== undefined) updateData.websiteUrl = args.websiteUrl;
-    if (args.preferredLanguages !== undefined) updateData.preferredLanguages = args.preferredLanguages;
+    if (args.preferredLanguages !== undefined)
+      updateData.preferredLanguages = args.preferredLanguages;
     if (args.timezone !== undefined) updateData.timezone = args.timezone;
 
     return await ctx.db.patch(user._id, updateData);
@@ -124,7 +127,7 @@ export const addExperience = mutation({
     }
 
     const newExperience = user.experience + args.points;
-    
+
     // Calculate level based on experience (100 XP per level for simplicity)
     const newLevel = Math.floor(newExperience / 100) + 1;
     const leveledUp = newLevel > user.level;
@@ -166,9 +169,11 @@ export const updateStreak = mutation({
       throw new Error("User not found");
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    const lastActiveDate = user.lastActiveDate.split('T')[0];
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
+    const lastActiveDate = user.lastActiveDate.split("T")[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
 
     let newStreakDays = user.streakDays;
 
@@ -237,18 +242,21 @@ export const getUserStats = query({
       .collect();
 
     // Calculate total time spent
-    const totalTimeSpent = enrollments.reduce((total, enrollment) => total + enrollment.totalTimeSpent, 0);
+    const totalTimeSpent = enrollments.reduce(
+      (total, enrollment) => total + enrollment.totalTimeSpent,
+      0
+    );
 
     return {
       user,
       stats: {
         tracksEnrolled: enrollments.length,
-        tracksCompleted: enrollments.filter(e => e.completedAt).length,
+        tracksCompleted: enrollments.filter((e) => e.completedAt).length,
         lessonsCompleted: completedLessons.length,
         totalTimeSpent: Math.round(totalTimeSpent),
         achievements: achievements.length,
         currentStreak: user.streakDays,
-      }
+      },
     };
   },
 });
@@ -256,18 +264,19 @@ export const getUserStats = query({
 // Get leaderboard data
 export const getLeaderboard = query({
   args: {
-    type: v.union(v.literal("global"), v.literal("weekly"), v.literal("monthly")),
+    type: v.union(
+      v.literal("global"),
+      v.literal("weekly"),
+      v.literal("monthly")
+    ),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 10;
-    
+
     // For simplicity, we'll get users sorted by experience points
     // In a real implementation, you'd maintain separate leaderboard tables
-    const users = await ctx.db
-      .query("users")
-      .order("desc")
-      .take(limit);
+    const users = await ctx.db.query("users").order("desc").take(limit);
 
     return users.map((user, index) => ({
       rank: index + 1,
@@ -300,12 +309,12 @@ export const updateUser = mutation({
     }
 
     const { userId, ...updateData } = args;
-    
+
     // Only update fields that are provided
     const fieldsToUpdate: any = {
       updatedAt: new Date().toISOString(),
     };
-    
+
     Object.entries(updateData).forEach(([key, value]) => {
       if (value !== undefined) {
         fieldsToUpdate[key] = value;
@@ -313,7 +322,7 @@ export const updateUser = mutation({
     });
 
     await ctx.db.patch(userId, fieldsToUpdate);
-    
+
     return { success: true };
   },
 });

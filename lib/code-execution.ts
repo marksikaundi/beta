@@ -26,7 +26,7 @@ export async function executeJavaScript(
   testCases?: TestCase[]
 ): Promise<ExecutionResult> {
   const startTime = Date.now();
-  
+
   try {
     // Basic security check - prevent dangerous operations
     const dangerousPatterns = [
@@ -69,31 +69,38 @@ export async function executeJavaScript(
         // Otherwise return the last expression
         return undefined;
       `);
-      
+
       return func();
     };
 
     const userFunction = safeEval(code);
     let output = "";
-    let testResults: ExecutionResult['testResults'] = [];
+    let testResults: ExecutionResult["testResults"] = [];
 
-    if (testCases && testCases.length > 0 && typeof userFunction === 'function') {
+    if (
+      testCases &&
+      testCases.length > 0 &&
+      typeof userFunction === "function"
+    ) {
       // Run test cases
       for (const testCase of testCases) {
         try {
           const input = JSON.parse(testCase.input);
           const expected = testCase.expectedOutput;
-          
+
           let actual;
           if (Array.isArray(input)) {
             actual = userFunction(...input);
           } else {
             actual = userFunction(input);
           }
-          
-          const actualStr = typeof actual === 'object' ? JSON.stringify(actual) : String(actual);
+
+          const actualStr =
+            typeof actual === "object"
+              ? JSON.stringify(actual)
+              : String(actual);
           const passed = actualStr === expected;
-          
+
           testResults.push({
             passed,
             input: testCase.input,
@@ -101,12 +108,12 @@ export async function executeJavaScript(
             actual: actualStr,
             description: testCase.description,
           });
-          
+
           output += `Test: ${testCase.description}\n`;
           output += `Input: ${testCase.input}\n`;
           output += `Expected: ${expected}\n`;
           output += `Actual: ${actualStr}\n`;
-          output += `Result: ${passed ? '✅ PASS' : '❌ FAIL'}\n\n`;
+          output += `Result: ${passed ? "✅ PASS" : "❌ FAIL"}\n\n`;
         } catch (error) {
           testResults.push({
             passed: false,
@@ -115,16 +122,19 @@ export async function executeJavaScript(
             actual: `Error: ${error}`,
             description: testCase.description,
           });
-          
+
           output += `Test: ${testCase.description}\n`;
           output += `Error: ${error}\n\n`;
         }
       }
     } else {
       // Simple execution without test cases
-      if (typeof userFunction === 'function') {
+      if (typeof userFunction === "function") {
         const result = userFunction();
-        output = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
+        output =
+          typeof result === "object"
+            ? JSON.stringify(result, null, 2)
+            : String(result);
       } else {
         // Try to execute the code directly
         const func = new Function(`
@@ -139,14 +149,18 @@ export async function executeJavaScript(
           
           ${code}
         `);
-        
+
         const result = func();
-        output = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result || '');
+        output =
+          typeof result === "object"
+            ? JSON.stringify(result, null, 2)
+            : String(result || "");
       }
     }
 
     const executionTime = Date.now() - startTime;
-    const allTestsPassed = testResults.length > 0 ? testResults.every(t => t.passed) : true;
+    const allTestsPassed =
+      testResults.length > 0 ? testResults.every((t) => t.passed) : true;
 
     return {
       output: output || "Code executed successfully",
@@ -154,7 +168,6 @@ export async function executeJavaScript(
       executionTime,
       testResults: testResults.length > 0 ? testResults : undefined,
     };
-
   } catch (error) {
     const executionTime = Date.now() - startTime;
     return {
@@ -172,13 +185,14 @@ export async function executePython(
   testCases?: TestCase[]
 ): Promise<ExecutionResult> {
   const startTime = Date.now();
-  
+
   // This is a simplified simulation
   // In production, you'd use a secure Python execution service
   const executionTime = Date.now() - startTime;
-  
+
   return {
-    output: "Python execution not implemented yet. This would run in a secure sandbox.",
+    output:
+      "Python execution not implemented yet. This would run in a secure sandbox.",
     passed: false,
     executionTime,
     error: "Python execution service not available in demo mode",
@@ -192,11 +206,11 @@ export async function executeCode(
   testCases?: TestCase[]
 ): Promise<ExecutionResult> {
   switch (language.toLowerCase()) {
-    case 'javascript':
-    case 'js':
+    case "javascript":
+    case "js":
       return executeJavaScript(code, testCases);
-    case 'python':
-    case 'py':
+    case "python":
+    case "py":
       return executePython(code, testCases);
     default:
       return {

@@ -16,12 +16,14 @@ export const createNotification = mutation({
     ),
     title: v.string(),
     message: v.string(),
-    data: v.optional(v.object({
-      trackId: v.optional(v.id("tracks")),
-      lessonId: v.optional(v.id("lessons")),
-      achievementId: v.optional(v.id("achievements")),
-      url: v.optional(v.string()),
-    })),
+    data: v.optional(
+      v.object({
+        trackId: v.optional(v.id("tracks")),
+        lessonId: v.optional(v.id("lessons")),
+        achievementId: v.optional(v.id("achievements")),
+        url: v.optional(v.string()),
+      })
+    ),
   },
   handler: async (ctx, args) => {
     const notificationId = await ctx.db.insert("notifications", {
@@ -40,7 +42,7 @@ export const createNotification = mutation({
 
 // Get user notifications
 export const getUserNotifications = query({
-  args: { 
+  args: {
     userId: v.string(),
     limit: v.optional(v.number()),
     unreadOnly: v.optional(v.boolean()),
@@ -54,9 +56,7 @@ export const getUserNotifications = query({
       query = query.filter((q) => q.eq(q.field("isRead"), false));
     }
 
-    const notifications = await query
-      .order("desc")
-      .take(args.limit || 20);
+    const notifications = await query.order("desc").take(args.limit || 20);
 
     return notifications;
   },
@@ -78,7 +78,7 @@ export const markAllNotificationsAsRead = mutation({
   handler: async (ctx, args) => {
     const unreadNotifications = await ctx.db
       .query("notifications")
-      .withIndex("by_user_and_read", (q) => 
+      .withIndex("by_user_and_read", (q) =>
         q.eq("userId", args.userId).eq("isRead", false)
       )
       .collect();
@@ -99,7 +99,7 @@ export const getUnreadNotificationCount = query({
   handler: async (ctx, args) => {
     const unreadNotifications = await ctx.db
       .query("notifications")
-      .withIndex("by_user_and_read", (q) => 
+      .withIndex("by_user_and_read", (q) =>
         q.eq("userId", args.userId).eq("isRead", false)
       )
       .collect();
@@ -177,7 +177,8 @@ export const createSampleNotifications = mutation({
       {
         type: "achievement" as const,
         title: "🏆 Achievement Unlocked!",
-        message: "You've earned 'First Steps': Complete your first coding lesson successfully.",
+        message:
+          "You've earned 'First Steps': Complete your first coding lesson successfully.",
       },
       {
         type: "level-up" as const,
@@ -192,7 +193,8 @@ export const createSampleNotifications = mutation({
       {
         type: "new-lesson" as const,
         title: "📚 New Lesson Available!",
-        message: "Advanced JavaScript Functions is now available in your track.",
+        message:
+          "Advanced JavaScript Functions is now available in your track.",
       },
       {
         type: "discussion-reply" as const,
@@ -202,7 +204,8 @@ export const createSampleNotifications = mutation({
       {
         type: "certificate-earned" as const,
         title: "🎓 Certificate Earned!",
-        message: "You've completed JavaScript Fundamentals and earned your certificate!",
+        message:
+          "You've completed JavaScript Fundamentals and earned your certificate!",
       },
     ];
 
@@ -214,14 +217,16 @@ export const createSampleNotifications = mutation({
         title: notification.title,
         message: notification.message,
         isRead: Math.random() > 0.7, // 30% chance of being read
-        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(), // Random time in last 7 days
+        createdAt: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+        ).toISOString(), // Random time in last 7 days
       });
       createdNotifications.push(notificationId);
     }
 
-    return { 
+    return {
       message: `Created ${createdNotifications.length} sample notifications`,
-      notificationIds: createdNotifications 
+      notificationIds: createdNotifications,
     };
   },
 });
@@ -268,7 +273,8 @@ export const triggerTestAchievement = mutation({
       userId: args.userId,
       type: "achievement",
       title: "🏆 Achievement Unlocked!",
-      message: "You've earned 'Code Master': Complete 10 coding challenges successfully.",
+      message:
+        "You've earned 'Code Master': Complete 10 coding challenges successfully.",
       isRead: false,
       createdAt: new Date().toISOString(),
     });

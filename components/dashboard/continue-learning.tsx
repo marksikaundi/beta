@@ -27,7 +27,10 @@ interface ContinueLearningProps {
   isLoading: boolean;
 }
 
-export function ContinueLearning({ enrollments, isLoading }: ContinueLearningProps) {
+export function ContinueLearning({
+  enrollments,
+  isLoading,
+}: ContinueLearningProps) {
   if (isLoading) {
     return (
       <Card>
@@ -47,13 +50,18 @@ export function ContinueLearning({ enrollments, isLoading }: ContinueLearningPro
     );
   }
 
-  const inProgressTracks = enrollments?.filter(
-    (enrollment) => enrollment.track && enrollment.enrollment.progress > 0 && enrollment.enrollment.progress < 100
-  ) || [];
+  const inProgressTracks =
+    enrollments?.filter(
+      (enrollment) =>
+        enrollment.track &&
+        enrollment.enrollment.progress > 0 &&
+        enrollment.enrollment.progress < 100
+    ) || [];
 
-  const notStartedTracks = enrollments?.filter(
-    (enrollment) => enrollment.track && enrollment.enrollment.progress === 0
-  ) || [];
+  const notStartedTracks =
+    enrollments?.filter(
+      (enrollment) => enrollment.track && enrollment.enrollment.progress === 0
+    ) || [];
 
   const tracksToShow = [...inProgressTracks, ...notStartedTracks].slice(0, 3);
 
@@ -95,11 +103,11 @@ export function ContinueLearning({ enrollments, isLoading }: ContinueLearningPro
       <CardContent className="space-y-6">
         {tracksToShow.map((item) => {
           if (!item.track) return null;
-          
+
           const { track, enrollment } = item;
           const progressPercentage = enrollment.progress;
           const isNotStarted = progressPercentage === 0;
-          
+
           return (
             <div key={track._id} className="space-y-3">
               <div className="flex items-start justify-between">
@@ -118,17 +126,21 @@ export function ContinueLearning({ enrollments, isLoading }: ContinueLearningPro
                     )}
                   </div>
                 </div>
-                <div 
+                <div
                   className="w-3 h-3 rounded-full ml-4 mt-1"
                   style={{ backgroundColor: track.color }}
                 />
               </div>
-              
+
               {!isNotStarted && (
                 <Progress value={progressPercentage} className="h-2" />
               )}
-              
-              <Button size="sm" variant={isNotStarted ? "default" : "outline"} asChild>
+
+              <Button
+                size="sm"
+                variant={isNotStarted ? "default" : "outline"}
+                asChild
+              >
                 <Link href={`/tracks/${track.slug}`}>
                   {isNotStarted ? "Start Track" : "Continue"}
                   <ArrowRight className="h-3 w-3 ml-1" />
@@ -137,7 +149,7 @@ export function ContinueLearning({ enrollments, isLoading }: ContinueLearningPro
             </div>
           );
         })}
-        
+
         {enrollments && enrollments.length > 3 && (
           <Button variant="ghost" size="sm" asChild className="w-full">
             <Link href="/dashboard/tracks">

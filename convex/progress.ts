@@ -20,27 +20,31 @@ export const getUserProgressAnalytics = query({
     // Calculate weekly progress
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    const weeklyProgress = allProgress.filter(p => 
-      new Date(p.lastAccessedAt) >= weekAgo
+
+    const weeklyProgress = allProgress.filter(
+      (p) => new Date(p.lastAccessedAt) >= weekAgo
     );
 
     // Calculate daily activity for the last 30 days
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const dailyActivity = [];
-    
+
     for (let i = 29; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateString = date.toISOString().split('T')[0];
-      
-      const dayProgress = allProgress.filter(p => 
-        p.lastAccessedAt.split('T')[0] === dateString
+      const dateString = date.toISOString().split("T")[0];
+
+      const dayProgress = allProgress.filter(
+        (p) => p.lastAccessedAt.split("T")[0] === dateString
       );
-      
-      const timeSpent = dayProgress.reduce((total, p) => total + p.timeSpent, 0);
-      const lessonsCompleted = dayProgress.filter(p => 
-        p.status === "completed" && 
-        p.completedAt?.split('T')[0] === dateString
+
+      const timeSpent = dayProgress.reduce(
+        (total, p) => total + p.timeSpent,
+        0
+      );
+      const lessonsCompleted = dayProgress.filter(
+        (p) =>
+          p.status === "completed" &&
+          p.completedAt?.split("T")[0] === dateString
       ).length;
 
       dailyActivity.push({
@@ -53,7 +57,7 @@ export const getUserProgressAnalytics = query({
 
     // Calculate progress by category
     const progressByCategory: Record<string, any> = {};
-    
+
     for (const enrollment of enrollments) {
       const track = await ctx.db.get(enrollment.trackId);
       if (track) {
@@ -66,11 +70,12 @@ export const getUserProgressAnalytics = query({
             timeSpent: 0,
           };
         }
-        
+
         progressByCategory[track.category].tracksEnrolled++;
         progressByCategory[track.category].totalProgress += enrollment.progress;
-        progressByCategory[track.category].timeSpent += enrollment.totalTimeSpent;
-        
+        progressByCategory[track.category].timeSpent +=
+          enrollment.totalTimeSpent;
+
         if (enrollment.completedAt) {
           progressByCategory[track.category].tracksCompleted++;
         }
@@ -79,28 +84,35 @@ export const getUserProgressAnalytics = query({
 
     // Calculate average progress per category
     Object.values(progressByCategory).forEach((category: any) => {
-      category.averageProgress = category.tracksEnrolled > 0 
-        ? Math.round(category.totalProgress / category.tracksEnrolled)
-        : 0;
+      category.averageProgress =
+        category.tracksEnrolled > 0
+          ? Math.round(category.totalProgress / category.tracksEnrolled)
+          : 0;
     });
 
     return {
       totalLessons: allProgress.length,
-      completedLessons: allProgress.filter(p => p.status === "completed").length,
+      completedLessons: allProgress.filter((p) => p.status === "completed")
+        .length,
       totalTimeSpent: allProgress.reduce((total, p) => total + p.timeSpent, 0),
-      weeklyTimeSpent: weeklyProgress.reduce((total, p) => total + p.timeSpent, 0),
-      weeklyLessonsCompleted: weeklyProgress.filter(p => p.status === "completed").length,
+      weeklyTimeSpent: weeklyProgress.reduce(
+        (total, p) => total + p.timeSpent,
+        0
+      ),
+      weeklyLessonsCompleted: weeklyProgress.filter(
+        (p) => p.status === "completed"
+      ).length,
       dailyActivity,
       progressByCategory: Object.values(progressByCategory),
       enrollments: enrollments.length,
-      completedTracks: enrollments.filter(e => e.completedAt).length,
+      completedTracks: enrollments.filter((e) => e.completedAt).length,
     };
   },
 });
 
 // Get progress for a specific track
 export const getTrackProgress = query({
-  args: { 
+  args: {
     userId: v.string(),
     trackId: v.id("tracks"),
   },
@@ -108,7 +120,9 @@ export const getTrackProgress = query({
     // Get enrollment
     const enrollment = await ctx.db
       .query("enrollments")
-      .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", args.trackId))
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", args.userId).eq("trackId", args.trackId)
+      )
       .first();
 
     if (!enrollment) {
@@ -131,7 +145,9 @@ export const getTrackProgress = query({
     // Get user's progress for these lessons
     const lessonsProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", args.trackId))
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", args.userId).eq("trackId", args.trackId)
+      )
       .collect();
 
     // Create lesson progress map
@@ -143,16 +159,20 @@ export const getTrackProgress = query({
     // Add progress info to each lesson
     const lessonsWithProgress = trackLessons
       .sort((a, b) => a.order - b.order)
-      .map(lesson => ({
+      .map((lesson) => ({
         lesson,
         progress: progressMap[lesson._id] || null,
       }));
 
     // Calculate detailed statistics
-    const completedLessons = lessonsProgress.filter(p => p.status === "completed");
-    const averageScore = lessonsProgress
-      .filter(p => p.score !== undefined)
-      .reduce((sum, p) => sum + (p.score || 0), 0) / lessonsProgress.filter(p => p.score !== undefined).length || 0;
+    const completedLessons = lessonsProgress.filter(
+      (p) => p.status === "completed"
+    );
+    const averageScore =
+      lessonsProgress
+        .filter((p) => p.score !== undefined)
+        .reduce((sum, p) => sum + (p.score || 0), 0) /
+        lessonsProgress.filter((p) => p.score !== undefined).length || 0;
 
     return {
       track,
@@ -173,13 +193,13 @@ export const getTrackProgress = query({
 
 // Get recent activity
 export const getRecentActivity = query({
-  args: { 
+  args: {
     userId: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 10;
-    
+
     // Get recent progress updates
     const recentProgress = await ctx.db
       .query("progress")
@@ -192,7 +212,7 @@ export const getRecentActivity = query({
       recentProgress.map(async (progress) => {
         const lesson = await ctx.db.get(progress.lessonId);
         const track = lesson ? await ctx.db.get(lesson.trackId) : null;
-        
+
         return {
           progress,
           lesson,
@@ -213,14 +233,14 @@ export const getRecentActivity = query({
       recentAchievements.map(async (achievement) => {
         let lesson = null;
         let track = null;
-        
+
         if (achievement.lessonId) {
           lesson = await ctx.db.get(achievement.lessonId);
         }
         if (achievement.trackId) {
           track = await ctx.db.get(achievement.trackId);
         }
-        
+
         return {
           achievement,
           lesson,
@@ -232,18 +252,21 @@ export const getRecentActivity = query({
 
     // Combine and sort all activities
     const allActivities = [
-      ...activityWithDetails.map(a => ({
+      ...activityWithDetails.map((a) => ({
         ...a,
         timestamp: a.progress.lastAccessedAt,
       })),
-      ...achievementActivities.map(a => ({
+      ...achievementActivities.map((a) => ({
         ...a,
         timestamp: a.achievement.earnedAt,
       })),
     ];
 
     return allActivities
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
       .slice(0, limit);
   },
 });
@@ -267,12 +290,17 @@ export const getStudyMilestones = query({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .collect();
 
-    const completedLessons = allProgress.filter(p => p.status === "completed");
-    const totalTimeSpent = allProgress.reduce((total, p) => total + p.timeSpent, 0);
+    const completedLessons = allProgress.filter(
+      (p) => p.status === "completed"
+    );
+    const totalTimeSpent = allProgress.reduce(
+      (total, p) => total + p.timeSpent,
+      0
+    );
 
     // Calculate study days (unique dates with activity)
     const studyDates = new Set(
-      allProgress.map(p => p.lastAccessedAt.split('T')[0])
+      allProgress.map((p) => p.lastAccessedAt.split("T")[0])
     );
 
     // Get achievements
@@ -287,7 +315,7 @@ export const getStudyMilestones = query({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .collect();
 
-    const completedTracks = enrollments.filter(e => e.completedAt);
+    const completedTracks = enrollments.filter((e) => e.completedAt);
 
     // Define milestones
     const milestones = [
@@ -426,7 +454,9 @@ export const updateLessonProgress = mutation({
     // Check for existing progress
     const existingProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user_and_lesson", (q) => q.eq("userId", args.userId).eq("lessonId", args.lessonId))
+      .withIndex("by_user_and_lesson", (q) =>
+        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+      )
       .first();
 
     const now = new Date().toISOString();
@@ -439,7 +469,8 @@ export const updateLessonProgress = mutation({
         score: args.score,
         submittedCode: args.submittedCode,
         lastAccessedAt: now,
-        completedAt: args.status === "completed" ? now : existingProgress.completedAt,
+        completedAt:
+          args.status === "completed" ? now : existingProgress.completedAt,
       });
     } else {
       // Create new progress record
@@ -474,27 +505,29 @@ export const completeLesson = mutation({
     }
 
     const now = new Date().toISOString();
-    
+
     // Update progress
     let score;
     let submittedCode;
-    
+
     if (lesson.type === "coding") {
       submittedCode = args.submissionData.code;
       score = 100; // Simple scoring for now
     } else if (lesson.type === "quiz") {
       // Calculate quiz score
       const answers = args.submissionData.answers;
-      const totalPoints = lesson.questions?.reduce((sum, q) => sum + q.points, 0) || 0;
+      const totalPoints =
+        lesson.questions?.reduce((sum, q) => sum + q.points, 0) || 0;
       let earnedPoints = 0;
-      
+
       lesson.questions?.forEach((question, index) => {
         if (answers[index] === question.correctAnswer) {
           earnedPoints += question.points;
         }
       });
-      
-      score = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 100;
+
+      score =
+        totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 100;
     } else {
       score = 100; // Reading/video lessons
     }
@@ -502,7 +535,9 @@ export const completeLesson = mutation({
     // Update or create progress
     const existingProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user_and_lesson", (q) => q.eq("userId", args.userId).eq("lessonId", args.lessonId))
+      .withIndex("by_user_and_lesson", (q) =>
+        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+      )
       .first();
 
     if (existingProgress) {
@@ -538,7 +573,7 @@ export const completeLesson = mutation({
     if (user) {
       const newExperience = user.experience + lesson.experiencePoints;
       const newLevel = Math.floor(newExperience / 1000) + 1; // Simple leveling system
-      
+
       await ctx.db.patch(user._id, {
         experience: newExperience,
         level: Math.max(user.level, newLevel),
@@ -562,7 +597,9 @@ export const completeLesson = mutation({
     // Update track enrollment progress
     const enrollment = await ctx.db
       .query("enrollments")
-      .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", lesson.trackId))
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", args.userId).eq("trackId", lesson.trackId)
+      )
       .first();
 
     if (enrollment) {
@@ -575,13 +612,16 @@ export const completeLesson = mutation({
 
       const completedLessons = await ctx.db
         .query("progress")
-        .withIndex("by_user_and_track", (q) => q.eq("userId", args.userId).eq("trackId", lesson.trackId))
+        .withIndex("by_user_and_track", (q) =>
+          q.eq("userId", args.userId).eq("trackId", lesson.trackId)
+        )
         .filter((q) => q.eq(q.field("status"), "completed"))
         .collect();
 
-      const progressPercentage = allTrackLessons.length > 0 
-        ? Math.round((completedLessons.length / allTrackLessons.length) * 100)
-        : 0;
+      const progressPercentage =
+        allTrackLessons.length > 0
+          ? Math.round((completedLessons.length / allTrackLessons.length) * 100)
+          : 0;
 
       await ctx.db.patch(enrollment._id, {
         progress: progressPercentage,

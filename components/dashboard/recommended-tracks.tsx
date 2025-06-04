@@ -8,14 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  BookOpen, 
-  ArrowRight, 
-  Clock, 
-  Users, 
+import {
+  BookOpen,
+  ArrowRight,
+  Clock,
+  Users,
   Star,
   TrendingUp,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 
 interface Track {
@@ -57,32 +57,38 @@ function TrackCard({ track }: { track: Track }) {
   return (
     <div className="p-4 border rounded-lg hover:bg-accent/30 transition-colors group">
       <div className="flex items-start justify-between mb-3">
-        <div 
+        <div
           className="w-3 h-3 rounded-full shrink-0 mt-1"
           style={{ backgroundColor: track.color }}
         />
         <div className="flex gap-1">
           {track.isNew && (
-            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-blue-100 text-blue-800"
+            >
               New
             </Badge>
           )}
           {track.isPopular && (
-            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-orange-100 text-orange-800"
+            >
               Popular
             </Badge>
           )}
         </div>
       </div>
-      
+
       <h4 className="font-medium text-sm mb-2 group-hover:text-primary transition-colors">
         {track.title}
       </h4>
-      
+
       <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
         {track.description}
       </p>
-      
+
       <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
         <div className="flex items-center space-x-3">
           <span className="flex items-center">
@@ -98,7 +104,7 @@ function TrackCard({ track }: { track: Track }) {
           {track.difficulty}
         </Badge>
       </div>
-      
+
       <div className="flex items-center justify-between">
         <div className="flex items-center text-xs text-muted-foreground">
           <Users className="h-3 w-3 mr-1" />
@@ -117,12 +123,15 @@ function TrackCard({ track }: { track: Track }) {
   );
 }
 
-export function RecommendedTracks({ userTracks = [], userLevel = 1 }: RecommendedTracksProps) {
+export function RecommendedTracks({
+  userTracks = [],
+  userLevel = 1,
+}: RecommendedTracksProps) {
   const { user } = useUser();
-  
+
   // Get all tracks to recommend from
   const allTracks = useQuery(api.tracks.getAllTracks, {});
-  
+
   if (!allTracks) {
     return (
       <Card>
@@ -151,11 +160,13 @@ export function RecommendedTracks({ userTracks = [], userLevel = 1 }: Recommende
 
   // Filter out enrolled tracks and get recommendations
   const availableTracks = allTracks
-    .filter(track => !userTracks.includes(track._id) && track.isPublished)
-    .map(track => ({
+    .filter((track) => !userTracks.includes(track._id) && track.isPublished)
+    .map((track) => ({
       ...track,
       isPopular: track.enrollmentCount > 1000,
-      isNew: new Date(track.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      isNew:
+        new Date(track.createdAt) >
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     }));
 
   // Recommendation logic
@@ -164,17 +175,17 @@ export function RecommendedTracks({ userTracks = [], userLevel = 1 }: Recommende
   // For beginners: recommend beginner tracks
   if (userLevel <= 2) {
     recommendedTracks = availableTracks
-      .filter(track => track.difficulty === "beginner")
+      .filter((track) => track.difficulty === "beginner")
       .sort((a, b) => b.averageRating - a.averageRating)
       .slice(0, 3);
-  } 
+  }
   // For intermediate: mix of beginner completion and intermediate
   else if (userLevel <= 5) {
     const beginnerTracks = availableTracks
-      .filter(track => track.difficulty === "beginner")
+      .filter((track) => track.difficulty === "beginner")
       .slice(0, 1);
     const intermediateTracks = availableTracks
-      .filter(track => track.difficulty === "intermediate")
+      .filter((track) => track.difficulty === "intermediate")
       .sort((a, b) => b.averageRating - a.averageRating)
       .slice(0, 2);
     recommendedTracks = [...beginnerTracks, ...intermediateTracks];
@@ -182,10 +193,10 @@ export function RecommendedTracks({ userTracks = [], userLevel = 1 }: Recommende
   // For advanced: intermediate and advanced tracks
   else {
     const intermediateTracks = availableTracks
-      .filter(track => track.difficulty === "intermediate")
+      .filter((track) => track.difficulty === "intermediate")
       .slice(0, 1);
     const advancedTracks = availableTracks
-      .filter(track => track.difficulty === "advanced")
+      .filter((track) => track.difficulty === "advanced")
       .sort((a, b) => b.averageRating - a.averageRating)
       .slice(0, 2);
     recommendedTracks = [...intermediateTracks, ...advancedTracks];
@@ -194,7 +205,7 @@ export function RecommendedTracks({ userTracks = [], userLevel = 1 }: Recommende
   // If we don't have enough, fill with popular tracks
   if (recommendedTracks.length < 3) {
     const popularTracks = availableTracks
-      .filter(track => !recommendedTracks.find(rt => rt._id === track._id))
+      .filter((track) => !recommendedTracks.find((rt) => rt._id === track._id))
       .sort((a, b) => b.enrollmentCount - a.enrollmentCount)
       .slice(0, 3 - recommendedTracks.length);
     recommendedTracks = [...recommendedTracks, ...popularTracks];
@@ -239,7 +250,7 @@ export function RecommendedTracks({ userTracks = [], userLevel = 1 }: Recommende
         {recommendedTracks.map((track) => (
           <TrackCard key={track._id} track={track} />
         ))}
-        
+
         {availableTracks.length > 3 && (
           <Button variant="ghost" size="sm" asChild className="w-full">
             <Link href="/tracks">

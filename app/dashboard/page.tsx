@@ -16,7 +16,7 @@ import { BookOpen, TrendingUp } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
-  
+
   const userStats = useQuery(
     api.users.getUserStats,
     user ? { clerkId: user.id } : "skip"
@@ -63,10 +63,9 @@ export default function DashboardPage() {
               Welcome back, {user.firstName || user.username}! 👋
             </h1>
             <p className="text-muted-foreground">
-              {isNewUser 
+              {isNewUser
                 ? "Ready to start your learning journey? Pick a track below to begin!"
-                : "Continue where you left off and keep building your skills."
-              }
+                : "Continue where you left off and keep building your skills."}
             </p>
           </div>
 
@@ -75,8 +74,9 @@ export default function DashboardPage() {
             <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <BookOpen className="h-4 w-4" />
               <AlertDescription>
-                <strong>Welcome to DevLearn!</strong> Start with our Backend Fundamentals track 
-                to build a solid foundation, or explore all available tracks to find what interests you most.
+                <strong>Welcome to DevLearn!</strong> Start with our Backend
+                Fundamentals track to build a solid foundation, or explore all
+                available tracks to find what interests you most.
               </AlertDescription>
             </Alert>
           )}
@@ -88,23 +88,29 @@ export default function DashboardPage() {
             {/* Main Content - Left Side */}
             <div className="lg:col-span-2 space-y-6">
               {/* Continue Learning */}
-              <ContinueLearning enrollments={enrollments} isLoading={!enrollments} />
-              
+              <ContinueLearning
+                enrollments={enrollments}
+                isLoading={!enrollments}
+              />
+
               {/* Recent Activity */}
-              <RecentActivity activity={recentActivity} isLoading={!recentActivity} />
+              <RecentActivity
+                activity={recentActivity}
+                isLoading={!recentActivity}
+              />
             </div>
 
             {/* Sidebar - Right Side */}
             <div className="space-y-6">
               {/* Study Streak */}
-              <StudyStreak 
+              <StudyStreak
                 streakDays={userStats?.user?.streakDays || 0}
                 isLoading={!userStats}
               />
-              
+
               {/* Recommended Tracks */}
               <RecommendedTracks />
-              
+
               {/* Quick Stats */}
               <Card>
                 <CardHeader className="pb-2">
@@ -116,18 +122,26 @@ export default function DashboardPage() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Level</span>
-                    <span className="font-medium">{userStats?.user?.level || 1}</span>
+                    <span className="font-medium">
+                      {userStats?.user?.level || 1}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Experience</span>
-                    <span className="font-medium">{userStats?.user?.experience || 0} XP</span>
+                    <span className="text-sm text-muted-foreground">
+                      Experience
+                    </span>
+                    <span className="font-medium">
+                      {userStats?.user?.experience || 0} XP
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Rank</span>
                     <span className="font-medium">Beginner</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Subscription</span>
+                    <span className="text-sm text-muted-foreground">
+                      Subscription
+                    </span>
                     <span className="font-medium capitalize">
                       {userStats?.user?.subscriptionTier || "Free"}
                     </span>

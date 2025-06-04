@@ -53,7 +53,13 @@ export const getDiscussions = query({
     trackId: v.optional(v.id("tracks")),
     lessonId: v.optional(v.id("lessons")),
     tag: v.optional(v.string()),
-    sortBy: v.optional(v.union(v.literal("recent"), v.literal("popular"), v.literal("unanswered"))),
+    sortBy: v.optional(
+      v.union(
+        v.literal("recent"),
+        v.literal("popular"),
+        v.literal("unanswered")
+      )
+    ),
     limit: v.optional(v.number()),
     offset: v.optional(v.number()),
   },
@@ -75,9 +81,11 @@ export const getDiscussions = query({
 
     // Apply sorting
     if (args.sortBy === "popular") {
-      discussions.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+      discussions.sort(
+        (a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes)
+      );
     } else if (args.sortBy === "unanswered") {
-      discussions = discussions.filter(d => d.replyCount === 0);
+      discussions = discussions.filter((d) => d.replyCount === 0);
       discussions.sort((a, b) => b.createdAt - a.createdAt);
     } else {
       discussions.sort((a, b) => b.updatedAt - a.updatedAt);
@@ -94,13 +102,15 @@ export const getDiscussions = query({
         const author = await ctx.db.get(discussion.authorId);
         return {
           ...discussion,
-          author: author ? {
-            _id: author._id,
-            name: author.name,
-            email: author.email,
-            imageUrl: author.imageUrl,
-            level: author.level,
-          } : null,
+          author: author
+            ? {
+                _id: author._id,
+                name: author.name,
+                email: author.email,
+                imageUrl: author.imageUrl,
+                level: author.level,
+              }
+            : null,
         };
       })
     );
@@ -129,7 +139,9 @@ export const getDiscussion = query({
     // Get replies
     const replies = await ctx.db
       .query("discussionReplies")
-      .withIndex("by_discussion", (q) => q.eq("discussionId", args.discussionId))
+      .withIndex("by_discussion", (q) =>
+        q.eq("discussionId", args.discussionId)
+      )
       .order("desc")
       .collect();
 
@@ -139,26 +151,30 @@ export const getDiscussion = query({
         const replyAuthor = await ctx.db.get(reply.authorId);
         return {
           ...reply,
-          author: replyAuthor ? {
-            _id: replyAuthor._id,
-            name: replyAuthor.name,
-            email: replyAuthor.email,
-            imageUrl: replyAuthor.imageUrl,
-            level: replyAuthor.level,
-          } : null,
+          author: replyAuthor
+            ? {
+                _id: replyAuthor._id,
+                name: replyAuthor.name,
+                email: replyAuthor.email,
+                imageUrl: replyAuthor.imageUrl,
+                level: replyAuthor.level,
+              }
+            : null,
         };
       })
     );
 
     return {
       ...discussion,
-      author: author ? {
-        _id: author._id,
-        name: author.name,
-        email: author.email,
-        imageUrl: author.imageUrl,
-        level: author.level,
-      } : null,
+      author: author
+        ? {
+            _id: author._id,
+            name: author.name,
+            email: author.email,
+            imageUrl: author.imageUrl,
+            level: author.level,
+          }
+        : null,
       replies: repliesWithAuthors,
     };
   },
@@ -235,7 +251,7 @@ export const voteDiscussion = mutation({
     // Check if user already voted
     const existingVote = await ctx.db
       .query("discussionVotes")
-      .withIndex("by_user_discussion", (q) => 
+      .withIndex("by_user_discussion", (q) =>
         q.eq("userId", user._id).eq("discussionId", args.discussionId)
       )
       .unique();
@@ -249,14 +265,17 @@ export const voteDiscussion = mutation({
       // Update existing vote
       if (existingVote.voteType !== args.voteType) {
         await ctx.db.patch(existingVote._id, { voteType: args.voteType });
-        
+
         // Update discussion counts
         const upvoteDiff = args.voteType === "up" ? 2 : -2;
         const downvoteDiff = args.voteType === "down" ? 2 : -2;
-        
+
         await ctx.db.patch(args.discussionId, {
-          upvotes: discussion.upvotes + (args.voteType === "up" ? upvoteDiff : 0),
-          downvotes: discussion.downvotes + (args.voteType === "down" ? downvoteDiff : 0),
+          upvotes:
+            discussion.upvotes + (args.voteType === "up" ? upvoteDiff : 0),
+          downvotes:
+            discussion.downvotes +
+            (args.voteType === "down" ? downvoteDiff : 0),
         });
       }
     } else {
@@ -270,8 +289,12 @@ export const voteDiscussion = mutation({
 
       // Update discussion counts
       await ctx.db.patch(args.discussionId, {
-        upvotes: args.voteType === "up" ? discussion.upvotes + 1 : discussion.upvotes,
-        downvotes: args.voteType === "down" ? discussion.downvotes + 1 : discussion.downvotes,
+        upvotes:
+          args.voteType === "up" ? discussion.upvotes + 1 : discussion.upvotes,
+        downvotes:
+          args.voteType === "down"
+            ? discussion.downvotes + 1
+            : discussion.downvotes,
       });
     }
   },
