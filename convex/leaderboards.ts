@@ -220,12 +220,90 @@ export const getUserGlobalRank = query({
     ),
   },
   handler: async (ctx, args) => {
-    const leaderboard = await getGlobalLeaderboard(ctx, {
-      period: args.period,
-      limit: 1000, // Get more entries to find user's rank
-    });
+    const period = args.period || "all-time";
+    const limit = 1000; // Get more entries to find user's rank
 
-    const userEntry = leaderboard.find((entry) => entry.userId === args.userId);
+    // Get all users with their stats
+    const users = await ctx.db.query("users").collect();
+
+    // Calculate scores based on period
+    let leaderboardData = [];
+
+    for (const user of users) {
+      let experienceGained = 0;
+      let lessonsCompleted = 0;
+      let score = 0;
+
+      if (period === "all-time") {
+        experienceGained = user.experience;
+        score = user.experience;
+
+        // Count completed lessons
+        const completedLessons = await ctx.db
+          .query("progress")
+          .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+          .filter((q) => q.eq(q.field("status"), "completed"))
+          .collect();
+
+        lessonsCompleted = completedLessons.length;
+      } else {
+        // For weekly/monthly, we need to filter by date
+        const now = new Date();
+        let startDate: Date;
+
+        if (period === "weekly") {
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        } else {
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        }
+
+        // Get progress in the period
+        const progressInPeriod = await ctx.db
+          .query("progress")
+          .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("status"), "completed"),
+              q.gte(q.field("completedAt"), startDate.toISOString())
+            )
+          )
+          .collect();
+
+        lessonsCompleted = progressInPeriod.length;
+
+        // Calculate experience from lessons completed in period
+        for (const progress of progressInPeriod) {
+          const lesson = await ctx.db.get(progress.lessonId);
+          if (lesson) {
+            experienceGained += lesson.experiencePoints;
+          }
+        }
+
+        score = experienceGained;
+      }
+
+      leaderboardData.push({
+        userId: user.clerkId,
+        username: user.username,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        level: user.level,
+        score,
+        experienceGained,
+        lessonsCompleted,
+      });
+    }
+
+    // Sort by score and add ranks
+    leaderboardData.sort((a, b) => b.score - a.score);
+    leaderboardData = leaderboardData.slice(0, limit).map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
+
+    const userEntry = leaderboardData.find(
+      (entry) => entry.userId === args.userId
+    );
     return userEntry?.rank || null;
   },
 });
@@ -240,13 +318,110 @@ export const getUserTrackRank = query({
     ),
   },
   handler: async (ctx, args) => {
-    const leaderboard = await getTrackLeaderboard(ctx, {
-      trackId: args.trackId,
-      period: args.period,
-      limit: 1000,
-    });
+    const period = args.period || "all-time";
+    const limit = 1000;
 
-    const userEntry = leaderboard.find((entry) => entry.userId === args.userId);
+    // Get all enrollments for this track
+    const enrollments = await ctx.db
+      .query("enrollments")
+      .withIndex("by_track", (q) => q.eq("trackId", args.trackId))
+      .collect();
+
+    let leaderboardData = [];
+
+    for (const enrollment of enrollments) {
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", enrollment.userId))
+        .unique();
+
+      if (!user) continue;
+
+      let experienceGained = 0;
+      let lessonsCompleted = 0;
+      let score = 0;
+
+      if (period === "all-time") {
+        // Get all completed lessons in this track
+        const completedLessons = await ctx.db
+          .query("progress")
+          .withIndex("by_user_and_track", (q) =>
+            q.eq("userId", enrollment.userId).eq("trackId", args.trackId)
+          )
+          .filter((q) => q.eq(q.field("status"), "completed"))
+          .collect();
+
+        lessonsCompleted = completedLessons.length;
+
+        // Calculate total experience from this track
+        for (const progress of completedLessons) {
+          const lesson = await ctx.db.get(progress.lessonId);
+          if (lesson) {
+            experienceGained += lesson.experiencePoints;
+          }
+        }
+
+        // Score based on progress percentage and time efficiency
+        score = enrollment.progress * 10 + experienceGained;
+      } else {
+        // Filter by period for weekly/monthly
+        const now = new Date();
+        let startDate: Date;
+
+        if (period === "weekly") {
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        } else {
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        }
+
+        const progressInPeriod = await ctx.db
+          .query("progress")
+          .withIndex("by_user_and_track", (q) =>
+            q.eq("userId", enrollment.userId).eq("trackId", args.trackId)
+          )
+          .filter((q) =>
+            q.and(
+              q.eq(q.field("status"), "completed"),
+              q.gte(q.field("completedAt"), startDate.toISOString())
+            )
+          )
+          .collect();
+
+        lessonsCompleted = progressInPeriod.length;
+
+        for (const progress of progressInPeriod) {
+          const lesson = await ctx.db.get(progress.lessonId);
+          if (lesson) {
+            experienceGained += lesson.experiencePoints;
+          }
+        }
+
+        score = experienceGained;
+      }
+
+      leaderboardData.push({
+        userId: user.clerkId,
+        username: user.username,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        level: user.level,
+        score,
+        experienceGained,
+        lessonsCompleted,
+        trackProgress: enrollment.progress,
+      });
+    }
+
+    // Sort by score and add ranks
+    leaderboardData.sort((a, b) => b.score - a.score);
+    leaderboardData = leaderboardData.slice(0, limit).map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
+
+    const userEntry = leaderboardData.find(
+      (entry) => entry.userId === args.userId
+    );
     return userEntry?.rank || null;
   },
 });
@@ -259,10 +434,52 @@ export const getLeaderboardStats = query({
     const totalLessons = await ctx.db.query("lessons").collect();
 
     // Get top performers this week
-    const weeklyLeaderboard = await getGlobalLeaderboard(ctx, {
-      period: "weekly",
-      limit: 3,
-    });
+    const now = new Date();
+    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const users = await ctx.db.query("users").collect();
+    let weeklyLeaderboard = [];
+
+    for (const user of users) {
+      let experienceGained = 0;
+      let lessonsCompleted = 0;
+
+      const progressInPeriod = await ctx.db
+        .query("progress")
+        .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("status"), "completed"),
+            q.gte(q.field("completedAt"), startDate.toISOString())
+          )
+        )
+        .collect();
+
+      lessonsCompleted = progressInPeriod.length;
+
+      for (const progress of progressInPeriod) {
+        const lesson = await ctx.db.get(progress.lessonId);
+        if (lesson) {
+          experienceGained += lesson.experiencePoints;
+        }
+      }
+
+      weeklyLeaderboard.push({
+        userId: user.clerkId,
+        username: user.username,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        level: user.level,
+        score: experienceGained,
+        experienceGained,
+        lessonsCompleted,
+      });
+    }
+
+    weeklyLeaderboard.sort((a, b) => b.score - a.score);
+    weeklyLeaderboard = weeklyLeaderboard.slice(0, 3).map((entry, index) => ({
+      ...entry,
+      rank: index + 1,
+    }));
 
     // Get most active tracks
     const trackEnrollments = await ctx.db.query("enrollments").collect();
@@ -303,19 +520,82 @@ export const updateLeaderboardCache = mutation({
       now.getMonth() + 1
     ).padStart(2, "0")}`;
 
+    // Helper function to get leaderboard data
+    const getLeaderboardData = async (
+      period: "weekly" | "monthly" | "all-time",
+      limit: number = 100
+    ) => {
+      const users = await ctx.db.query("users").collect();
+      let leaderboardData = [];
+
+      for (const user of users) {
+        let experienceGained = 0;
+        let lessonsCompleted = 0;
+        let score = 0;
+
+        if (period === "all-time") {
+          experienceGained = user.experience;
+          score = user.experience;
+
+          const completedLessons = await ctx.db
+            .query("progress")
+            .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+            .filter((q) => q.eq(q.field("status"), "completed"))
+            .collect();
+
+          lessonsCompleted = completedLessons.length;
+        } else {
+          const startDate =
+            period === "weekly"
+              ? new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+              : new Date(now.getFullYear(), now.getMonth(), 1);
+
+          const progressInPeriod = await ctx.db
+            .query("progress")
+            .withIndex("by_user", (q) => q.eq("userId", user.clerkId))
+            .filter((q) =>
+              q.and(
+                q.eq(q.field("status"), "completed"),
+                q.gte(q.field("completedAt"), startDate.toISOString())
+              )
+            )
+            .collect();
+
+          lessonsCompleted = progressInPeriod.length;
+
+          for (const progress of progressInPeriod) {
+            const lesson = await ctx.db.get(progress.lessonId);
+            if (lesson) {
+              experienceGained += lesson.experiencePoints;
+            }
+          }
+
+          score = experienceGained;
+        }
+
+        leaderboardData.push({
+          userId: user.clerkId,
+          username: user.username,
+          displayName: user.displayName,
+          avatar: user.avatar,
+          level: user.level,
+          score,
+          experienceGained,
+          lessonsCompleted,
+        });
+      }
+
+      leaderboardData.sort((a, b) => b.score - a.score);
+      return leaderboardData.slice(0, limit).map((entry, index) => ({
+        ...entry,
+        rank: index + 1,
+      }));
+    };
+
     // Update global leaderboards
-    const globalWeekly = await getGlobalLeaderboard(ctx, {
-      period: "weekly",
-      limit: 100,
-    });
-    const globalMonthly = await getGlobalLeaderboard(ctx, {
-      period: "monthly",
-      limit: 100,
-    });
-    const globalAllTime = await getGlobalLeaderboard(ctx, {
-      period: "all-time",
-      limit: 100,
-    });
+    const globalWeekly = await getLeaderboardData("weekly", 100);
+    const globalMonthly = await getLeaderboardData("monthly", 100);
+    const globalAllTime = await getLeaderboardData("all-time", 100);
 
     // Store or update leaderboard entries
     await ctx.db.insert("leaderboards", {
