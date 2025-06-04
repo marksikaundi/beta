@@ -92,7 +92,7 @@ export const updateLessonProgress = mutation({
       throw new Error("Lesson not found");
     }
 
-    // Get user by clerkId first 
+    // Get user by clerkId first
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
@@ -618,7 +618,11 @@ function fizzBuzz(n) {
 });
 
 // Helper function to update track progress
-async function updateTrackProgress(ctx: MutationCtx, userId: Id<"users">, trackId: Id<"tracks">) {
+async function updateTrackProgress(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  trackId: Id<"tracks">
+) {
   // Get all lessons in track
   const trackLessons = await ctx.db
     .query("lessons")

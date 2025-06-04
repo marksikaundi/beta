@@ -55,7 +55,7 @@ export const getTrackBySlug = query({
 export const getTrackWithLessons = query({
   args: {
     slug: v.string(),
-    userId: v.optional(v.string()),
+    clerkId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const track = await ctx.db
@@ -74,29 +74,37 @@ export const getTrackWithLessons = query({
       .filter((q) => q.eq(q.field("isPublished"), true))
       .collect();
 
-    // Get user's progress if userId provided
+    // Get user's progress if clerkId provided
     let userProgress = null;
     let enrollment = null;
 
-    if (args.userId) {
-      const progressData = await ctx.db
-        .query("progress")
-        .withIndex("by_user_and_track", (q) =>
-          q.eq("userId", args.userId).eq("trackId", track._id)
-        )
-        .collect();
-
-      enrollment = await ctx.db
-        .query("enrollments")
-        .withIndex("by_user_and_track", (q) =>
-          q.eq("userId", args.userId).eq("trackId", track._id)
-        )
+    if (args.clerkId) {
+      // Get user first
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId!))
         .first();
 
-      userProgress = progressData.reduce((acc, progress) => {
-        acc[progress.lessonId] = progress;
-        return acc;
-      }, {} as Record<string, any>);
+      if (user) {
+        const progressData = await ctx.db
+          .query("progress")
+          .withIndex("by_user_and_track", (q) =>
+            q.eq("userId", user._id).eq("trackId", track._id)
+          )
+          .collect();
+
+        enrollment = await ctx.db
+          .query("enrollments")
+          .withIndex("by_user_and_track", (q) =>
+            q.eq("userId", user._id).eq("trackId", track._id)
+          )
+          .first();
+
+        userProgress = progressData.reduce((acc, progress) => {
+          acc[progress.lessonId] = progress;
+          return acc;
+        }, {} as Record<string, any>);
+      }
     }
 
     return {
@@ -115,7 +123,7 @@ export const getTrackWithLessons = query({
 // Enroll user in track
 export const enrollInTrack = mutation({
   args: {
-    userId: v.string(),
+    userId: v.id("users"),
     trackId: v.id("tracks"),
   },
   handler: async (ctx, args) => {
@@ -160,13 +168,86 @@ export const enrollInTrack = mutation({
     if (userEnrollments.length === 1) {
       await ctx.db.insert("achievements", {
         userId: args.userId,
-        type: "first-lesson",
+        type: "first-enrollment",
         title: "Welcome Aboard!",
         description: "You've enrolled in your first learning track!",
-        icon: "rocket",
-        color: "#10b981",
-        trackId: args.trackId,
-        earnedAt: new Date().toISOString(),
+        earnedAt: Date.now(),
+      });
+    }
+
+    return enrollment;
+  },
+});
+
+// Enroll user in track by clerkId
+export const enrollInTrackByClerkId = mutation({
+  args: {
+    clerkId: v.string(),
+    trackSlug: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Get track by slug
+    const track = await ctx.db
+      .query("tracks")
+      .withIndex("by_slug", (q) => q.eq("slug", args.trackSlug))
+      .first();
+
+    if (!track) {
+      throw new Error("Track not found");
+    }
+
+    // Check if already enrolled
+    const existingEnrollment = await ctx.db
+      .query("enrollments")
+      .withIndex("by_user_and_track", (q) =>
+        q.eq("userId", user._id).eq("trackId", track._id)
+      )
+      .first();
+
+    if (existingEnrollment) {
+      return existingEnrollment;
+    }
+
+    // Create enrollment
+    const enrollment = await ctx.db.insert("enrollments", {
+      userId: user._id,
+      trackId: track._id,
+      enrolledAt: new Date().toISOString(),
+      progress: 0,
+      certificateIssued: false,
+      totalTimeSpent: 0,
+      streakCount: 0,
+      lastStudiedAt: new Date().toISOString(),
+    });
+
+    // Increment enrollment count on track
+    await ctx.db.patch(track._id, {
+      enrollmentCount: track.enrollmentCount + 1,
+    });
+
+    // Create achievement for first enrollment
+    const userEnrollments = await ctx.db
+      .query("enrollments")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    if (userEnrollments.length === 1) {
+      await ctx.db.insert("achievements", {
+        userId: user._id,
+        type: "first-enrollment",
+        title: "Welcome Aboard!",
+        description: "You've enrolled in your first learning track!",
+        earnedAt: Date.now(),
       });
     }
 
@@ -176,11 +257,21 @@ export const enrollInTrack = mutation({
 
 // Get user's enrolled tracks
 export const getUserEnrollments = query({
-  args: { userId: v.string() },
+  args: { clerkId: v.string() },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
     const enrollments = await ctx.db
       .query("enrollments")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Get track details for each enrollment
@@ -333,10 +424,20 @@ export const searchTracks = query({
 // Get user enrollment for a specific track
 export const getUserEnrollmentForTrack = query({
   args: {
-    userId: v.string(),
+    clerkId: v.string(),
     trackSlug: v.string(),
   },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
     const track = await ctx.db
       .query("tracks")
       .withIndex("by_slug", (q) => q.eq("slug", args.trackSlug))
@@ -349,7 +450,7 @@ export const getUserEnrollmentForTrack = query({
     return await ctx.db
       .query("enrollments")
       .withIndex("by_user_and_track", (q) =>
-        q.eq("userId", args.userId).eq("trackId", track._id)
+        q.eq("userId", user._id).eq("trackId", track._id)
       )
       .first();
   },
