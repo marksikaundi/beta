@@ -67,13 +67,6 @@ interface Lesson {
   videoDuration?: number;
 }
 
-interface Track {
-  _id: string;
-  title: string;
-  slug: string;
-  color: string;
-}
-
 interface Progress {
   status: "not-started" | "in-progress" | "completed" | "skipped";
   completedAt?: string;
