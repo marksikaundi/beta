@@ -23,7 +23,6 @@ import {
   MessageSquare,
   Award,
   GraduationCap,
-  Check,
   X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";

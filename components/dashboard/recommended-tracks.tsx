@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
@@ -127,8 +126,6 @@ export function RecommendedTracks({
   userTracks = [],
   userLevel = 1,
 }: RecommendedTracksProps) {
-  const { user } = useUser();
-
   // Get all tracks to recommend from
   const allTracks = useQuery(api.tracks.getAllTracks, {});
 
