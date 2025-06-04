@@ -14,7 +14,9 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as discussions from "../discussions.js";
+import type * as leaderboards from "../leaderboards.js";
 import type * as lessons from "../lessons.js";
+import type * as notifications from "../notifications.js";
 import type * as progress from "../progress.js";
 import type * as tracks from "../tracks.js";
 import type * as users from "../users.js";
@@ -29,7 +31,9 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   discussions: typeof discussions;
+  leaderboards: typeof leaderboards;
   lessons: typeof lessons;
+  notifications: typeof notifications;
   progress: typeof progress;
   tracks: typeof tracks;
   users: typeof users;

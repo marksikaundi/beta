@@ -2,6 +2,7 @@
 
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,15 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminPage() {
+  const { user } = useUser();
   const [isCreating, setIsCreating] = useState(false);
   const [result, setResult] = useState<string>("");
 
   const createSampleLessons = useMutation(api.lessons.createSampleCodingLessons);
-  const createSampleTracks = useMutation(api.tracks.createSampleTracks);
+  const createSampleNotifications = useMutation(api.notifications.createSampleNotifications);
+  const clearNotifications = useMutation(api.notifications.clearAllUserNotifications);
+  const triggerTestLevelUp = useMutation(api.notifications.triggerTestLevelUp);
+  const triggerTestAchievement = useMutation(api.notifications.triggerTestAchievement);
 
   const handleCreateSampleLessons = async () => {
     setIsCreating(true);
@@ -27,10 +32,66 @@ export default function AdminPage() {
     }
   };
 
-  const handleCreateSampleTracks = async () => {
+  const handleCreateSampleNotifications = async () => {
+    if (!user) {
+      setResult("Error: Please sign in to test notifications");
+      return;
+    }
+    
     setIsCreating(true);
     try {
-      const result = await createSampleTracks({});
+      const result = await createSampleNotifications({ userId: user.id });
+      setResult(`Success: ${result.message}`);
+    } catch (error) {
+      setResult(`Error: ${error}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleClearNotifications = async () => {
+    if (!user) {
+      setResult("Error: Please sign in to clear notifications");
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const result = await clearNotifications({ userId: user.id });
+      setResult(`Success: ${result.message}`);
+    } catch (error) {
+      setResult(`Error: ${error}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleTriggerLevelUp = async () => {
+    if (!user) {
+      setResult("Error: Please sign in to test notifications");
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const result = await triggerTestLevelUp({ userId: user.id });
+      setResult(`Success: ${result.message}`);
+    } catch (error) {
+      setResult(`Error: ${error}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleTriggerAchievement = async () => {
+    if (!user) {
+      setResult("Error: Please sign in to test notifications");
+      return;
+    }
+    
+    setIsCreating(true);
+    try {
+      const result = await triggerTestAchievement({ userId: user.id });
       setResult(`Success: ${result.message}`);
     } catch (error) {
       setResult(`Error: ${error}`);
@@ -61,19 +122,6 @@ export default function AdminPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Button 
-                  onClick={handleCreateSampleTracks}
-                  disabled={isCreating}
-                  className="w-full"
-                >
-                  {isCreating ? "Creating..." : "Create Sample Tracks"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Creates sample learning tracks if they don't exist
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Button 
                   onClick={handleCreateSampleLessons}
                   disabled={isCreating}
                   className="w-full"
@@ -84,6 +132,79 @@ export default function AdminPage() {
                   Creates sample coding lessons with interactive challenges
                 </p>
               </div>
+
+              {result && (
+                <div className={`p-3 rounded-md text-sm ${
+                  result.startsWith("Success") 
+                    ? "bg-green-100 text-green-800 border border-green-200" 
+                    : "bg-red-100 text-red-800 border border-red-200"
+                }`}>
+                  {result}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification System Testing</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleCreateSampleNotifications}
+                  disabled={isCreating || !user}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {isCreating ? "Creating..." : "Create Sample Notifications"}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Creates sample notifications to test the notification dropdown
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button 
+                  onClick={handleClearNotifications}
+                  disabled={isCreating || !user}
+                  className="w-full"
+                  variant="destructive"
+                >
+                  {isCreating ? "Clearing..." : "Clear All Notifications"}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Removes all notifications for the current user
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  onClick={handleTriggerLevelUp}
+                  disabled={isCreating || !user}
+                  variant="outline"
+                  size="sm"
+                >
+                  {isCreating ? "..." : "Test Level-Up"}
+                </Button>
+                <Button 
+                  onClick={handleTriggerAchievement}
+                  disabled={isCreating || !user}
+                  variant="outline"
+                  size="sm"
+                >
+                  {isCreating ? "..." : "Test Achievement"}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Test individual notification types
+              </p>
+
+              {!user && (
+                <div className="p-3 rounded-md text-sm bg-yellow-100 text-yellow-800 border border-yellow-200">
+                  Please sign in to test the notification system
+                </div>
+              )}
 
               {result && (
                 <div className={`p-3 rounded-md text-sm ${

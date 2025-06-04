@@ -280,3 +280,40 @@ export const getLeaderboard = query({
     }));
   },
 });
+
+// Update user mutation
+export const updateUser = mutation({
+  args: {
+    userId: v.id("users"),
+    displayName: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    githubUsername: v.optional(v.string()),
+    linkedinUrl: v.optional(v.string()),
+    websiteUrl: v.optional(v.string()),
+    preferredLanguages: v.optional(v.array(v.string())),
+    timezone: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const { userId, ...updateData } = args;
+    
+    // Only update fields that are provided
+    const fieldsToUpdate: any = {
+      updatedAt: new Date().toISOString(),
+    };
+    
+    Object.entries(updateData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        fieldsToUpdate[key] = value;
+      }
+    });
+
+    await ctx.db.patch(userId, fieldsToUpdate);
+    
+    return { success: true };
+  },
+});

@@ -20,6 +20,7 @@ import {
   User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NotificationsDropdown } from "./notifications-dropdown";
 
 const navigationItems = [
   {
@@ -108,6 +109,9 @@ export function MainNavigation() {
               </div>
             )}
 
+            {/* Notifications for signed-in users */}
+            {isSignedIn && <NotificationsDropdown />}
+
             {/* Premium badge */}
             <Badge variant="outline" className="hidden sm:inline-flex">
               <GraduationCap className="h-3 w-3 mr-1" />
@@ -166,6 +170,7 @@ export function MainNavigation() {
                         <p className="text-sm font-medium">Welcome back!</p>
                         <p className="text-xs text-muted-foreground">Level 1 • 0 XP</p>
                       </div>
+                      <NotificationsDropdown />
                     </div>
                   )}
 

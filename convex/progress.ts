@@ -378,6 +378,29 @@ export const getStudyMilestones = query({
   },
 });
 
+// Get user achievements
+export const getUserAchievements = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+      .unique();
+
+    if (!user) {
+      return [];
+    }
+
+    const achievements = await ctx.db
+      .query("achievements")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .collect();
+
+    return achievements;
+  },
+});
+
 // Update lesson progress
 export const updateLessonProgress = mutation({
   args: {
