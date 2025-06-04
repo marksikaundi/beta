@@ -1,6 +1,42 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+
+// Helper function to get or create user from Clerk identity
+async function getOrCreateUser(ctx: MutationCtx, identity: any) {
+  let user = await ctx.db
+    .query("users")
+    .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+    .unique();
+
+  if (!user) {
+    // Create user if they don't exist
+    const now = new Date().toISOString();
+    const userId = await ctx.db.insert("users", {
+      clerkId: identity.subject,
+      email: identity.email || "",
+      username: identity.nickname || identity.email?.split("@")[0] || "user",
+      displayName: identity.name || identity.nickname || "User",
+      avatar: identity.pictureUrl,
+      bio: "",
+      level: 1,
+      experience: 0,
+      streakDays: 0,
+      lastActiveDate: now,
+      subscriptionTier: "free",
+      preferredLanguages: [],
+      createdAt: now,
+      updatedAt: now,
+    });
+    
+    user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("Failed to create user");
+    }
+  }
+  
+  return user;
+}
 
 // Create a new discussion thread
 export const createDiscussion = mutation({
@@ -17,14 +53,7 @@ export const createDiscussion = mutation({
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getOrCreateUser(ctx, identity);
 
     const discussionId = await ctx.db.insert("discussions", {
       title: args.title,
@@ -195,14 +224,7 @@ export const createReply = mutation({
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getOrCreateUser(ctx, identity);
 
     const replyId = await ctx.db.insert("discussionReplies", {
       discussionId: args.discussionId,
@@ -241,14 +263,7 @@ export const voteDiscussion = mutation({
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getOrCreateUser(ctx, identity);
 
     // Check if user already voted
     const existingVote = await ctx.db
