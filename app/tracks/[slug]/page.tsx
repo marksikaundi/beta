@@ -29,24 +29,6 @@ import {
   Award,
 } from "lucide-react";
 
-interface Track {
-  _id: string;
-  title: string;
-  slug: string;
-  description: string;
-  longDescription: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  estimatedHours: number;
-  thumbnail: string;
-  color: string;
-  category: string;
-  totalLessons: number;
-  enrollmentCount: number;
-  averageRating: number;
-  isPremium: boolean;
-  tags: string[];
-}
-
 interface Lesson {
   _id: string;
   title: string;

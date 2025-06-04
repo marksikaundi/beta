@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Flame, Target, Calendar, TrendingUp, Zap } from "lucide-react";
+import { Flame, Target, TrendingUp, Zap } from "lucide-react";
 
 interface StudyStreakProps {
   streakDays: number;
