@@ -273,7 +273,7 @@ export default function LeaderboardPage() {
         <CardContent>
           {currentLeaderboard && currentLeaderboard.length > 0 ? (
             <div className="space-y-3">
-              {currentLeaderboard.map((entry, index) => {
+              {currentLeaderboard.map((entry) => {
                 const isCurrentUser = user?.id === entry.userId;
 
                 return (

@@ -220,7 +220,7 @@ export default function TrackDetailPage() {
   });
 
   // Get user enrollment status
-  const enrollment = useQuery(
+  useQuery(
     api.tracks.getUserEnrollmentForTrack,
     user ? { userId: user.id, trackSlug } : "skip"
   );
@@ -382,7 +382,7 @@ export default function TrackDetailPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {lessons?.map((lessonData, index) => {
+                  {lessons?.map((lessonData) => {
                     const isLocked =
                       !trackProgress && lessonData.lesson.isPremium;
                     return (
