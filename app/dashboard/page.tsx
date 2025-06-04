@@ -24,7 +24,7 @@ export default function DashboardPage() {
 
   const recentActivity = useQuery(
     api.progress.getRecentActivity,
-    user ? { userId: user.id, limit: 5 } : "skip"
+    user ? { clerkId: user.id, limit: 5 } : "skip"
   );
 
   const enrollments = useQuery(

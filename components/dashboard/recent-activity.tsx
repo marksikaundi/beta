@@ -45,8 +45,6 @@ interface RecentActivityProps {
       title: string;
       description: string;
       type: string;
-      icon: string;
-      color: string;
     };
   }> | null;
   isLoading: boolean;

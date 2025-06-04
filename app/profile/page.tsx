@@ -60,12 +60,12 @@ export default function ProfilePage() {
 
   const userAchievements = useQuery(
     api.progress.getUserAchievements,
-    user ? { userId: user.id } : "skip"
+    user ? { clerkId: user.id } : "skip"
   );
 
   const recentActivity = useQuery(
     api.progress.getRecentActivity,
-    user ? { userId: user.id, limit: 10 } : "skip"
+    user ? { clerkId: user.id, limit: 10 } : "skip"
   );
 
   const updateUser = useMutation(api.users.updateUser);

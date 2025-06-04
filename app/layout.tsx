@@ -9,7 +9,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DevLearn - Master Backend Development",
+  title: "Lupleg - Master Backend Development",
   description:
     "Master backend development with hands-on projects, interactive coding challenges, and structured learning paths. Learn programming like a pro.",
   keywords: [
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     "learn to code",
     "software engineering",
   ],
-  authors: [{ name: "DevLearn Team" }],
+  authors: [{ name: "Mark Sikaundi" }],
   openGraph: {
-    title: "DevLearn - Master Backend Development",
+    title: "Lupleg - Master Backend Development",
     description:
       "Master backend development with hands-on projects and structured learning paths.",
     type: "website",

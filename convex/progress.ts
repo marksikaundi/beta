@@ -123,15 +123,25 @@ export const getUserProgressAnalytics = query({
 // Get progress for a specific track
 export const getTrackProgress = query({
   args: {
-    userId: v.string(),
+    clerkId: v.string(),
     trackId: v.id("tracks"),
   },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
     // Get enrollment
     const enrollment = await ctx.db
       .query("enrollments")
       .withIndex("by_user_and_track", (q) =>
-        q.eq("userId", args.userId).eq("trackId", args.trackId)
+        q.eq("userId", user._id).eq("trackId", args.trackId)
       )
       .first();
 
@@ -156,7 +166,7 @@ export const getTrackProgress = query({
     const lessonsProgress = await ctx.db
       .query("progress")
       .withIndex("by_user_and_track", (q) =>
-        q.eq("userId", args.userId).eq("trackId", args.trackId)
+        q.eq("userId", user._id).eq("trackId", args.trackId)
       )
       .collect();
 
@@ -204,16 +214,26 @@ export const getTrackProgress = query({
 // Get recent activity
 export const getRecentActivity = query({
   args: {
-    userId: v.string(),
+    clerkId: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 10;
 
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
     // Get recent progress updates
     const recentProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .order("desc")
       .take(limit);
 
@@ -256,7 +276,7 @@ export const getRecentActivity = query({
     // Get recent achievements
     const recentAchievements = await ctx.db
       .query("achievements")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .order("desc")
       .take(5);
 
@@ -275,8 +295,6 @@ export const getRecentActivity = query({
             title: achievement.title,
             description: achievement.description,
             type: achievement.type,
-            icon: "trophy", // Default icon since schema doesn't have this field
-            color: "#f59e0b", // Default color since schema doesn't have this field
           },
           lesson,
           track,
@@ -298,11 +316,11 @@ export const getRecentActivity = query({
 
 // Get study streaks and milestones
 export const getStudyMilestones = query({
-  args: { userId: v.string() },
+  args: { clerkId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .first();
 
     if (!user) {
@@ -312,7 +330,7 @@ export const getStudyMilestones = query({
     // Get all progress to calculate milestones
     const allProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     const completedLessons = allProgress.filter(
@@ -331,13 +349,13 @@ export const getStudyMilestones = query({
     // Get achievements
     const achievements = await ctx.db
       .query("achievements")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Get enrollments
     const enrollments = await ctx.db
       .query("enrollments")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     const completedTracks = enrollments.filter((e) => e.completedAt);
@@ -433,12 +451,12 @@ export const getStudyMilestones = query({
 
 // Get user achievements
 export const getUserAchievements = query({
-  args: { userId: v.string() },
+  args: { clerkId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
-      .unique();
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
 
     if (!user) {
       return [];
@@ -457,7 +475,7 @@ export const getUserAchievements = query({
 // Update lesson progress
 export const updateLessonProgress = mutation({
   args: {
-    userId: v.string(),
+    clerkId: v.string(),
     lessonId: v.id("lessons"),
     status: v.union(
       v.literal("not-started"),
@@ -470,6 +488,16 @@ export const updateLessonProgress = mutation({
     submittedCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     // Get lesson info
     const lesson = await ctx.db.get(args.lessonId);
     if (!lesson) {
@@ -480,7 +508,7 @@ export const updateLessonProgress = mutation({
     const existingProgress = await ctx.db
       .query("progress")
       .withIndex("by_user_and_lesson", (q) =>
-        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+        q.eq("userId", user._id).eq("lessonId", args.lessonId)
       )
       .first();
 
@@ -500,7 +528,7 @@ export const updateLessonProgress = mutation({
     } else {
       // Create new progress record
       return await ctx.db.insert("progress", {
-        userId: args.userId,
+        userId: user._id,
         lessonId: args.lessonId,
         trackId: lesson.trackId,
         status: args.status,
@@ -518,18 +546,29 @@ export const updateLessonProgress = mutation({
 // Complete lesson with submission
 export const completeLesson = mutation({
   args: {
-    userId: v.string(),
+    clerkId: v.string(),
     lessonId: v.id("lessons"),
     timeSpent: v.number(),
     submissionData: v.any(),
   },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     const lesson = await ctx.db.get(args.lessonId);
     if (!lesson) {
       throw new Error("Lesson not found");
     }
 
     const now = new Date().toISOString();
+    const nowTimestamp = Date.now();
 
     // Update progress
     let score;
@@ -561,7 +600,7 @@ export const completeLesson = mutation({
     const existingProgress = await ctx.db
       .query("progress")
       .withIndex("by_user_and_lesson", (q) =>
-        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+        q.eq("userId", user._id).eq("lessonId", args.lessonId)
       )
       .first();
 
@@ -576,7 +615,7 @@ export const completeLesson = mutation({
       });
     } else {
       await ctx.db.insert("progress", {
-        userId: args.userId,
+        userId: user._id,
         lessonId: args.lessonId,
         trackId: lesson.trackId,
         status: "completed",
@@ -590,31 +629,24 @@ export const completeLesson = mutation({
     }
 
     // Update user experience
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
-      .first();
-
-    if (user) {
-      const newExperience = user.experience + lesson.experiencePoints;
+    const existingUser = await ctx.db.get(user._id);
+    if (existingUser) {
+      const newExperience = existingUser.experience + lesson.experiencePoints;
       const newLevel = Math.floor(newExperience / 1000) + 1; // Simple leveling system
 
       await ctx.db.patch(user._id, {
         experience: newExperience,
-        level: Math.max(user.level, newLevel),
+        level: Math.max(existingUser.level, newLevel),
       });
 
       // Check for level up achievement
-      if (newLevel > user.level) {
+      if (newLevel > existingUser.level) {
         await ctx.db.insert("achievements", {
-          userId: args.userId,
+          userId: user._id,
           type: "level-up",
           title: `Level ${newLevel}!`,
           description: `You've reached level ${newLevel}!`,
-          icon: "star",
-          color: "#10b981",
-          metadata: { level: newLevel },
-          earnedAt: now,
+          earnedAt: nowTimestamp,
         });
       }
     }
@@ -623,7 +655,7 @@ export const completeLesson = mutation({
     const enrollment = await ctx.db
       .query("enrollments")
       .withIndex("by_user_and_track", (q) =>
-        q.eq("userId", args.userId).eq("trackId", lesson.trackId)
+        q.eq("userId", user._id).eq("trackId", lesson.trackId)
       )
       .first();
 
@@ -638,7 +670,7 @@ export const completeLesson = mutation({
       const completedLessons = await ctx.db
         .query("progress")
         .withIndex("by_user_and_track", (q) =>
-          q.eq("userId", args.userId).eq("trackId", lesson.trackId)
+          q.eq("userId", user._id).eq("trackId", lesson.trackId)
         )
         .filter((q) => q.eq(q.field("status"), "completed"))
         .collect();
@@ -663,14 +695,11 @@ export const completeLesson = mutation({
 
         // Create track completion achievement
         await ctx.db.insert("achievements", {
-          userId: args.userId,
+          userId: user._id,
           type: "track-completion",
           title: "Track Complete!",
-          description: `You've completed the ${lesson.trackId} track!`,
-          icon: "trophy",
-          color: "#f59e0b",
-          trackId: lesson.trackId,
-          earnedAt: now,
+          description: `You've completed the track!`,
+          earnedAt: nowTimestamp,
         });
       }
     }

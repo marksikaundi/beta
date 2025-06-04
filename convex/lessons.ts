@@ -5,7 +5,7 @@ import { mutation, query } from "./_generated/server";
 export const getLessonBySlug = query({
   args: {
     slug: v.string(),
-    userId: v.optional(v.string()),
+    clerkId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const lesson = await ctx.db
@@ -20,15 +20,23 @@ export const getLessonBySlug = query({
     // Get track info
     const track = await ctx.db.get(lesson.trackId);
 
-    // Get user progress if userId provided
+    // Get user progress if clerkId provided
     let progress = null;
-    if (args.userId) {
-      progress = await ctx.db
-        .query("progress")
-        .withIndex("by_user_and_lesson", (q) =>
-          q.eq("userId", args.userId).eq("lessonId", lesson._id)
-        )
+    if (args.clerkId) {
+      // Get user first
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId!))
         .first();
+
+      if (user) {
+        progress = await ctx.db
+          .query("progress")
+          .withIndex("by_user_and_lesson", (q) =>
+            q.eq("userId", user._id).eq("lessonId", lesson._id)
+          )
+          .first();
+      }
     }
 
     // Get all lessons in track for navigation

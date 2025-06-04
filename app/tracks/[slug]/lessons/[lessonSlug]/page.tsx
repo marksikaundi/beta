@@ -382,7 +382,7 @@ export default function LessonPage() {
   // Get lesson data
   const lessonData = useQuery(api.lessons.getLessonBySlug, {
     slug: lessonSlug,
-    userId: user?.id,
+    clerkId: user?.id,
   });
 
   // Mutations
@@ -395,7 +395,7 @@ export default function LessonPage() {
     // Mark lesson as started
     if (lessonData?.lesson && user) {
       updateProgress({
-        userId: user.id,
+        clerkId: user.id,
         lessonId: lessonData.lesson._id,
         status: "in-progress",
         timeSpent: 0,
@@ -411,7 +411,7 @@ export default function LessonPage() {
       const timeSpent = Math.round((Date.now() - startTime) / (1000 * 60)); // minutes
 
       await completeLesson({
-        userId: user.id,
+        clerkId: user.id,
         lessonId: lessonData.lesson._id,
         timeSpent,
         submissionData: data,
