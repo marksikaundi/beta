@@ -3,18 +3,28 @@ import { mutation, query } from "./_generated/server";
 
 // Get user's overall progress analytics
 export const getUserProgressAnalytics = query({
-  args: { userId: v.string() },
+  args: { clerkId: v.string() },
   handler: async (ctx, args) => {
+    // Get user first
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) {
+      return null;
+    }
+
     // Get all user's progress
     const allProgress = await ctx.db
       .query("progress")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Get enrollments
     const enrollments = await ctx.db
       .query("enrollments")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Calculate weekly progress
@@ -214,10 +224,31 @@ export const getRecentActivity = query({
         const track = lesson ? await ctx.db.get(lesson.trackId) : null;
 
         return {
-          progress,
-          lesson,
-          track,
           type: "lesson_progress" as const,
+          timestamp: progress.lastAccessedAt,
+          progress: {
+            _id: progress._id.toString(),
+            lessonId: progress.lessonId.toString(),
+            status: progress.status,
+            score: progress.score,
+            timeSpent: progress.timeSpent,
+          },
+          lesson: lesson
+            ? {
+                _id: lesson._id.toString(),
+                title: lesson.title,
+                slug: lesson.slug,
+                type: lesson.type,
+              }
+            : null,
+          track: track
+            ? {
+                _id: track._id.toString(),
+                title: track.title,
+                slug: track.slug,
+                color: track.color,
+              }
+            : null,
         };
       })
     );
@@ -231,36 +262,30 @@ export const getRecentActivity = query({
 
     const achievementActivities = await Promise.all(
       recentAchievements.map(async (achievement) => {
-        let lesson = null;
-        let track = null;
-
-        if (achievement.lessonId) {
-          lesson = await ctx.db.get(achievement.lessonId);
-        }
-        if (achievement.trackId) {
-          track = await ctx.db.get(achievement.trackId);
-        }
+        // For now, since achievements schema doesn't have lessonId/trackId,
+        // we'll set lesson and track to null
+        const lesson = null;
+        const track = null;
 
         return {
-          achievement,
+          type: "achievement" as const,
+          timestamp: new Date(achievement.earnedAt).toISOString(),
+          achievement: {
+            _id: achievement._id.toString(),
+            title: achievement.title,
+            description: achievement.description,
+            type: achievement.type,
+            icon: "trophy", // Default icon since schema doesn't have this field
+            color: "#f59e0b", // Default color since schema doesn't have this field
+          },
           lesson,
           track,
-          type: "achievement" as const,
         };
       })
     );
 
     // Combine and sort all activities
-    const allActivities = [
-      ...activityWithDetails.map((a) => ({
-        ...a,
-        timestamp: a.progress.lastAccessedAt,
-      })),
-      ...achievementActivities.map((a) => ({
-        ...a,
-        timestamp: a.achievement.earnedAt,
-      })),
-    ];
+    const allActivities = [...activityWithDetails, ...achievementActivities];
 
     return allActivities
       .sort(

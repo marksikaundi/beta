@@ -74,10 +74,17 @@ export const getDiscussions = query({
       query = query.filter((q) => q.eq(q.field("lessonId"), args.lessonId));
     }
     if (args.tag) {
-      query = query.filter((q) => q.field("tags").includes(args.tag));
+      // We'll filter this client-side since Convex doesn't support array.includes in queries
     }
 
     let discussions = await query.collect();
+
+    // Apply tag filter client-side if provided
+    if (args.tag) {
+      discussions = discussions.filter((discussion) =>
+        discussion.tags.includes(args.tag!)
+      );
+    }
 
     // Apply sorting
     if (args.sortBy === "popular") {
@@ -105,9 +112,9 @@ export const getDiscussions = query({
           author: author
             ? {
                 _id: author._id,
-                name: author.name,
+                name: author.displayName,
                 email: author.email,
-                imageUrl: author.imageUrl,
+                imageUrl: author.avatar,
                 level: author.level,
               }
             : null,
@@ -127,11 +134,6 @@ export const getDiscussion = query({
     if (!discussion) {
       return null;
     }
-
-    // Increment view count
-    await ctx.db.patch(args.discussionId, {
-      viewCount: discussion.viewCount + 1,
-    });
 
     // Get author
     const author = await ctx.db.get(discussion.authorId);
@@ -154,9 +156,9 @@ export const getDiscussion = query({
           author: replyAuthor
             ? {
                 _id: replyAuthor._id,
-                name: replyAuthor.name,
+                name: replyAuthor.displayName,
                 email: replyAuthor.email,
-                imageUrl: replyAuthor.imageUrl,
+                imageUrl: replyAuthor.avatar,
                 level: replyAuthor.level,
               }
             : null,
@@ -169,9 +171,9 @@ export const getDiscussion = query({
       author: author
         ? {
             _id: author._id,
-            name: author.name,
+            name: author.displayName,
             email: author.email,
-            imageUrl: author.imageUrl,
+            imageUrl: author.avatar,
             level: author.level,
           }
         : null,
@@ -326,6 +328,21 @@ export const markResolved = mutation({
     await ctx.db.patch(args.discussionId, {
       isResolved: true,
       updatedAt: Date.now(),
+    });
+  },
+});
+
+// Increment view count for a discussion
+export const incrementViewCount = mutation({
+  args: { discussionId: v.id("discussions") },
+  handler: async (ctx, args) => {
+    const discussion = await ctx.db.get(args.discussionId);
+    if (!discussion) {
+      throw new Error("Discussion not found");
+    }
+
+    await ctx.db.patch(args.discussionId, {
+      viewCount: discussion.viewCount + 1,
     });
   },
 });

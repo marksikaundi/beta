@@ -27,6 +27,7 @@ export default function AdminPage() {
   const triggerTestAchievement = useMutation(
     api.notifications.triggerTestAchievement
   );
+  const createTestDiscussion = useMutation(api.discussions.createDiscussion);
 
   const handleCreateSampleLessons = async () => {
     setIsCreating(true);
@@ -101,6 +102,28 @@ export default function AdminPage() {
     try {
       const result = await triggerTestAchievement({ userId: user.id });
       setResult(`Success: ${result.message}`);
+    } catch (error) {
+      setResult(`Error: ${error}`);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleCreateTestDiscussion = async () => {
+    if (!user) {
+      setResult("Error: Please sign in to test discussion creation");
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const result = await createTestDiscussion({
+        title: "Test Discussion - Authentication Check",
+        content:
+          "This is a test discussion to verify that Convex-Clerk authentication is working properly.",
+        tags: ["test", "authentication"],
+      });
+      setResult(`Success: Created discussion with ID ${result}`);
     } catch (error) {
       setResult(`Error: ${error}`);
     } finally {
@@ -215,6 +238,67 @@ export default function AdminPage() {
                   Please sign in to test the notification system
                 </div>
               )}
+
+              {result && (
+                <div
+                  className={`p-3 rounded-md text-sm ${
+                    result.startsWith("Success")
+                      ? "bg-green-100 text-green-800 border border-green-200"
+                      : "bg-red-100 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {result}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Discussion Creation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Button
+                  onClick={handleCreateTestDiscussion}
+                  disabled={isCreating || !user}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {isCreating ? "Creating..." : "Create Test Discussion"}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Creates a test discussion to verify discussion functionality
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleTriggerAchievement}
+                  disabled={isCreating || !user}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  {isCreating ? "Creating..." : "Test Achievement Notification"}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Creates a test achievement notification
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleCreateTestDiscussion}
+                  disabled={isCreating || !user}
+                  className="w-full"
+                  variant="default"
+                >
+                  {isCreating ? "Creating..." : "Test Discussion Creation"}
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Tests Convex-Clerk authentication by creating a discussion
+                </p>
+              </div>
 
               {result && (
                 <div
