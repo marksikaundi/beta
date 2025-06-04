@@ -222,13 +222,13 @@ export const getUserStats = query({
     // Get enrollments count
     const enrollments = await ctx.db
       .query("enrollments")
-      .withIndex("by_user", (q) => q.eq("userId", args.clerkId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Get completed lessons count
     const completedLessons = await ctx.db
       .query("progress")
-      .withIndex("by_user", (q) => q.eq("userId", args.clerkId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .filter((q) => q.eq(q.field("status"), "completed"))
       .collect();
 

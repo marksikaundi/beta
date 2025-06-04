@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
   const enrollments = useQuery(
     api.tracks.getUserEnrollments,
-    user ? { userId: user.id } : "skip"
+    user ? { clerkId: user.id } : "skip"
   );
 
   if (!isLoaded || !user) {

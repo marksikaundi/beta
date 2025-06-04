@@ -177,7 +177,7 @@ export default function TracksPage() {
   // Get user enrollments to show enrolled status
   const userEnrollments = useQuery(
     api.tracks.getUserEnrollments,
-    user ? { userId: user.id } : "skip"
+    user ? { clerkId: user.id } : "skip"
   );
 
   const enrolledTrackIds =

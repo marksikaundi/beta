@@ -50,7 +50,7 @@ export default function ProfilePage() {
 
   const userEnrollments = useQuery(
     api.tracks.getUserEnrollments,
-    user ? { userId: user.id } : "skip"
+    user ? { clerkId: user.id } : "skip"
   );
 
   const userAchievements = useQuery(
