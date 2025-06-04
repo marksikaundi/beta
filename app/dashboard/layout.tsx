@@ -1,5 +1,9 @@
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
 export default function DashboardLayout({
   children,
 }: {

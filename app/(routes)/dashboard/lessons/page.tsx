@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ChevronRight, Play, CheckCircle, Lock } from "lucide-react";
+import Link from "next/link";
 
 const lessonData = {
   title: "Python Fundamentals",
@@ -15,40 +16,45 @@ const lessonData = {
       title: "Getting Started with Python",
       lessons: [
         {
-          title: "Introduction to Python",
-          duration: "10 min",
-          completed: true,
-        },
-        {
-          title: "Setting up Your Environment",
+          id: "python-basics-1",
+          title: "Variables and Data Types",
+          type: "interactive",
           duration: "15 min",
-          completed: true,
+          completed: false,
         },
         {
-          title: "Basic Syntax and Variables",
+          id: "python-basics-2",
+          title: "Basic Operations",
+          type: "video",
+          duration: "10 min",
+          completed: false,
+        },
+        {
+          id: "python-basics-3",
+          title: "Control Flow",
+          type: "interactive",
           duration: "20 min",
           completed: false,
+          locked: true,
         },
       ],
     },
     {
-      title: "Control Flow",
+      title: "Functions and Methods",
       lessons: [
         {
-          title: "If Statements",
-          duration: "15 min",
-          completed: false,
-          locked: false,
-        },
-        {
-          title: "Loops in Python",
+          id: "python-functions-1",
+          title: "Defining Functions",
+          type: "interactive",
           duration: "20 min",
           completed: false,
           locked: true,
         },
         {
-          title: "Functions and Methods",
-          duration: "25 min",
+          id: "python-functions-2",
+          title: "Function Parameters",
+          type: "video",
+          duration: "15 min",
           completed: false,
           locked: true,
         },
@@ -105,9 +111,9 @@ export default function LessonsPage() {
             {lessonData.modules[activeModule].title}
           </h2>
           <div className="space-y-3">
-            {lessonData.modules[activeModule].lessons.map((lesson, index) => (
+            {lessonData.modules[activeModule].lessons.map((lesson) => (
               <div
-                key={index}
+                key={lesson.id}
                 className={`p-4 rounded-lg border ${
                   lesson.locked
                     ? "bg-gray-50"
@@ -125,13 +131,23 @@ export default function LessonsPage() {
                     )}
                     <div>
                       <h3 className="font-medium">{lesson.title}</h3>
-                      <p className="text-sm text-gray-500">{lesson.duration}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">
+                          {lesson.duration}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                          {lesson.type}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   {!lesson.locked && !lesson.completed && (
-                    <Button variant="ghost" size="sm">
-                      Start
-                    </Button>
+                    <Link href={`/dashboard/lessons/${lesson.id}`}>
+                      <Button variant="ghost" size="sm">
+                        Start
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   )}
                 </div>
               </div>
