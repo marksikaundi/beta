@@ -5,10 +5,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -23,12 +21,9 @@ import {
   TrendingUp,
   Users,
   BookOpen,
-  Zap,
   Star,
   Target,
   Award,
-  ChevronUp,
-  ChevronDown,
 } from "lucide-react";
 
 export default function LeaderboardPage() {

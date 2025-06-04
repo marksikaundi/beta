@@ -14,20 +14,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
-  User,
   Trophy,
   BookOpen,
   Calendar,
-  MapPin,
-  Link as LinkIcon,
   Github,
   Linkedin,
   Globe,
   Settings,
   Award,
   TrendingUp,
-  Clock,
-  Code,
   Zap,
   Target,
   Edit,

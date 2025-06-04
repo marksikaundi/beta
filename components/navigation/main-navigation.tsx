@@ -17,7 +17,6 @@ import {
   Zap,
   GraduationCap,
   Home,
-  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsDropdown } from "./notifications-dropdown";

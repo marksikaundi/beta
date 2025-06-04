@@ -9,16 +9,12 @@ import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft,
   ArrowRight,
-  Clock,
-  Target,
-  Play,
   CheckCircle,
   Code,
   FileText,

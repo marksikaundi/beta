@@ -75,7 +75,7 @@ export async function executeJavaScript(
 
     const userFunction = safeEval(code);
     let output = "";
-    let testResults: ExecutionResult["testResults"] = [];
+    const testResults: ExecutionResult["testResults"] = [];
 
     if (
       testCases &&
@@ -184,6 +184,9 @@ export async function executePython(
   code: string,
   testCases?: TestCase[]
 ): Promise<ExecutionResult> {
+  // Suppress unused parameter warnings - these are intentionally unused in demo mode
+  void code;
+  void testCases;
   const startTime = Date.now();
 
   // This is a simplified simulation

@@ -528,16 +528,18 @@ export const updateLessonProgress = mutation({
     } else {
       // Create new progress record
       return await ctx.db.insert("progress", {
-        userId: user._id,
-        lessonId: args.lessonId,
-        trackId: lesson.trackId,
-        status: args.status,
-        timeSpent: args.timeSpent,
-        attempts: 1,
-        score: args.score,
-        lastAccessedAt: now,
-        submittedCode: args.submittedCode,
-        completedAt: args.status === "completed" ? now : undefined,
+          userId: user._id,
+          lessonId: args.lessonId,
+          trackId: lesson.trackId,
+          status: args.status,
+          timeSpent: args.timeSpent,
+          attempts: 1,
+          score: args.score,
+          lastAccessedAt: now,
+          submittedCode: args.submittedCode,
+          completedAt: args.status === "completed" ? now : undefined,
+          createdAt: "",
+          updatedAt: ""
       });
     }
   },
@@ -615,16 +617,18 @@ export const completeLesson = mutation({
       });
     } else {
       await ctx.db.insert("progress", {
-        userId: user._id,
-        lessonId: args.lessonId,
-        trackId: lesson.trackId,
-        status: "completed",
-        timeSpent: args.timeSpent,
-        attempts: 1,
-        score,
-        submittedCode,
-        lastAccessedAt: now,
-        completedAt: now,
+          userId: user._id,
+          lessonId: args.lessonId,
+          trackId: lesson.trackId,
+          status: "completed",
+          timeSpent: args.timeSpent,
+          attempts: 1,
+          score,
+          submittedCode,
+          lastAccessedAt: now,
+          completedAt: now,
+          createdAt: "",
+          updatedAt: ""
       });
     }
 
