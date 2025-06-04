@@ -7,8 +7,6 @@ import {
   Clock,
   Trophy,
   Target,
-  TrendingUp,
-  CheckCircle,
 } from "lucide-react";
 
 interface DashboardStatsProps {

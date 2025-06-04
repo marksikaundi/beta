@@ -9,7 +9,6 @@ import {
   Activity,
   BookOpen,
   Trophy,
-  Clock,
   CheckCircle,
   Code,
   PlayCircle,
