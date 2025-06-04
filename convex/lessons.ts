@@ -1,5 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, MutationCtx } from "./_generated/server";
+import { api } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 
 // Get lesson by slug
 export const getLessonBySlug = query({
@@ -72,7 +74,7 @@ export const getLessonBySlug = query({
 // Start or update lesson progress
 export const updateLessonProgress = mutation({
   args: {
-    userId: v.string(),
+    userId: v.string(), // This will be clerkId
     lessonId: v.id("lessons"),
     status: v.union(
       v.literal("not-started"),
@@ -90,18 +92,28 @@ export const updateLessonProgress = mutation({
       throw new Error("Lesson not found");
     }
 
+    // Get user by clerkId first 
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     // Get existing progress
     const existingProgress = await ctx.db
       .query("progress")
       .withIndex("by_user_and_lesson", (q) =>
-        q.eq("userId", args.userId).eq("lessonId", args.lessonId)
+        q.eq("userId", user._id).eq("lessonId", args.lessonId)
       )
       .first();
 
     const now = new Date().toISOString();
 
-    const progressData = {
-      userId: args.userId,
+    const progressData: any = {
+      userId: user._id,
       lessonId: args.lessonId,
       trackId: lesson.trackId,
       status: args.status,
@@ -139,11 +151,6 @@ export const updateLessonProgress = mutation({
       (!existingProgress || existingProgress.status !== "completed")
     ) {
       // Award experience points
-      const user = await ctx.db
-        .query("users")
-        .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
-        .first();
-
       if (user) {
         const newExperience = user.experience + lesson.experiencePoints;
         const newLevel = Math.floor(newExperience / 100) + 1;
@@ -156,30 +163,27 @@ export const updateLessonProgress = mutation({
         });
 
         // Update streak
-        await ctx.runMutation("users:updateStreak", { clerkId: args.userId });
+        await ctx.runMutation(api.users.updateStreak, { clerkId: args.userId });
 
         // Check if this is user's first completed lesson
         const completedLessons = await ctx.db
           .query("progress")
-          .withIndex("by_user", (q) => q.eq("userId", args.userId))
+          .withIndex("by_user", (q) => q.eq("userId", user._id))
           .filter((q) => q.eq(q.field("status"), "completed"))
           .collect();
 
         if (completedLessons.length === 1) {
           await ctx.db.insert("achievements", {
-            userId: args.userId,
+            userId: user._id,
             type: "first-lesson",
             title: "First Lesson Complete!",
             description: "You've completed your first lesson. Keep it up!",
-            icon: "check-circle",
-            color: "#10b981",
-            lessonId: args.lessonId,
-            earnedAt: now,
+            earnedAt: Date.now(),
           });
         }
 
         // Update track enrollment progress
-        await updateTrackProgress(ctx, args.userId, lesson.trackId);
+        await updateTrackProgress(ctx, user._id, lesson.trackId);
       }
     }
 
@@ -190,7 +194,7 @@ export const updateLessonProgress = mutation({
 // Submit code for coding lesson
 export const submitCode = mutation({
   args: {
-    userId: v.string(),
+    userId: v.string(), // This will be clerkId
     lessonId: v.id("lessons"),
     code: v.string(),
     language: v.string(),
@@ -199,6 +203,16 @@ export const submitCode = mutation({
     const lesson = await ctx.db.get(args.lessonId);
     if (!lesson || lesson.type !== "coding") {
       throw new Error("Invalid lesson for code submission");
+    }
+
+    // Get user by clerkId
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
     }
 
     // In a real implementation, you'd run the code against test cases
@@ -218,7 +232,7 @@ export const submitCode = mutation({
 
     // Save submission
     const submissionId = await ctx.db.insert("submissions", {
-      userId: args.userId,
+      userId: args.userId, // clerkId for submissions table
       lessonId: args.lessonId,
       trackId: lesson.trackId,
       code: args.code,
@@ -231,7 +245,7 @@ export const submitCode = mutation({
     });
 
     // Update lesson progress
-    await ctx.runMutation("lessons:updateLessonProgress", {
+    await ctx.runMutation(api.lessons.updateLessonProgress, {
       userId: args.userId,
       lessonId: args.lessonId,
       status: status === "passed" ? "completed" : "in-progress",
@@ -252,7 +266,7 @@ export const submitCode = mutation({
 // Submit quiz answers
 export const submitQuiz = mutation({
   args: {
-    userId: v.string(),
+    userId: v.string(), // This will be clerkId
     lessonId: v.id("lessons"),
     answers: v.array(
       v.object({
@@ -265,6 +279,16 @@ export const submitQuiz = mutation({
     const lesson = await ctx.db.get(args.lessonId);
     if (!lesson || lesson.type !== "quiz" || !lesson.questions) {
       throw new Error("Invalid lesson for quiz submission");
+    }
+
+    // Get user by clerkId
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.userId))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
     }
 
     let totalScore = 0;
@@ -296,7 +320,7 @@ export const submitQuiz = mutation({
     const passed = percentageScore >= 70;
 
     // Update lesson progress
-    await ctx.runMutation("lessons:updateLessonProgress", {
+    await ctx.runMutation(api.lessons.updateLessonProgress, {
       userId: args.userId,
       lessonId: args.lessonId,
       status: passed ? "completed" : "in-progress",
@@ -359,7 +383,7 @@ export const createLesson = mutation({
 
     const now = new Date().toISOString();
 
-    const lessonId = await ctx.db.insert("lessons", {
+    const lessonData = {
       trackId: args.trackId,
       title: args.title,
       slug: args.slug,
@@ -375,7 +399,9 @@ export const createLesson = mutation({
       tags: args.tags,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    const lessonId = await ctx.db.insert("lessons", lessonData);
 
     // Update track's total lessons count
     const track = await ctx.db.get(args.trackId);
@@ -461,6 +487,7 @@ function createGreeting(name) {
             description: "Should greet World",
           },
         ],
+        tags: ["javascript", "variables", "functions"],
       },
       {
         title: "JavaScript Arrays",
@@ -512,6 +539,7 @@ function sumArray(numbers) {
             description: "Should handle negative numbers",
           },
         ],
+        tags: ["javascript", "arrays", "methods"],
       },
       {
         title: "FizzBuzz Challenge",
@@ -563,13 +591,22 @@ function fizzBuzz(n) {
             description: "Should handle n=3",
           },
         ],
+        tags: ["javascript", "algorithms", "fizzbuzz"],
       },
     ];
 
     // Insert the lessons
     const insertedLessons = [];
     for (const lessonData of lessons) {
-      const lessonId = await ctx.db.insert("lessons", lessonData);
+      const now = new Date().toISOString();
+      const fullLessonData = {
+        ...lessonData,
+        createdAt: now,
+        updatedAt: now,
+        tags: lessonData.tags || [],
+        isPublished: true,
+      };
+      const lessonId = await ctx.db.insert("lessons", fullLessonData);
       insertedLessons.push({ id: lessonId, slug: lessonData.slug });
     }
 
@@ -581,7 +618,7 @@ function fizzBuzz(n) {
 });
 
 // Helper function to update track progress
-async function updateTrackProgress(ctx: any, userId: string, trackId: string) {
+async function updateTrackProgress(ctx: MutationCtx, userId: Id<"users">, trackId: Id<"tracks">) {
   // Get all lessons in track
   const trackLessons = await ctx.db
     .query("lessons")
@@ -629,10 +666,7 @@ async function updateTrackProgress(ctx: any, userId: string, trackId: string) {
         type: "track-completion",
         title: "Track Completed!",
         description: "You've completed an entire learning track!",
-        icon: "trophy",
-        color: "#f59e0b",
-        trackId,
-        earnedAt: new Date().toISOString(),
+        earnedAt: Date.now(),
       });
     }
 
