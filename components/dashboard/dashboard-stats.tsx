@@ -2,12 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  BookOpen,
-  Clock,
-  Trophy,
-  Target,
-} from "lucide-react";
+import { BookOpen, Clock, Trophy, Target } from "lucide-react";
 
 interface DashboardStatsProps {
   stats?: {
