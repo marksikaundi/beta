@@ -141,7 +141,7 @@ export const addExperience = mutation({
     // If user leveled up, create notification
     if (leveledUp) {
       await ctx.db.insert("notifications", {
-        userId: args.clerkId,
+        userId: user._id,
         type: "level-up",
         title: `Level Up! You're now level ${newLevel}`,
         message: `Congratulations! You've reached level ${newLevel} and earned ${args.points} XP.`,
