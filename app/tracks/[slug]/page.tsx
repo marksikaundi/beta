@@ -216,13 +216,13 @@ export default function TrackDetailPage() {
   // Get track with lessons and progress
   const trackData = useQuery(api.tracks.getTrackWithLessons, {
     slug: trackSlug,
-    userId: user?.id,
+    clerkId: user?.id,
   });
 
   // Get user enrollment status
   useQuery(
     api.tracks.getUserEnrollmentForTrack,
-    user ? { userId: user.id, trackSlug } : "skip"
+    user ? { clerkId: user.id, trackSlug } : "skip"
   );
 
   if (!trackData) {
