@@ -50,12 +50,6 @@ const navigationItems = [
     href: "/community",
     icon: Users,
   },
-  // {
-  //   name: "Progress",
-  //   href: "/progress",
-  //   icon: TrendingUp,
-  //   authRequired: true,
-  // },
 ];
 
 export function MainNavigation() {
