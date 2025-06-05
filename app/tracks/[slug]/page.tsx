@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import {
   BookOpen,
   Clock,
@@ -245,11 +246,17 @@ export default function TrackDetailPage() {
         trackSlug: trackSlug,
       });
       
-      // Optional: Show success message or refresh data
-      window.location.reload(); // Simple refresh to update UI
+      toast.success("Successfully enrolled in track!", {
+        description: "You can now access all lessons and start learning.",
+      });
+      
+      // Refresh the page to update the UI
+      window.location.reload();
     } catch (error) {
       console.error("Failed to enroll in track:", error);
-      // Optional: Show error message to user
+      toast.error("Failed to enroll in track", {
+        description: "Please try again. If the problem persists, contact support.",
+      });
     } finally {
       setIsEnrolling(false);
     }
