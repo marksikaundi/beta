@@ -617,6 +617,33 @@ function fizzBuzz(n) {
   },
 });
 
+// Get recent lessons
+export const getRecentLessons = query({
+  args: { limit: v.number() },
+  handler: async (ctx, args) => {
+    const lessons = await ctx.db
+      .query("lessons")
+      .withIndex("by_published", (q) => q.eq("isPublished", true))
+      .order("desc")
+      .take(args.limit);
+
+    // Get track info for each lesson
+    const lessonsWithTracks = await Promise.all(
+      lessons.map(async (lesson) => {
+        const track = await ctx.db.get(lesson.trackId);
+        return {
+          ...lesson,
+          trackTitle: track?.title,
+          trackSlug: track?.slug,
+          trackColor: track?.color,
+        };
+      })
+    );
+
+    return lessonsWithTracks;
+  },
+});
+
 // Helper function to update track progress
 async function updateTrackProgress(
   ctx: MutationCtx,
