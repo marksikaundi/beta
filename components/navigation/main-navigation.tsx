@@ -29,9 +29,16 @@ const navigationItems = [
     authRequired: true,
   },
   {
+    name: "Lab",
+    href: "/lab",
+    icon: Code2,
+    description: "Interactive courses & lessons",
+  },
+  {
     name: "Tracks",
     href: "/tracks",
     icon: BookOpen,
+    description: "Learning paths & roadmaps",
   },
   {
     name: "Leaderboard",
