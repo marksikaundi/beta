@@ -1,17 +1,852 @@
 "use client";
 
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import {
+  Plus,
+  BookOpen,
+  Code,
+  Users,
+  TrendingUp,
+  Settings,
+  Database,
+  FileText,
+  Video,
+  HelpCircle,
+  Trophy,
+  Edit,
+  Trash2,
+  Eye,
+  Clock,
+  Target,
+  Award,
+} from "lucide-react";
+
+interface Track {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  estimatedHours: number;
+  category: string;
+  totalLessons: number;
+  enrollmentCount: number;
+  isPremium: boolean;
+  isPublished: boolean;
+  color: string;
+  tags: string[];
+}
+
+interface Lesson {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  type: "reading" | "coding" | "quiz" | "video" | "project";
+  difficulty: "beginner" | "intermediate" | "advanced";
+  estimatedMinutes: number;
+  experiencePoints: number;
+  isPremium: boolean;
+  isPublished: boolean;
+  order: number;
+  trackId: string;
+}
+
+function CreateTrackForm() {
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    longDescription: "",
+    difficulty: "beginner" as const,
+    estimatedHours: 1,
+    category: "",
+    tags: "",
+    color: "#3b82f6",
+    isPremium: false,
+  });
+
+  const createTrack = useMutation(api.tracks.createTrack);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreating(true);
+
+    try {
+      await createTrack({
+        title: formData.title,
+        slug: formData.slug,
+        description: formData.description,
+        longDescription: formData.longDescription,
+        difficulty: formData.difficulty,
+        estimatedHours: formData.estimatedHours,
+        thumbnail: "",
+        color: formData.color,
+        icon: "BookOpen",
+        category: formData.category,
+        tags: formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        prerequisites: [],
+        isPremium: formData.isPremium,
+        createdBy: "admin",
+      });
+
+      // Reset form
+      setFormData({
+        title: "",
+        slug: "",
+        description: "",
+        longDescription: "",
+        difficulty: "beginner",
+        estimatedHours: 1,
+        category: "",
+        tags: "",
+        color: "#3b82f6",
+        isPremium: false,
+      });
+    } catch (error) {
+      console.error("Error creating track:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // Auto-generate slug from title
+  const handleTitleChange = (title: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      title,
+      slug: title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .substring(0, 50),
+    }));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Plus className="h-5 w-5 mr-2" />
+          Create New Course
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="title">Course Title</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="e.g., Learn Python Fundamentals"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="slug">URL Slug</Label>
+              <Input
+                id="slug"
+                value={formData.slug}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, slug: e.target.value }))
+                }
+                placeholder="learn-python-fundamentals"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="description">Short Description</Label>
+            <Input
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Brief description for course cards"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="longDescription">Detailed Description</Label>
+            <Textarea
+              id="longDescription"
+              value={formData.longDescription}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  longDescription: e.target.value,
+                }))
+              }
+              placeholder="Detailed course description for the course page"
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select
+                value={formData.difficulty}
+                onValueChange={(value: any) =>
+                  setFormData((prev) => ({ ...prev, difficulty: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="estimatedHours">Estimated Hours</Label>
+              <Input
+                id="estimatedHours"
+                type="number"
+                min="1"
+                max="100"
+                value={formData.estimatedHours}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    estimatedHours: parseInt(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                value={formData.category}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, category: e.target.value }))
+                }
+                placeholder="e.g., backend, frontend, mobile"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                id="tags"
+                value={formData.tags}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, tags: e.target.value }))
+                }
+                placeholder="python, programming, beginners"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="color">Course Color</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="color"
+                  type="color"
+                  value={formData.color}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, color: e.target.value }))
+                  }
+                  className="w-16 h-10"
+                />
+                <Input
+                  value={formData.color}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, color: e.target.value }))
+                  }
+                  placeholder="#3b82f6"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isPremium"
+              checked={formData.isPremium}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isPremium: e.target.checked,
+                }))
+              }
+              className="rounded"
+            />
+            <Label htmlFor="isPremium">Premium Course</Label>
+          </div>
+
+          <Button type="submit" disabled={isCreating} className="w-full">
+            {isCreating ? "Creating..." : "Create Course"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function CreateLessonForm() {
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    content: "",
+    type: "reading" as const,
+    difficulty: "beginner" as const,
+    estimatedMinutes: 15,
+    experiencePoints: 100,
+    trackId: "",
+    isPremium: false,
+  });
+
+  const createLesson = useMutation(api.lessons.createLesson);
+  const tracks = useQuery(api.tracks.getAllTracks, {});
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.trackId) return;
+
+    setIsCreating(true);
+    try {
+      await createLesson({
+        trackId: formData.trackId as any,
+        title: formData.title,
+        slug: formData.slug,
+        description: formData.description,
+        content: formData.content,
+        type: formData.type,
+        difficulty: formData.difficulty,
+        estimatedMinutes: formData.estimatedMinutes,
+        experiencePoints: formData.experiencePoints,
+        isPremium: formData.isPremium,
+        tags: [],
+      });
+
+      // Reset form
+      setFormData({
+        title: "",
+        slug: "",
+        description: "",
+        content: "",
+        type: "reading",
+        difficulty: "beginner",
+        estimatedMinutes: 15,
+        experiencePoints: 100,
+        trackId: "",
+        isPremium: false,
+      });
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleTitleChange = (title: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      title,
+      slug: title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .substring(0, 50),
+    }));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Plus className="h-5 w-5 mr-2" />
+          Create New Lesson
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="trackId">Select Course</Label>
+            <Select
+              value={formData.trackId}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, trackId: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a course..." />
+              </SelectTrigger>
+              <SelectContent>
+                {tracks?.map((track) => (
+                  <SelectItem key={track._id} value={track._id}>
+                    {track.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="lesson-title">Lesson Title</Label>
+              <Input
+                id="lesson-title"
+                value={formData.title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="e.g., Variables and Data Types"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="lesson-slug">URL Slug</Label>
+              <Input
+                id="lesson-slug"
+                value={formData.slug}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, slug: e.target.value }))
+                }
+                placeholder="variables-and-data-types"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="lesson-description">Description</Label>
+            <Input
+              id="lesson-description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Brief lesson description"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="content">Lesson Content (Markdown)</Label>
+            <Textarea
+              id="content"
+              value={formData.content}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              }
+              placeholder="Write your lesson content in Markdown..."
+              rows={8}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label htmlFor="lesson-type">Lesson Type</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value: any) =>
+                  setFormData((prev) => ({ ...prev, type: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="reading">Reading</SelectItem>
+                  <SelectItem value="coding">Coding</SelectItem>
+                  <SelectItem value="quiz">Quiz</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="lesson-difficulty">Difficulty</Label>
+              <Select
+                value={formData.difficulty}
+                onValueChange={(value: any) =>
+                  setFormData((prev) => ({ ...prev, difficulty: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="estimatedMinutes">Duration (min)</Label>
+              <Input
+                id="estimatedMinutes"
+                type="number"
+                min="5"
+                max="120"
+                value={formData.estimatedMinutes}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    estimatedMinutes: parseInt(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="experiencePoints">XP Points</Label>
+              <Input
+                id="experiencePoints"
+                type="number"
+                min="50"
+                max="500"
+                step="50"
+                value={formData.experiencePoints}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    experiencePoints: parseInt(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="lesson-isPremium"
+              checked={formData.isPremium}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  isPremium: e.target.checked,
+                }))
+              }
+              className="rounded"
+            />
+            <Label htmlFor="lesson-isPremium">Premium Lesson</Label>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isCreating || !formData.trackId}
+            className="w-full"
+          >
+            {isCreating ? "Creating..." : "Create Lesson"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AdminDashboard() {
+  const tracks = useQuery(api.tracks.getAllTracks, {});
+  const recentLessons = useQuery(api.lessons.getRecentLessons, { limit: 10 });
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "beginner":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "intermediate":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      case "advanced":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+    }
+  };
+
+  const getLessonIcon = (type: string) => {
+    switch (type) {
+      case "reading":
+        return FileText;
+      case "coding":
+        return Code;
+      case "quiz":
+        return HelpCircle;
+      case "video":
+        return Video;
+      case "project":
+        return Trophy;
+      default:
+        return BookOpen;
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Admin Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Courses</p>
+                <p className="text-2xl font-bold">{tracks?.length || 0}</p>
+              </div>
+              <BookOpen className="h-8 w-8 text-primary" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Lessons</p>
+                <p className="text-2xl font-bold">
+                  {recentLessons?.length || 0}
+                </p>
+              </div>
+              <Code className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Total Enrollments
+                </p>
+                <p className="text-2xl font-bold">
+                  {tracks?.reduce(
+                    (sum, track) => sum + track.enrollmentCount,
+                    0
+                  ) || 0}
+                </p>
+              </div>
+              <Users className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Avg Course Rating
+                </p>
+                <p className="text-2xl font-bold">
+                  {tracks?.length
+                    ? (
+                        tracks.reduce(
+                          (sum, track) => sum + track.averageRating,
+                          0
+                        ) / tracks.length
+                      ).toFixed(1)
+                    : "0.0"}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Courses */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center">
+              <BookOpen className="h-5 w-5 mr-2" />
+              Recent Courses
+            </span>
+            <Button size="sm" variant="outline" asChild>
+              <a href="/lab">View All</a>
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {tracks && tracks.length > 0 ? (
+            <div className="space-y-3">
+              {tracks.slice(0, 5).map((track) => (
+                <div
+                  key={track._id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: track.color }}
+                    />
+                    <div>
+                      <h3 className="font-medium">{track.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {track.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge
+                      className={getDifficultyColor(track.difficulty)}
+                      variant="outline"
+                    >
+                      {track.difficulty}
+                    </Badge>
+                    <Badge variant="secondary">
+                      {track.totalLessons} lessons
+                    </Badge>
+                    {track.isPremium && (
+                      <Badge variant="secondary">
+                        <Award className="h-3 w-3 mr-1" />
+                        Premium
+                      </Badge>
+                    )}
+                    <Button size="sm" variant="ghost" asChild>
+                      <a href={`/tracks/${track.slug}`}>
+                        <Eye className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No courses created yet. Create your first course above!
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Lessons */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Code className="h-5 w-5 mr-2" />
+            Recent Lessons
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentLessons && recentLessons.length > 0 ? (
+            <div className="space-y-3">
+              {recentLessons.slice(0, 5).map((lesson: any) => {
+                const LessonIcon = getLessonIcon(lesson.type);
+                return (
+                  <div
+                    key={lesson._id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        <LessonIcon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{lesson.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {lesson.trackTitle} • {lesson.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge
+                        className={getDifficultyColor(lesson.difficulty)}
+                        variant="outline"
+                      >
+                        {lesson.difficulty}
+                      </Badge>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {lesson.estimatedMinutes}m
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Target className="h-3 w-3 mr-1" />
+                        {lesson.experiencePoints} XP
+                      </div>
+                      {lesson.isPremium && (
+                        <Badge variant="secondary">
+                          <Award className="h-3 w-3 mr-1" />
+                          Premium
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No lessons created yet. Create your first lesson above!
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const { user } = useUser();
-  const [isCreating, setIsCreating] = useState(false);
   const [result, setResult] = useState<string>("");
 
   const createSampleLessons = useMutation(
@@ -23,338 +858,136 @@ export default function AdminPage() {
   const clearNotifications = useMutation(
     api.notifications.clearAllUserNotifications
   );
-  const triggerTestLevelUp = useMutation(api.notifications.triggerTestLevelUp);
-  const triggerTestAchievement = useMutation(
-    api.notifications.triggerTestAchievement
-  );
-  const createTestDiscussion = useMutation(api.discussions.createDiscussion);
 
-  const handleCreateSampleLessons = async () => {
-    setIsCreating(true);
-    try {
-      const result = await createSampleLessons({});
-      setResult(`Success: ${result.message}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleCreateSampleNotifications = async () => {
-    if (!user) {
-      setResult("Error: Please sign in to test notifications");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const result = await createSampleNotifications({ userId: user.id });
-      setResult(`Success: ${result.message}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleClearNotifications = async () => {
-    if (!user) {
-      setResult("Error: Please sign in to clear notifications");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const result = await clearNotifications({ userId: user.id });
-      setResult(`Success: ${result.message}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleTriggerLevelUp = async () => {
-    if (!user) {
-      setResult("Error: Please sign in to test notifications");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const result = await triggerTestLevelUp({ userId: user.id });
-      setResult(`Success: ${result.message}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleTriggerAchievement = async () => {
-    if (!user) {
-      setResult("Error: Please sign in to test notifications");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const result = await triggerTestAchievement({ userId: user.id });
-      setResult(`Success: ${result.message}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
-  const handleCreateTestDiscussion = async () => {
-    if (!user) {
-      setResult("Error: Please sign in to test discussion creation");
-      return;
-    }
-
-    setIsCreating(true);
-    try {
-      const result = await createTestDiscussion({
-        title: "Test Discussion - Authentication Check",
-        content:
-          "This is a test discussion to verify that Convex-Clerk authentication is working properly.",
-        tags: ["test", "authentication"],
-      });
-      setResult(`Success: Created discussion with ID ${result}`);
-    } catch (error) {
-      setResult(`Error: ${error}`);
-    } finally {
-      setIsCreating(false);
-    }
-  };
+  if (!user) {
+    return (
+      <>
+        <MainNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="py-16 text-center">
+              <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+              <p className="text-muted-foreground">
+                Please sign in to access the admin dashboard.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <MainNavigation />
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Admin Panel</h1>
-            <p className="text-muted-foreground">
-              Development tools for setting up sample data
-            </p>
-            <Badge variant="destructive" className="mt-2">
-              Development Only
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-muted-foreground">
+                Manage courses, lessons, and platform content
+              </p>
+            </div>
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
+              <Settings className="h-3 w-3 mr-1" />
+              Administrator
             </Badge>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Sample Data Creation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Button
-                  onClick={handleCreateSampleLessons}
-                  disabled={isCreating}
-                  className="w-full"
-                >
-                  {isCreating ? "Creating..." : "Create Sample Coding Lessons"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Creates sample coding lessons with interactive challenges
-                </p>
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid grid-cols-4 w-full max-w-md">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="courses">Courses</TabsTrigger>
+              <TabsTrigger value="lessons">Lessons</TabsTrigger>
+              <TabsTrigger value="tools">Tools</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <AdminDashboard />
+            </TabsContent>
+
+            <TabsContent value="courses">
+              <CreateTrackForm />
+            </TabsContent>
+
+            <TabsContent value="lessons">
+              <CreateLessonForm />
+            </TabsContent>
+
+            <TabsContent value="tools">
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Database className="h-5 w-5 mr-2" />
+                      Development Tools
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Button
+                        onClick={async () => {
+                          try {
+                            const result = await createSampleLessons({});
+                            setResult(`Success: ${result.message}`);
+                          } catch (error) {
+                            setResult(`Error: ${error}`);
+                          }
+                        }}
+                        variant="outline"
+                      >
+                        Create Sample Lessons
+                      </Button>
+
+                      <Button
+                        onClick={async () => {
+                          if (!user) return;
+                          try {
+                            const result = await createSampleNotifications({
+                              userId: user.id,
+                            });
+                            setResult(`Success: ${result.message}`);
+                          } catch (error) {
+                            setResult(`Error: ${error}`);
+                          }
+                        }}
+                        variant="outline"
+                      >
+                        Create Sample Notifications
+                      </Button>
+
+                      <Button
+                        onClick={async () => {
+                          if (!user) return;
+                          try {
+                            await clearNotifications({ userId: user.id });
+                            setResult("Success: Cleared all notifications");
+                          } catch (error) {
+                            setResult(`Error: ${error}`);
+                          }
+                        }}
+                        variant="outline"
+                      >
+                        Clear Notifications
+                      </Button>
+                    </div>
+
+                    {result && (
+                      <div className="mt-4">
+                        <Card>
+                          <CardContent className="pt-6">
+                            <p className="text-sm font-mono">{result}</p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-
-              {result && (
-                <div
-                  className={`p-3 rounded-md text-sm ${
-                    result.startsWith("Success")
-                      ? "bg-green-100 text-green-800 border border-green-200"
-                      : "bg-red-100 text-red-800 border border-red-200"
-                  }`}
-                >
-                  {result}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification System Testing</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Button
-                  onClick={handleCreateSampleNotifications}
-                  disabled={isCreating || !user}
-                  className="w-full"
-                  variant="secondary"
-                >
-                  {isCreating ? "Creating..." : "Create Sample Notifications"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Creates sample notifications to test the notification dropdown
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Button
-                  onClick={handleClearNotifications}
-                  disabled={isCreating || !user}
-                  className="w-full"
-                  variant="destructive"
-                >
-                  {isCreating ? "Clearing..." : "Clear All Notifications"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Removes all notifications for the current user
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  onClick={handleTriggerLevelUp}
-                  disabled={isCreating || !user}
-                  variant="outline"
-                  size="sm"
-                >
-                  {isCreating ? "..." : "Test Level-Up"}
-                </Button>
-                <Button
-                  onClick={handleTriggerAchievement}
-                  disabled={isCreating || !user}
-                  variant="outline"
-                  size="sm"
-                >
-                  {isCreating ? "..." : "Test Achievement"}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Test individual notification types
-              </p>
-
-              {!user && (
-                <div className="p-3 rounded-md text-sm bg-yellow-100 text-yellow-800 border border-yellow-200">
-                  Please sign in to test the notification system
-                </div>
-              )}
-
-              {result && (
-                <div
-                  className={`p-3 rounded-md text-sm ${
-                    result.startsWith("Success")
-                      ? "bg-green-100 text-green-800 border border-green-200"
-                      : "bg-red-100 text-red-800 border border-red-200"
-                  }`}
-                >
-                  {result}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Discussion Creation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Button
-                  onClick={handleCreateTestDiscussion}
-                  disabled={isCreating || !user}
-                  className="w-full"
-                  variant="outline"
-                >
-                  {isCreating ? "Creating..." : "Create Test Discussion"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Creates a test discussion to verify discussion functionality
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Button
-                  onClick={handleTriggerAchievement}
-                  disabled={isCreating || !user}
-                  className="w-full"
-                  variant="secondary"
-                >
-                  {isCreating ? "Creating..." : "Test Achievement Notification"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Creates a test achievement notification
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Button
-                  onClick={handleCreateTestDiscussion}
-                  disabled={isCreating || !user}
-                  className="w-full"
-                  variant="default"
-                >
-                  {isCreating ? "Creating..." : "Test Discussion Creation"}
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Tests Convex-Clerk authentication by creating a discussion
-                </p>
-              </div>
-
-              {result && (
-                <div
-                  className={`p-3 rounded-md text-sm ${
-                    result.startsWith("Success")
-                      ? "bg-green-100 text-green-800 border border-green-200"
-                      : "bg-red-100 text-red-800 border border-red-200"
-                  }`}
-                >
-                  {result}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Links</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                variant="outline"
-                asChild
-                className="w-full justify-start"
-              >
-                <a href="/tracks" target="_blank">
-                  View All Tracks
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                asChild
-                className="w-full justify-start"
-              >
-                <a href="/dashboard" target="_blank">
-                  View Dashboard
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                asChild
-                className="w-full justify-start"
-              >
-                <a href="/tracks/javascript-fundamentals" target="_blank">
-                  View JavaScript Fundamentals Track
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <div className="text-center text-sm text-muted-foreground">
-            <p>
-              This admin panel is for development purposes only. In production,
-              content would be managed through a proper CMS.
-            </p>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </>

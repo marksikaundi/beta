@@ -57,7 +57,7 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Backend Developer at Google",
     content:
-      "DevLearn's hands-on approach helped me transition from frontend to backend development in just 6 months.",
+      "Lupleg's hands-on approach helped me transition from frontend to backend development in just 6 months.",
     avatar: "SC",
   },
   {
@@ -162,7 +162,7 @@ export function HeroSection() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why Choose DevLearn?
+              Why Choose Lupleg?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We combine the best of interactive learning, real-world projects,
@@ -201,7 +201,7 @@ export function HeroSection() {
           </h2>
           <p className="text-xl text-muted-foreground mb-12">
             Join thousands of successful developers who transformed their
-            careers with DevLearn
+            careers with Lupleg
           </p>
 
           <Card className="p-8 md:p-12">

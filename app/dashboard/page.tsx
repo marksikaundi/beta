@@ -74,7 +74,7 @@ export default function DashboardPage() {
             <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
               <BookOpen className="h-4 w-4" />
               <AlertDescription>
-                <strong>Welcome to DevLearn!</strong> Start with our Backend
+                <strong>Welcome to Lupleg!</strong> Start with our Backend
                 Fundamentals track to build a solid foundation, or explore all
                 available tracks to find what interests you most.
               </AlertDescription>

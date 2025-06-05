@@ -50,12 +50,12 @@ const navigationItems = [
     href: "/community",
     icon: Users,
   },
-  {
-    name: "Progress",
-    href: "/progress",
-    icon: TrendingUp,
-    authRequired: true,
-  },
+  // {
+  //   name: "Progress",
+  //   href: "/progress",
+  //   icon: TrendingUp,
+  //   authRequired: true,
+  // },
 ];
 
 export function MainNavigation() {
@@ -76,7 +76,7 @@ export function MainNavigation() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Code2 className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-gradient">DevLearn</span>
+            <span className="text-xl font-bold text-gradient">Lupleg</span>
           </Link>
 
           {/* Desktop Navigation */}
