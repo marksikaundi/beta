@@ -27,7 +27,9 @@ import {
   Video,
   HelpCircle,
   Award,
+  Loader2,
 } from "lucide-react";
+import { useState } from "react";
 
 interface Lesson {
   _id: string;
@@ -227,6 +229,7 @@ export default function TrackDetailPage() {
 
   // Enrollment mutation
   const enrollInTrack = useMutation(api.tracks.enrollInTrackByClerkId);
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   const handleEnrollment = async () => {
     if (!user) {
@@ -235,6 +238,7 @@ export default function TrackDetailPage() {
       return;
     }
 
+    setIsEnrolling(true);
     try {
       await enrollInTrack({
         clerkId: user.id,
@@ -246,6 +250,8 @@ export default function TrackDetailPage() {
     } catch (error) {
       console.error("Failed to enroll in track:", error);
       // Optional: Show error message to user
+    } finally {
+      setIsEnrolling(false);
     }
   };
 
@@ -462,9 +468,22 @@ export default function TrackDetailPage() {
                           Join {track.enrollmentCount.toLocaleString()} learners
                         </div>
                       </div>
-                      <Button className="w-full" onClick={handleEnrollment}>
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Enroll Now
+                      <Button 
+                        className="w-full" 
+                        onClick={handleEnrollment}
+                        disabled={isEnrolling}
+                      >
+                        {isEnrolling ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Enrolling...
+                          </>
+                        ) : (
+                          <>
+                            <BookOpen className="h-4 w-4 mr-2" />
+                            Enroll Now
+                          </>
+                        )}
                       </Button>
                     </>
                   )}
