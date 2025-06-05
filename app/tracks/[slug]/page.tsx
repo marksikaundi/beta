@@ -245,17 +245,18 @@ export default function TrackDetailPage() {
         clerkId: user.id,
         trackSlug: trackSlug,
       });
-      
+
       toast.success("Successfully enrolled in track!", {
         description: "You can now access all lessons and start learning.",
       });
-      
+
       // Refresh the page to update the UI
       window.location.reload();
     } catch (error) {
       console.error("Failed to enroll in track:", error);
       toast.error("Failed to enroll in track", {
-        description: "Please try again. If the problem persists, contact support.",
+        description:
+          "Please try again. If the problem persists, contact support.",
       });
     } finally {
       setIsEnrolling(false);
@@ -475,8 +476,8 @@ export default function TrackDetailPage() {
                           Join {track.enrollmentCount.toLocaleString()} learners
                         </div>
                       </div>
-                      <Button 
-                        className="w-full" 
+                      <Button
+                        className="w-full"
                         onClick={handleEnrollment}
                         disabled={isEnrolling}
                       >
