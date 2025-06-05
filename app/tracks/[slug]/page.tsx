@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -225,6 +225,30 @@ export default function TrackDetailPage() {
     user ? { clerkId: user.id, trackSlug } : "skip"
   );
 
+  // Enrollment mutation
+  const enrollInTrack = useMutation(api.tracks.enrollInTrackByClerkId);
+
+  const handleEnrollment = async () => {
+    if (!user) {
+      // Redirect to sign in or show auth modal
+      router.push("/sign-in");
+      return;
+    }
+
+    try {
+      await enrollInTrack({
+        clerkId: user.id,
+        trackSlug: trackSlug,
+      });
+      
+      // Optional: Show success message or refresh data
+      window.location.reload(); // Simple refresh to update UI
+    } catch (error) {
+      console.error("Failed to enroll in track:", error);
+      // Optional: Show error message to user
+    }
+  };
+
   if (!trackData) {
     return (
       <>
@@ -438,7 +462,7 @@ export default function TrackDetailPage() {
                           Join {track.enrollmentCount.toLocaleString()} learners
                         </div>
                       </div>
-                      <Button className="w-full">
+                      <Button className="w-full" onClick={handleEnrollment}>
                         <BookOpen className="h-4 w-4 mr-2" />
                         Enroll Now
                       </Button>
