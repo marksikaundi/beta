@@ -157,7 +157,7 @@ export function MainNavigation() {
                 <div className="flex flex-col space-y-4 mt-6">
                   {/* Mobile user info */}
                   {isSignedIn && (
-                    <div className="flex items-center space-x-3 p-4 bg-accent rounded-lg">
+                    <div className="flex items-center space-x-3 p-4 rounded-full border bg-blue-100 border-blue-200">
                       <UserButton
                         appearance={{
                           elements: {
