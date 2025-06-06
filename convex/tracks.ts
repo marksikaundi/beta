@@ -354,6 +354,55 @@ export const createTrack = mutation({
   },
 });
 
+// Create JavaScript Fundamentals track (for sample lessons)
+export const createJavaScriptFundamentalsTrack = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Check if the track already exists
+    const existingTrack = await ctx.db
+      .query("tracks")
+      .withIndex("by_slug", (q) => q.eq("slug", "javascript-fundamentals"))
+      .first();
+
+    if (existingTrack) {
+      return { message: "JavaScript Fundamentals track already exists" };
+    }
+
+    // Create the track
+    const now = new Date().toISOString();
+
+    const trackId = await ctx.db.insert("tracks", {
+      title: "JavaScript Fundamentals",
+      slug: "javascript-fundamentals",
+      description: "Learn the basics of JavaScript programming language",
+      longDescription:
+        "This track covers the fundamental concepts of JavaScript programming, including variables, functions, objects, arrays, and more.",
+      difficulty: "beginner",
+      estimatedHours: 10,
+      thumbnail: "/tracks/javascript.svg", // Update with actual thumbnail path
+      color: "#F7DF1E", // JavaScript yellow
+      icon: "code",
+      category: "frontend",
+      tags: ["javascript", "programming", "web development"],
+      prerequisites: [],
+      isPublished: true,
+      isPremium: false,
+      order: 1,
+      totalLessons: 0, // Will be updated as lessons are added
+      enrollmentCount: 0,
+      averageRating: 5.0,
+      createdBy: "system",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return {
+      message: "JavaScript Fundamentals track created successfully",
+      trackId,
+    };
+  },
+});
+
 // Get track categories
 export const getTrackCategories = query({
   handler: async (ctx) => {

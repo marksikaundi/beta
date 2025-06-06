@@ -852,6 +852,9 @@ export default function AdminPage() {
   const createSampleLessons = useMutation(
     api.lessons.createSampleCodingLessons
   );
+  const createJsTrack = useMutation(
+    api.tracks.createJavaScriptFundamentalsTrack
+  );
   const createSampleNotifications = useMutation(
     api.notifications.createSampleNotifications
   );
@@ -930,15 +933,24 @@ export default function AdminPage() {
                       <Button
                         onClick={async () => {
                           try {
-                            const result = await createSampleLessons({});
-                            setResult(`Success: ${result.message}`);
+                            // First create the JS track
+                            const trackResult = await createJsTrack({});
+                            setResult(
+                              `Created JavaScript track: ${trackResult.message}`
+                            );
+
+                            // Then create the lessons
+                            const lessonResult = await createSampleLessons({});
+                            setResult(
+                              `Created track and lessons: ${lessonResult.message}`
+                            );
                           } catch (error) {
                             setResult(`Error: ${error}`);
                           }
                         }}
                         variant="outline"
                       >
-                        Create Sample Lessons
+                        Create JavaScript Track & Lessons
                       </Button>
 
                       <Button
