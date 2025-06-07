@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import {
   Card,
   CardContent,
@@ -159,7 +158,6 @@ export default function EditLessonPage() {
   if (!lessonData) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto py-8">
           <div className="flex justify-center items-center h-60">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -171,7 +169,6 @@ export default function EditLessonPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-between mb-6">
           <div>

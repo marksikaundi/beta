@@ -3,7 +3,6 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -865,7 +864,6 @@ export default function AdminPage() {
   if (!user) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="py-16 text-center">
@@ -882,7 +880,6 @@ export default function AdminPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}

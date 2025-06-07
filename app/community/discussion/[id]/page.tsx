@@ -112,7 +112,6 @@ export default function DiscussionDetailPage() {
   if (!discussion) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto py-12">
           <div className="flex justify-center items-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -124,7 +123,6 @@ export default function DiscussionDetailPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto py-8 px-4">
         <Button
           variant="ghost"
