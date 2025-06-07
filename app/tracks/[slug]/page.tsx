@@ -31,7 +31,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface Lesson {
   _id: string;
@@ -110,37 +109,33 @@ function LessonCard({
 
   return (
     <Card
-      className={cn(
-        "transition-all duration-300 hover:shadow-lg border border-border/40 overflow-hidden",
+      className={`transition-all duration-200 hover:shadow-md ${
         progress?.status === "completed"
-          ? "bg-gradient-to-r from-green-50/80 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 border-green-200 dark:border-green-900/30"
-          : "hover:bg-accent/30 bg-background/60 backdrop-blur-sm",
-        isLocked ? "opacity-60" : ""
-      )}
+          ? "ring-2 ring-green-200 bg-green-50"
+          : ""
+      } ${isLocked ? "opacity-50" : ""}`}
     >
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1">
             <div className="flex items-center space-x-2">
               <div
-                className={cn(
-                  "p-2 rounded-lg",
+                className={`p-2 rounded-lg ${
                   progress?.status === "completed"
-                    ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                    : "bg-muted text-muted-foreground"
-                )}
+                    ? "bg-green-100 text-green-600"
+                    : "bg-gray-100 text-gray-600"
+                }`}
               >
                 <LessonIcon className="h-4 w-4" />
               </div>
               <StatusIcon
-                className={cn(
-                  "h-5 w-5",
+                className={`h-5 w-5 ${
                   progress?.status === "completed"
-                    ? "text-green-500 dark:text-green-400"
+                    ? "text-green-500"
                     : progress?.status === "in-progress"
-                    ? "text-blue-500 dark:text-blue-400"
-                    : "text-muted-foreground"
-                )}
+                    ? "text-blue-500"
+                    : "text-gray-400"
+                }`}
               />
             </div>
 
@@ -148,7 +143,7 @@ function LessonCard({
               <div className="flex items-center space-x-2 mb-1">
                 <h3 className="font-medium text-sm truncate">{lesson.title}</h3>
                 {lesson.isPremium && (
-                  <Badge variant="secondary" className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 dark:from-yellow-900/20 dark:to-orange-900/20 dark:text-yellow-500 border-yellow-200 dark:border-yellow-900/30">
+                  <Badge variant="secondary" className="text-xs">
                     <Award className="h-3 w-3 mr-1" />
                     Pro
                   </Badge>
@@ -183,17 +178,11 @@ function LessonCard({
               </Badge>
             )}
             {isLocked ? (
-              <Button size="sm" disabled variant="secondary" className="opacity-70">
+              <Button size="sm" disabled>
                 <Lock className="h-4 w-4" />
               </Button>
             ) : (
-              <Button size="sm" asChild className={cn(
-                progress?.status === "completed" 
-                  ? "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600" 
-                  : progress?.status === "in-progress"
-                  ? "bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
-                  : ""
-              )}>
+              <Button size="sm" asChild>
                 <Link href={`/tracks/${trackSlug}/lessons/${lesson.slug}`}>
                   {progress?.status === "completed" ? (
                     <>
