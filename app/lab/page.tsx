@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -406,6 +408,9 @@ function getDifficultyColor(difficulty: string) {
 }
 
 export default function LabPage() {
+  const labs = useQuery(api.labs.list) || [];
+  const validateSolution = useMutation(api.labs.validateSolution);
+
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [language, setLanguage] = useState<"javascript" | "python">(
     "javascript"
@@ -419,28 +424,38 @@ export default function LabPage() {
     new Set()
   );
 
-  const currentChallenge = codingChallenges[currentChallengeIndex];
+  const currentChallenge = labs[currentChallengeIndex];
 
   // Load starter code when challenge or language changes
   useEffect(() => {
-    setCode(currentChallenge.starterCode[language]);
-    setExecutionResult(null);
+    if (currentChallenge) {
+      setCode(currentChallenge.starterCode[language]);
+      setExecutionResult(null);
+    }
   }, [currentChallenge, language]);
 
   const handleRunCode = async () => {
+    if (!currentChallenge) return;
+
     setIsRunning(true);
     try {
-      const result = await executeCode(
+      const result = await validateSolution({
+        labId: currentChallenge._id,
         code,
         language,
-        currentChallenge.testCases
-      );
-      setExecutionResult(result);
+      });
+
+      setExecutionResult({
+        ...result,
+        output: "",
+        error: undefined,
+        executionTime: 0,
+      });
 
       // Mark challenge as completed if all tests pass
-      if (result.passed && result.testResults?.every((t) => t.passed)) {
+      if (result.passed) {
         setCompletedChallenges(
-          (prev) => new Set([...prev, currentChallenge.id])
+          (prev) => new Set([...prev, currentChallenge._id])
         );
       }
     } catch (error) {
@@ -466,7 +481,7 @@ export default function LabPage() {
     }
   };
 
-  const isCompleted = completedChallenges.has(currentChallenge.id);
+  const isCompleted = completedChallenges.has(currentChallenge._id);
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -790,7 +805,7 @@ export default function LabPage() {
                                         Expected:
                                       </span>
                                       <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
-                                        {result.expected}
+                                        {result.expectedOutput}
                                       </code>
                                     </div>
                                     <div className="font-mono text-xs">

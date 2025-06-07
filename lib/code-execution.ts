@@ -13,7 +13,7 @@ export interface ExecutionResult {
   testResults?: Array<{
     passed: boolean;
     input: string;
-    expected: string;
+    expectedOutput: string;
     actual: string;
     description: string;
   }>;
@@ -104,7 +104,7 @@ export async function executeJavaScript(
           testResults.push({
             passed,
             input: testCase.input,
-            expected,
+            expectedOutput: expected,
             actual: actualStr,
             description: testCase.description,
           });
@@ -118,7 +118,7 @@ export async function executeJavaScript(
           testResults.push({
             passed: false,
             input: testCase.input,
-            expected: testCase.expectedOutput,
+            expectedOutput: testCase.expectedOutput,
             actual: `Error: ${error}`,
             description: testCase.description,
           });

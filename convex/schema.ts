@@ -408,4 +408,58 @@ export default defineSchema({
     .index("by_type", ["type"])
     .index("by_published_date", ["publishedAt"])
     .index("by_status_and_type", ["status", "type"]),
+
+  // Labs (coding challenges)
+  labs: defineTable({
+    title: v.string(),
+    difficulty: v.union(
+      v.literal("Easy"),
+      v.literal("Medium"),
+      v.literal("Hard")
+    ),
+    description: v.string(),
+    problemStatement: v.string(),
+    examples: v.array(
+      v.object({
+        input: v.string(),
+        output: v.string(),
+        explanation: v.optional(v.string()),
+      })
+    ),
+    testCases: v.array(
+      v.object({
+        input: v.string(),
+        expectedOutput: v.string(),
+        description: v.string(),
+      })
+    ),
+    starterCode: v.object({
+      javascript: v.string(),
+      python: v.string(),
+    }),
+    hints: v.array(v.string()),
+    constraints: v.array(v.string()),
+    tags: v.array(v.string()),
+    points: v.number(),
+    timeLimit: v.number(),
+    isPublished: v.boolean(),
+    createdBy: v.string(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_difficulty", ["difficulty"])
+    .index("by_published", ["isPublished"]),
+
+  // Lab completions to track user progress
+  labCompletions: defineTable({
+    labId: v.id("labs"),
+    userId: v.string(),
+    completedAt: v.string(),
+    code: v.string(),
+    language: v.string(),
+    executionTime: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_lab", ["labId"])
+    .index("by_user_and_lab", ["userId", "labId"]),
 });
