@@ -365,4 +365,43 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_and_type", ["userId", "type"]),
+
+  // Changelog entries for platform updates and status
+  changelog: defineTable({
+    title: v.string(),
+    description: v.string(),
+    content: v.string(), // Rich text content in markdown
+    type: v.union(
+      v.literal("feature"), // New features
+      v.literal("improvement"), // Enhancements
+      v.literal("bugfix"), // Bug fixes
+      v.literal("issue"), // Platform issues/incidents
+      v.literal("maintenance"), // Scheduled maintenance
+      v.literal("security") // Security updates
+    ),
+    status: v.union(
+      v.literal("published"), // Visible to everyone
+      v.literal("draft"), // Only visible to admins
+      v.literal("archived") // Hidden from public view
+    ),
+    severity: v.optional(v.union(
+      v.literal("low"),
+      v.literal("medium"),
+      v.literal("high"),
+      v.literal("critical")
+    )), // For issues and incidents
+    isResolved: v.optional(v.boolean()), // For tracking issue resolution
+    affectedServices: v.optional(v.array(v.string())), // Which parts of platform affected
+    version: v.optional(v.string()), // Version number for releases
+    authorId: v.string(), // Admin who created the entry
+    authorName: v.string(),
+    tags: v.array(v.string()),
+    publishedAt: v.optional(v.string()),
+    createdAt: v.string(),
+    updatedAt: v.string(),
+  })
+    .index("by_status", ["status"])
+    .index("by_type", ["type"])
+    .index("by_published_date", ["publishedAt"])
+    .index("by_status_and_type", ["status", "type"]),
 });
