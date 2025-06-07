@@ -29,8 +29,25 @@ import {
   HelpCircle,
   Award,
   Loader2,
+  Star,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
+
+// CSS for grid pattern background
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+
+// Grid background pattern CSS
+const gridBgClass = `
+  [mask-image:linear-gradient(0deg,rgba(0,0,0,0.9),rgba(0,0,0,0.1))]
+  [background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(15 23 42 / 0.1)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")]
+`;
+
+const gridBgDarkClass = `
+  [mask-image:linear-gradient(0deg,rgba(0,0,0,0.9),rgba(0,0,0,0.1))]
+  [background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")]
+`;
 
 interface Lesson {
   _id: string;
@@ -106,63 +123,74 @@ function LessonCard({
 }) {
   const LessonIcon = getLessonIcon(lesson.type);
   const StatusIcon = getStatusIcon(progress?.status || "not-started");
+  
+  const isCompleted = progress?.status === "completed";
+  const isInProgress = progress?.status === "in-progress";
 
   return (
     <Card
-      className={`transition-all duration-200 hover:shadow-md ${
-        progress?.status === "completed"
-          ? "ring-2 ring-green-200 bg-green-50"
-          : ""
-      } ${isLocked ? "opacity-50" : ""}`}
+      className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] border border-border/40 ${
+        isCompleted
+          ? "bg-gradient-to-r from-green-50/70 to-green-50/30 border-green-200/70"
+          : isInProgress 
+          ? "bg-gradient-to-r from-blue-50/50 to-blue-50/20"
+          : "bg-card/60 hover:bg-card/90"
+      } ${isLocked ? "opacity-60 hover:opacity-70" : ""}`}
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1">
-            <div className="flex items-center space-x-2">
+      {isCompleted && (
+        <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-r-[40px] border-t-green-200 border-r-transparent z-10"></div>
+      )}
+      
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center space-x-4 flex-1">
+            <div className="flex items-center gap-3">
               <div
-                className={`p-2 rounded-lg ${
-                  progress?.status === "completed"
+                className={`p-2.5 rounded-xl shadow-sm transition-colors ${
+                  isCompleted
                     ? "bg-green-100 text-green-600"
-                    : "bg-gray-100 text-gray-600"
+                    : isInProgress
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
                 }`}
               >
-                <LessonIcon className="h-4 w-4" />
+                <LessonIcon className="h-5 w-5" />
               </div>
               <StatusIcon
                 className={`h-5 w-5 ${
-                  progress?.status === "completed"
+                  isCompleted
                     ? "text-green-500"
-                    : progress?.status === "in-progress"
+                    : isInProgress
                     ? "text-blue-500"
-                    : "text-gray-400"
+                    : "text-gray-400 group-hover:text-gray-500"
                 }`}
               />
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-sm truncate">{lesson.title}</h3>
+              <div className="flex items-center flex-wrap gap-2 mb-1.5">
+                <h3 className="font-semibold text-sm truncate">{lesson.title}</h3>
                 {lesson.isPremium && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200">
                     <Award className="h-3 w-3 mr-1" />
                     Pro
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground line-clamp-1">
+              <p className="text-sm text-muted-foreground line-clamp-1 mb-2.5 group-hover:text-foreground/80 transition-colors">
                 {lesson.description}
               </p>
-              <div className="flex items-center space-x-3 mt-2 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
+                  <Clock className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                   {lesson.estimatedMinutes}m
                 </span>
                 <span className="flex items-center">
-                  <Target className="h-3 w-3 mr-1" />
+                  <Target className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                   {lesson.experiencePoints} XP
                 </span>
                 <Badge
-                  className={getDifficultyColor(lesson.difficulty)}
+                  className={`${getDifficultyColor(lesson.difficulty)} transition-colors`}
                   variant="outline"
                 >
                   {lesson.difficulty}
@@ -171,32 +199,42 @@ function LessonCard({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 ml-4">
+          <div className="flex items-center gap-3 ml-2">
             {progress?.score && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700">
                 {progress.score}%
               </Badge>
             )}
             {isLocked ? (
-              <Button size="sm" disabled>
+              <Button size="sm" variant="outline" disabled className="relative overflow-hidden">
                 <Lock className="h-4 w-4" />
               </Button>
             ) : (
-              <Button size="sm" asChild>
-                <Link href={`/tracks/${trackSlug}/lessons/${lesson.slug}`}>
-                  {progress?.status === "completed" ? (
+              <Button 
+                size="sm" 
+                className={`transition-all duration-300 ${
+                  isCompleted 
+                    ? "bg-green-600 hover:bg-green-700" 
+                    : isInProgress 
+                    ? "bg-blue-600 hover:bg-blue-700" 
+                    : ""
+                }`}
+                asChild
+              >
+                <Link href={`/tracks/${trackSlug}/lessons/${lesson.slug}`} className="flex items-center gap-1.5">
+                  {isCompleted ? (
                     <>
-                      <CheckCircle className="h-4 w-4 mr-1" />
+                      <CheckCircle className="h-4 w-4" />
                       Review
                     </>
-                  ) : progress?.status === "in-progress" ? (
+                  ) : isInProgress ? (
                     <>
-                      <Play className="h-4 w-4 mr-1" />
+                      <Play className="h-4 w-4" />
                       Continue
                     </>
                   ) : (
                     <>
-                      <Play className="h-4 w-4 mr-1" />
+                      <Play className="h-4 w-4" />
                       Start
                     </>
                   )}
@@ -265,37 +303,67 @@ export default function TrackDetailPage() {
 
   if (!trackData) {
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/90 relative">
+        <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-5"></div>
         <MainNavigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-8">
+        <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
+          <div className="space-y-10">
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="mb-4"
+              className="mb-6 rounded-full"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
 
-            <div className="grid gap-8 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-6">
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-20 w-full" />
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-20 w-full" />
-                  ))}
+            <div className="grid gap-10 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-14 w-14 rounded-2xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-8 w-64" />
+                      <Skeleton className="h-5 w-96" />
+                    </div>
+                  </div>
+                  
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                  
+                  <Skeleton className="h-20 w-full" />
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-6 w-20 rounded-full" />
+                    ))}
+                  </div>
+                </div>
+                
+                <Skeleton className="h-1 w-full" />
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                    ))}
+                  </div>
                 </div>
               </div>
+              
               <div className="space-y-6">
-                <Skeleton className="h-40 w-full" />
-                <Skeleton className="h-32 w-full" />
+                <Skeleton className="h-64 w-full rounded-xl" />
+                <Skeleton className="h-72 w-full rounded-xl" />
+                <Skeleton className="h-40 w-full rounded-xl" />
               </div>
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -303,20 +371,24 @@ export default function TrackDetailPage() {
 
   if (!track) {
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/90 relative">
+        <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-5"></div>
         <MainNavigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-16">
-            <h1 className="text-2xl font-bold mb-4">Track Not Found</h1>
-            <p className="text-muted-foreground mb-6">
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          <div className="text-center py-20 max-w-lg mx-auto">
+            <div className="inline-flex items-center justify-center p-6 rounded-full bg-muted/50 mb-6">
+              <BookOpen className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h1 className="text-3xl font-bold mb-4">Track Not Found</h1>
+            <p className="text-muted-foreground mb-8 text-lg">
               The track you're looking for doesn't exist or has been removed.
             </p>
-            <Button asChild>
+            <Button asChild size="lg" className="px-8">
               <Link href="/tracks">Browse All Tracks</Link>
             </Button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -327,52 +399,58 @@ export default function TrackDetailPage() {
     totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
       <MainNavigation />
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
+      <div className="container mx-auto px-4 py-8 lg:py-12">
+        <div className="space-y-10">
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="mb-4"
+            className="mb-6 rounded-full hover:bg-background/80 transition-all duration-300"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Tracks
           </Button>
 
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-10 lg:grid-cols-3">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               {/* Track Header */}
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-3">
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold"
+                        className="w-14 h-14 rounded-2xl shadow-md flex items-center justify-center text-white font-bold text-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg relative overflow-hidden group"
                         style={{ backgroundColor: track.color }}
                       >
-                        {track.title.charAt(0)}
+                        <div className="absolute inset-0 bg-white/10 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                        <span className="relative z-10">{track.title.charAt(0)}</span>
                       </div>
                       <div>
-                        <h1 className="text-3xl font-bold">{track.title}</h1>
+                        <h1 className="text-3xl font-bold mb-1 relative">
+                          {track.title}
+                          <span className="absolute -bottom-1 left-0 w-12 h-1 bg-primary rounded-full"></span>
+                        </h1>
                         <p className="text-lg text-muted-foreground">
                           {track.description}
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {track.isPremium && (
                       <Badge
                         variant="secondary"
-                        className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800"
+                        className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200 px-3 py-1 text-sm"
                       >
-                        <Award className="h-3 w-3 mr-1" />
+                        <Award className="h-4 w-4 mr-2" />
                         Premium
                       </Badge>
                     )}
-                    <Badge className={getDifficultyColor(track.difficulty)}>
+                    <Badge 
+                      className={`${getDifficultyColor(track.difficulty)} px-3 py-1 text-sm`}
+                    >
                       {track.difficulty}
                     </Badge>
                   </div>
@@ -380,46 +458,60 @@ export default function TrackDetailPage() {
 
                 {/* Progress Bar */}
                 {trackProgress && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="bg-card border border-border/30 rounded-xl p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="flex justify-between text-sm font-medium">
                       <span>Your Progress</span>
-                      <span>{Math.round(progressPercentage)}% Complete</span>
+                      <span className="text-primary">{Math.round(progressPercentage)}% Complete</span>
                     </div>
-                    <Progress value={progressPercentage} className="h-2" />
+                    <Progress 
+                      value={progressPercentage} 
+                      className="h-2.5 bg-secondary/30" 
+                    />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>
+                      <span className="flex items-center">
+                        <CheckCircle className="h-3.5 w-3.5 mr-1.5 text-green-500" />
                         {completedLessons} of {totalLessons} lessons completed
                       </span>
-                      <span>
+                      <span className="flex items-center">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
                         {trackProgress.totalTimeSpent || 0} minutes studied
                       </span>
                     </div>
                   </div>
                 )}
 
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-base">
                   {track.longDescription}
                 </p>
 
                 <div className="flex flex-wrap gap-2">
                   {track.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">
+                    <Badge 
+                      key={tag} 
+                      variant="outline"
+                      className="px-3 py-1.5 text-xs bg-card hover:bg-card/80 transition-colors"
+                    >
                       {tag}
                     </Badge>
                   ))}
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="bg-border/50" />
 
               {/* Lessons List */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold">Lessons</h2>
-                  <Badge variant="secondary">{totalLessons} lessons</Badge>
+                  <Badge 
+                    variant="secondary" 
+                    className="px-3 py-1 bg-secondary/30 hover:bg-secondary/40 transition-colors"
+                  >
+                    {totalLessons} lessons
+                  </Badge>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {lessons?.map((lessonData) => {
                     const isLocked =
                       !trackProgress && lessonData.lesson.isPremium;
@@ -438,26 +530,55 @@ export default function TrackDetailPage() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
               {/* Enrollment Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">
+              <Card className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="bg-muted/30 pb-4">
+                  <CardTitle className="text-xl">
                     {trackProgress ? "Continue Learning" : "Start Learning"}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6 p-6">
                   {trackProgress ? (
-                    <>
-                      <div className="text-center py-4">
-                        <div className="text-3xl font-bold text-primary mb-1">
-                          {Math.round(progressPercentage)}%
+                    <>                        <div className="text-center py-6">
+                        <div className="relative mx-auto w-32 h-32 mb-4">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-3xl font-bold text-primary">
+                              {Math.round(progressPercentage)}%
+                            </div>
+                          </div>
+                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <circle
+                              className="text-muted/30 stroke-current"
+                              strokeWidth="8"
+                              strokeLinecap="round"
+                              fill="transparent"
+                              r="40"
+                              cx="50"
+                              cy="50"
+                            />
+                            <circle
+                              className="text-primary stroke-current transition-all duration-1000 ease-in-out"
+                              strokeWidth="8"
+                              strokeLinecap="round"
+                              fill="transparent"
+                              r="40"
+                              cx="50"
+                              cy="50"
+                              strokeDasharray={`${progressPercentage * 2.51} 251.2`}
+                              strokeDashoffset="0"
+                            />
+                          </svg>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Complete
+                          Your learning journey is underway!
                         </div>
                       </div>
-                      <Button className="w-full" asChild>
+                      <Button 
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300" 
+                        size="lg"
+                        asChild
+                      >
                         <Link
                           href={`/tracks/${trackSlug}/lessons/${lessons?.[0]?.lesson.slug}`}
                         >
@@ -468,27 +589,31 @@ export default function TrackDetailPage() {
                     </>
                   ) : (
                     <>
-                      <div className="text-center py-4">
-                        <div className="text-lg font-semibold mb-2">
+                      <div className="text-center py-6">
+                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-4">
+                          <BookOpen className="h-8 w-8 text-primary" />
+                        </div>
+                        <div className="text-xl font-semibold mb-2">
                           Ready to start?
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Join {track.enrollmentCount.toLocaleString()} learners
+                          Join <span className="font-medium text-foreground">{track.enrollmentCount.toLocaleString()}</span> learners
                         </div>
                       </div>
                       <Button
-                        className="w-full"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
+                        size="lg"
                         onClick={handleEnrollment}
                         disabled={isEnrolling}
                       >
                         {isEnrolling ? (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                             Enrolling...
                           </>
                         ) : (
                           <>
-                            <BookOpen className="h-4 w-4 mr-2" />
+                            <BookOpen className="h-5 w-5 mr-2" />
                             Enroll Now
                           </>
                         )}
@@ -499,57 +624,61 @@ export default function TrackDetailPage() {
               </Card>
 
               {/* Track Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Track Details</CardTitle>
+              <Card className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="bg-muted/30 pb-4">
+                  <CardTitle className="text-xl">Track Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
+                <CardContent className="space-y-6 p-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-card/80 to-card/30 rounded-lg p-4 hover:shadow-md transition-all duration-300 group">
+                      <div className="text-2xl font-bold text-primary mb-1 group-hover:scale-110 transition-transform duration-300">
                         {track.totalLessons}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <BookOpen className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                         Lessons
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-card/80 to-card/30 rounded-lg p-4 hover:shadow-md transition-all duration-300 group">
+                      <div className="text-2xl font-bold text-primary mb-1 group-hover:scale-110 transition-transform duration-300">
                         {track.estimatedHours}h
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                         Duration
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-card/80 to-card/30 rounded-lg p-4 hover:shadow-md transition-all duration-300 group">
+                      <div className="text-2xl font-bold text-primary mb-1 group-hover:scale-110 transition-transform duration-300">
                         {track.averageRating.toFixed(1)}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <Star className="h-3.5 w-3.5 mr-1.5 opacity-70 text-yellow-500" />
                         Rating
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
+                    <div className="flex flex-col items-center justify-center bg-gradient-to-br from-card/80 to-card/30 rounded-lg p-4 hover:shadow-md transition-all duration-300 group">
+                      <div className="text-2xl font-bold text-primary mb-1 group-hover:scale-110 transition-transform duration-300">
                         {track.enrollmentCount.toLocaleString()}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground flex items-center">
+                        <Users className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                         Students
                       </div>
                     </div>
                   </div>
 
-                  <Separator />
+                  <Separator className="bg-border/50" />
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between p-1">
                       <span className="text-muted-foreground">Category</span>
-                      <span className="capitalize">{track.category}</span>
+                      <span className="capitalize font-medium">{track.category}</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between p-1">
                       <span className="text-muted-foreground">Level</span>
                       <Badge
-                        className={getDifficultyColor(track.difficulty)}
+                        className={`${getDifficultyColor(track.difficulty)}`}
                         variant="outline"
                       >
                         {track.difficulty}
@@ -560,17 +689,17 @@ export default function TrackDetailPage() {
               </Card>
 
               {/* Skills You'll Learn */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Skills You'll Learn</CardTitle>
+              <Card className="overflow-hidden border border-border/40 shadow-sm hover:shadow-md transition-all duration-300">
+                <CardHeader className="bg-muted/30 pb-4">
+                  <CardTitle className="text-xl">Skills You'll Learn</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <div className="flex flex-wrap gap-2">
                     {track.tags.map((skill) => (
                       <Badge
                         key={skill}
                         variant="secondary"
-                        className="text-xs"
+                        className="text-xs px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
                       >
                         {skill}
                       </Badge>
@@ -582,6 +711,6 @@ export default function TrackDetailPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
