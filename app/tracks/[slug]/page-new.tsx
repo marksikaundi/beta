@@ -36,18 +36,6 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
-// Pattern background CSS using a safe approach
-const bgPatternStyles = {
-  light: {
-    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(15 23 42 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-    maskImage: 'linear-gradient(0deg, rgba(0,0,0,0.9), rgba(0,0,0,0.1))'
-  },
-  dark: {
-    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`,
-    maskImage: 'linear-gradient(0deg, rgba(0,0,0,0.9), rgba(0,0,0,0.1))'
-  }
-};
-
 interface Lesson {
   _id: string;
   title: string;
@@ -215,7 +203,7 @@ function LessonCard({
                   isCompleted 
                     ? "bg-green-600 hover:bg-green-700" 
                     : isInProgress 
-                    ? "bg-blue-600 hover:bg-blue-700 relative"
+                    ? "bg-blue-600 hover:bg-blue-700 relative" 
                     : "relative"
                 }`}
                 asChild
@@ -252,9 +240,9 @@ export default function TrackDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useUser();
-  const trackSlug = params.slug as string;
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const trackSlug = params.slug as string;
 
   // Get track with lessons and progress
   const trackData = useQuery(api.tracks.getTrackWithLessons, {
@@ -305,10 +293,9 @@ export default function TrackDetailPage() {
 
   if (!trackData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-background/90 relative">
-        <div className="absolute inset-0 opacity-[0.03]" style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}></div>
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
         <MainNavigation />
-        <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
+        <div className="container mx-auto px-4 py-8 lg:py-12">
           <div className="space-y-10">
             <Button
               variant="ghost"
@@ -373,10 +360,9 @@ export default function TrackDetailPage() {
 
   if (!track) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-background/90 relative">
-        <div className="absolute inset-0 opacity-[0.03]" style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}></div>
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
         <MainNavigation />
-        <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="container mx-auto px-4 py-8">
           <div className="text-center py-20 max-w-lg mx-auto">
             <div className="inline-flex items-center justify-center p-6 rounded-full bg-muted/50 mb-6">
               <BookOpen className="h-12 w-12 text-muted-foreground" />
@@ -401,10 +387,9 @@ export default function TrackDetailPage() {
     totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/90 relative">
-      <div className="absolute inset-0 opacity-[0.03]" style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}></div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/90">
       <MainNavigation />
-      <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
+      <div className="container mx-auto px-4 py-8 lg:py-12">
         <div className="space-y-10">
           <Button
             variant="ghost"
