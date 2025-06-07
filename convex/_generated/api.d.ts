@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as changelog from "../changelog.js";
 import type * as discussions_reply from "../discussions-reply.js";
 import type * as discussions from "../discussions.js";
 import type * as leaderboards from "../leaderboards.js";
@@ -33,6 +34,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  changelog: typeof changelog;
   "discussions-reply": typeof discussions_reply;
   discussions: typeof discussions;
   leaderboards: typeof leaderboards;

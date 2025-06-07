@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -860,6 +861,9 @@ export default function AdminPage() {
   const clearNotifications = useMutation(
     api.notifications.clearAllUserNotifications
   );
+  const createSampleChangelogEntries = useMutation(
+    api.changelog.createSampleChangelogEntries
+  );
 
   if (!user) {
     return (
@@ -981,6 +985,20 @@ export default function AdminPage() {
                       >
                         Clear Notifications
                       </Button>
+
+                      <Button
+                        onClick={async () => {
+                          try {
+                            const result = await createSampleChangelogEntries({});
+                            setResult(`Success: ${result.message}`);
+                          } catch (error) {
+                            setResult(`Error: ${error}`);
+                          }
+                        }}
+                        variant="outline"
+                      >
+                        Create Sample Changelog
+                      </Button>
                     </div>
 
                     {result && (
@@ -992,6 +1010,37 @@ export default function AdminPage() {
                         </Card>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+
+                {/* Changelog Management */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <FileText className="h-5 w-5 mr-2" />
+                      Platform Management
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground">
+                        Manage platform announcements, status updates, and changelog entries.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button asChild>
+                          <Link href="/admin/changelog">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Manage Changelog
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                          <Link href="/changelog">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Public Page
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

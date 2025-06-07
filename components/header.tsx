@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationsDropdown } from "./navigation/notifications-dropdown";
+import { SystemStatusWidget } from "./system-status-widget";
 
 const navigationItems = [
   {
@@ -54,6 +55,12 @@ const navigationItems = [
     name: "Community",
     href: "/community",
     icon: Users,
+  },
+  {
+    name: "Status",
+    href: "/changelog",
+    icon: TrendingUp,
+    description: "Platform status & updates",
   },
 ];
 
@@ -106,6 +113,9 @@ export function Header() {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
+            {/* System Status */}
+            <SystemStatusWidget />
+
             {/* Streak indicator for signed-in users */}
             {isSignedIn && (
               <div className="hidden sm:flex items-center space-x-1 text-sm">
