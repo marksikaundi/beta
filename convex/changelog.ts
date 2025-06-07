@@ -56,7 +56,7 @@ export const getChangelogEntry = query({
   args: { id: v.id("changelog") },
   handler: async (ctx, args) => {
     const entry = await ctx.db.get(args.id);
-    
+
     if (!entry || entry.status !== "published") {
       return null;
     }
@@ -86,7 +86,7 @@ export const getSystemStatus = query({
     // Get recent issues and their resolution status
     const recentIssues = await ctx.db
       .query("changelog")
-      .filter((q) => 
+      .filter((q) =>
         q.and(
           q.eq(q.field("status"), "published"),
           q.eq(q.field("type"), "issue")
@@ -95,22 +95,28 @@ export const getSystemStatus = query({
       .order("desc")
       .take(10);
 
-    const activeIssues = recentIssues.filter(issue => !issue.isResolved);
-    const resolvedIssues = recentIssues.filter(issue => issue.isResolved);
+    const activeIssues = recentIssues.filter((issue) => !issue.isResolved);
+    const resolvedIssues = recentIssues.filter((issue) => issue.isResolved);
 
     // Determine overall system status
-    const criticalIssues = activeIssues.filter(issue => issue.severity === "critical");
-    const highIssues = activeIssues.filter(issue => issue.severity === "high");
+    const criticalIssues = activeIssues.filter(
+      (issue) => issue.severity === "critical"
+    );
+    const highIssues = activeIssues.filter(
+      (issue) => issue.severity === "high"
+    );
 
     let systemStatus: "operational" | "degraded" | "major-outage";
     let statusMessage = "";
 
     if (criticalIssues.length > 0) {
       systemStatus = "major-outage";
-      statusMessage = "We are experiencing major issues affecting the platform.";
+      statusMessage =
+        "We are experiencing major issues affecting the platform.";
     } else if (highIssues.length > 0) {
       systemStatus = "degraded";
-      statusMessage = "We are experiencing some issues that may affect performance.";
+      statusMessage =
+        "We are experiencing some issues that may affect performance.";
     } else if (activeIssues.length > 0) {
       systemStatus = "degraded";
       statusMessage = "Minor issues are being investigated.";
@@ -124,7 +130,7 @@ export const getSystemStatus = query({
       message: statusMessage,
       activeIssues: activeIssues.length,
       lastUpdated: new Date().toISOString(),
-      recentIssues: activeIssues.slice(0, 3).map(issue => ({
+      recentIssues: activeIssues.slice(0, 3).map((issue) => ({
         title: issue.title,
         severity: issue.severity,
         affectedServices: issue.affectedServices,
@@ -179,7 +185,7 @@ export const createChangelogEntry = mutation({
     }
 
     const now = new Date().toISOString();
-    
+
     const changelogEntry = await ctx.db.insert("changelog", {
       title: args.title,
       description: args.description,
@@ -209,11 +215,7 @@ export const updateChangelogEntry = mutation({
     description: v.optional(v.string()),
     content: v.optional(v.string()),
     status: v.optional(
-      v.union(
-        v.literal("published"),
-        v.literal("draft"),
-        v.literal("archived")
-      )
+      v.union(v.literal("published"), v.literal("draft"), v.literal("archived"))
     ),
     isResolved: v.optional(v.boolean()),
     severity: v.optional(
@@ -305,11 +307,12 @@ export const createSampleChangelogEntries = mutation({
     }
 
     const now = new Date().toISOString();
-    
+
     const sampleEntries = [
       {
         title: "New Interactive Coding Environment",
-        description: "Introduced a brand new interactive coding environment with real-time collaboration features.",
+        description:
+          "Introduced a brand new interactive coding environment with real-time collaboration features.",
         content: `We're excited to announce the launch of our new interactive coding environment! 
 
 **New Features:**
@@ -329,11 +332,14 @@ This update represents a major milestone in making coding education more accessi
         status: "published" as const,
         version: "2.1.0",
         tags: ["coding", "collaboration", "performance"],
-        publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+        publishedAt: new Date(
+          Date.now() - 2 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 2 days ago
       },
       {
         title: "Database Performance Improvements",
-        description: "Optimized database queries resulting in 60% faster page load times.",
+        description:
+          "Optimized database queries resulting in 60% faster page load times.",
         content: `We've been working hard to improve the platform's performance. Here's what we've accomplished:
 
 **Performance Improvements:**
@@ -351,11 +357,14 @@ All changes have been thoroughly tested and deployed without any downtime.`,
         type: "improvement" as const,
         status: "published" as const,
         tags: ["performance", "database", "optimization"],
-        publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+        publishedAt: new Date(
+          Date.now() - 5 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 5 days ago
       },
       {
         title: "Fixed Authentication Issues",
-        description: "Resolved login problems affecting some users during peak hours.",
+        description:
+          "Resolved login problems affecting some users during peak hours.",
         content: `We identified and fixed several authentication issues that were affecting user logins during peak hours.
 
 **Issues Resolved:**
@@ -372,11 +381,14 @@ All users should now experience smooth and reliable authentication.`,
         type: "bugfix" as const,
         status: "published" as const,
         tags: ["authentication", "bugfix", "reliability"],
-        publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+        publishedAt: new Date(
+          Date.now() - 7 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 7 days ago
       },
       {
         title: "Platform Maintenance - API Rate Limiting",
-        description: "Scheduled maintenance to implement new API rate limiting for better service stability.",
+        description:
+          "Scheduled maintenance to implement new API rate limiting for better service stability.",
         content: `We will be performing scheduled maintenance to implement new API rate limiting measures.
 
 **Maintenance Details:**
@@ -401,11 +413,14 @@ We apologize for any inconvenience and appreciate your patience.`,
         severity: "medium" as const,
         affectedServices: ["API", "Dashboard", "Learning Platform"],
         tags: ["maintenance", "infrastructure", "rate-limiting"],
-        publishedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+        publishedAt: new Date(
+          Date.now() - 1 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 1 day ago
       },
       {
         title: "Security Update - Enhanced Data Protection",
-        description: "Important security updates to strengthen data protection and user privacy.",
+        description:
+          "Important security updates to strengthen data protection and user privacy.",
         content: `We've implemented several important security enhancements to better protect your data and privacy.
 
 **Security Improvements:**
@@ -428,12 +443,14 @@ If you have any security concerns, please contact our security team at security@
         type: "security" as const,
         status: "published" as const,
         tags: ["security", "privacy", "encryption"],
-        publishedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
-      }
+        publishedAt: new Date(
+          Date.now() - 10 * 24 * 60 * 60 * 1000
+        ).toISOString(), // 10 days ago
+      },
     ];
 
     const createdEntries = [];
-    
+
     for (const entry of sampleEntries) {
       const changelogEntry = await ctx.db.insert("changelog", {
         ...entry,
@@ -445,10 +462,10 @@ If you have any security concerns, please contact our security team at security@
       createdEntries.push(changelogEntry);
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       created: createdEntries.length,
-      message: `Created ${createdEntries.length} sample changelog entries`
+      message: `Created ${createdEntries.length} sample changelog entries`,
     };
   },
 });
@@ -485,15 +502,22 @@ export const sendChangelogNotification = mutation({
 
     // For now, create in-app notifications for all users
     // In production, this would integrate with email service
-    if (changelogEntry.severity === "critical" || changelogEntry.type === "issue") {
+    if (
+      changelogEntry.severity === "critical" ||
+      changelogEntry.type === "issue"
+    ) {
       const allUsers = await ctx.db.query("users").collect();
-      
+
       const notifications = [];
       for (const targetUser of allUsers) {
         const notification = await ctx.db.insert("notifications", {
           userId: targetUser.clerkId,
           type: "platform-update",
-          title: `🚨 ${changelogEntry.type === "issue" ? "Platform Issue" : "Critical Update"}`,
+          title: `🚨 ${
+            changelogEntry.type === "issue"
+              ? "Platform Issue"
+              : "Critical Update"
+          }`,
           message: `${changelogEntry.title}: ${changelogEntry.description}`,
           isRead: false,
           createdAt: new Date().toISOString(),
@@ -531,28 +555,34 @@ export const getChangelogStats = query({
     }
 
     const allEntries = await ctx.db.query("changelog").collect();
-    const publishedEntries = allEntries.filter(entry => entry.status === "published");
-    const draftEntries = allEntries.filter(entry => entry.status === "draft");
-    const activeIssues = allEntries.filter(entry => 
-      entry.type === "issue" && 
-      entry.status === "published" && 
-      !entry.isResolved
+    const publishedEntries = allEntries.filter(
+      (entry) => entry.status === "published"
+    );
+    const draftEntries = allEntries.filter((entry) => entry.status === "draft");
+    const activeIssues = allEntries.filter(
+      (entry) =>
+        entry.type === "issue" &&
+        entry.status === "published" &&
+        !entry.isResolved
     );
 
     const typeStats = {
-      feature: publishedEntries.filter(e => e.type === "feature").length,
-      improvement: publishedEntries.filter(e => e.type === "improvement").length,
-      bugfix: publishedEntries.filter(e => e.type === "bugfix").length,
-      issue: publishedEntries.filter(e => e.type === "issue").length,
-      maintenance: publishedEntries.filter(e => e.type === "maintenance").length,
-      security: publishedEntries.filter(e => e.type === "security").length,
+      feature: publishedEntries.filter((e) => e.type === "feature").length,
+      improvement: publishedEntries.filter((e) => e.type === "improvement")
+        .length,
+      bugfix: publishedEntries.filter((e) => e.type === "bugfix").length,
+      issue: publishedEntries.filter((e) => e.type === "issue").length,
+      maintenance: publishedEntries.filter((e) => e.type === "maintenance")
+        .length,
+      security: publishedEntries.filter((e) => e.type === "security").length,
     };
 
     const severityStats = {
-      critical: publishedEntries.filter(e => e.severity === "critical").length,
-      high: publishedEntries.filter(e => e.severity === "high").length,
-      medium: publishedEntries.filter(e => e.severity === "medium").length,
-      low: publishedEntries.filter(e => e.severity === "low").length,
+      critical: publishedEntries.filter((e) => e.severity === "critical")
+        .length,
+      high: publishedEntries.filter((e) => e.severity === "high").length,
+      medium: publishedEntries.filter((e) => e.severity === "medium").length,
+      low: publishedEntries.filter((e) => e.severity === "low").length,
     };
 
     return {
@@ -563,9 +593,12 @@ export const getChangelogStats = query({
       typeStats,
       severityStats,
       recentEntries: publishedEntries
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
         .slice(0, 5)
-        .map(entry => ({
+        .map((entry) => ({
           id: entry._id,
           title: entry.title,
           type: entry.type,

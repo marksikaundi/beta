@@ -4,9 +4,12 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { AlertCircle, CheckCircle, Clock, Info } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { AlertCircle, CheckCircle, Info } from "lucide-react";
 import Link from "next/link";
 
 export function SystemStatusWidget() {
@@ -49,7 +52,10 @@ export function SystemStatusWidget() {
           {getStatusIcon()}
           <span className="hidden sm:inline">Status</span>
           {systemStatus.activeIssues > 0 && (
-            <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 text-xs">
+            <Badge
+              variant="destructive"
+              className="h-5 w-5 rounded-full p-0 text-xs"
+            >
               {systemStatus.activeIssues}
             </Badge>
           )}
@@ -66,7 +72,7 @@ export function SystemStatusWidget() {
               </Badge>
             </div>
           </div>
-          
+
           <p className="text-sm text-muted-foreground">
             {systemStatus.message}
           </p>
@@ -77,19 +83,25 @@ export function SystemStatusWidget() {
               {systemStatus.recentIssues.map((issue, index) => (
                 <div key={index} className="text-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <Badge 
-                      variant={issue.severity === "critical" || issue.severity === "high" ? "destructive" : "secondary"}
+                    <Badge
+                      variant={
+                        issue.severity === "critical" ||
+                        issue.severity === "high"
+                          ? "destructive"
+                          : "secondary"
+                      }
                       className="text-xs"
                     >
                       {issue.severity?.toUpperCase()}
                     </Badge>
                     <span className="font-medium">{issue.title}</span>
                   </div>
-                  {issue.affectedServices && issue.affectedServices.length > 0 && (
-                    <div className="text-xs text-muted-foreground ml-1">
-                      Affects: {issue.affectedServices.join(", ")}
-                    </div>
-                  )}
+                  {issue.affectedServices &&
+                    issue.affectedServices.length > 0 && (
+                      <div className="text-xs text-muted-foreground ml-1">
+                        Affects: {issue.affectedServices.join(", ")}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -97,9 +109,7 @@ export function SystemStatusWidget() {
 
           <div className="pt-2 border-t">
             <Button asChild variant="outline" size="sm" className="w-full">
-              <Link href="/changelog">
-                View Full Status Page
-              </Link>
+              <Link href="/changelog">View Full Status Page</Link>
             </Button>
           </div>
         </div>

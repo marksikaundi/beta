@@ -14,15 +14,15 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as changelog from "../changelog.js";
-import type * as discussions_reply from "../discussions-reply.js";
 import type * as discussions from "../discussions.js";
+import type * as discussions_reply from "../discussions_reply.js";
 import type * as leaderboards from "../leaderboards.js";
-import type * as lessons_admin from "../lessons-admin.js";
 import type * as lessons from "../lessons.js";
+import type * as lessons_admin from "../lessons_admin.js";
 import type * as notifications from "../notifications.js";
 import type * as progress from "../progress.js";
-import type * as tracks_admin from "../tracks-admin.js";
 import type * as tracks from "../tracks.js";
+import type * as tracks_admin from "../tracks_admin.js";
 import type * as users from "../users.js";
 
 /**
@@ -35,15 +35,15 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   changelog: typeof changelog;
-  "discussions-reply": typeof discussions_reply;
   discussions: typeof discussions;
+  discussions_reply: typeof discussions_reply;
   leaderboards: typeof leaderboards;
-  "lessons-admin": typeof lessons_admin;
   lessons: typeof lessons;
+  lessons_admin: typeof lessons_admin;
   notifications: typeof notifications;
   progress: typeof progress;
-  "tracks-admin": typeof tracks_admin;
   tracks: typeof tracks;
+  tracks_admin: typeof tracks_admin;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

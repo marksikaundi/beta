@@ -386,12 +386,14 @@ export default defineSchema({
       v.literal("draft"), // Only visible to admins
       v.literal("archived") // Hidden from public view
     ),
-    severity: v.optional(v.union(
-      v.literal("low"),
-      v.literal("medium"),
-      v.literal("high"),
-      v.literal("critical")
-    )), // For issues and incidents
+    severity: v.optional(
+      v.union(
+        v.literal("low"),
+        v.literal("medium"),
+        v.literal("high"),
+        v.literal("critical")
+      )
+    ), // For issues and incidents
     isResolved: v.optional(v.boolean()), // For tracking issue resolution
     affectedServices: v.optional(v.array(v.string())), // Which parts of platform affected
     version: v.optional(v.string()), // Version number for releases

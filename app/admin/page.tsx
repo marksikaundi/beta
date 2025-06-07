@@ -989,7 +989,9 @@ export default function AdminPage() {
                       <Button
                         onClick={async () => {
                           try {
-                            const result = await createSampleChangelogEntries({});
+                            const result = await createSampleChangelogEntries(
+                              {}
+                            );
                             setResult(`Success: ${result.message}`);
                           } catch (error) {
                             setResult(`Error: ${error}`);
@@ -1024,7 +1026,8 @@ export default function AdminPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <p className="text-muted-foreground">
-                        Manage platform announcements, status updates, and changelog entries.
+                        Manage platform announcements, status updates, and
+                        changelog entries.
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Button asChild>

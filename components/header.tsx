@@ -56,12 +56,12 @@ const navigationItems = [
     href: "/community",
     icon: Users,
   },
-  {
-    name: "Status",
-    href: "/changelog",
-    icon: TrendingUp,
-    description: "Platform status & updates",
-  },
+  // {
+  //   name: "Status",
+  //   href: "/changelog",
+  //   icon: TrendingUp,
+  //   description: "Platform status & updates",
+  // },
 ];
 
 export function Header() {

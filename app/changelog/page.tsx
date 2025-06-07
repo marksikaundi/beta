@@ -5,11 +5,35 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Search, Filter, Rss, ExternalLink } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Info,
+  Shield,
+  Wrench,
+  Zap,
+  Search,
+  Filter,
+  Rss,
+  ExternalLink,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
@@ -17,28 +41,32 @@ export default function ChangelogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
-  
+
   const changelog = useQuery(api.changelog.getPublicChangelog, {});
   const systemStatus = useQuery(api.changelog.getSystemStatus, {});
 
   // Filter and search logic
   const filteredChangelog = useMemo(() => {
     if (!changelog) return [];
-    
-    return changelog.filter(entry => {
+
+    return changelog.filter((entry) => {
       // Search filter
-      const searchMatch = searchQuery === "" || 
+      const searchMatch =
+        searchQuery === "" ||
         entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      
+        entry.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
       // Type filter
       const typeMatch = selectedType === "all" || entry.type === selectedType;
-      
+
       // Severity filter
-      const severityMatch = selectedSeverity === "all" || entry.severity === selectedSeverity;
-      
+      const severityMatch =
+        selectedSeverity === "all" || entry.severity === selectedSeverity;
+
       return searchMatch && typeMatch && severityMatch;
     });
   }, [changelog, searchQuery, selectedType, selectedSeverity]);
@@ -116,9 +144,12 @@ export default function ChangelogPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Platform Status & Changelog</h1>
+          <h1 className="text-4xl font-bold mb-4">
+            Platform Status & Changelog
+          </h1>
           <p className="text-muted-foreground text-lg">
-            Stay updated with the latest platform changes, features, and status updates.
+            Stay updated with the latest platform changes, features, and status
+            updates.
           </p>
         </div>
 
@@ -140,18 +171,24 @@ export default function ChangelogPage() {
                 </Badge>
               </CardTitle>
               <CardDescription>
-                Last updated {formatDistanceToNow(new Date(systemStatus.lastUpdated))} ago
+                Last updated{" "}
+                {formatDistanceToNow(new Date(systemStatus.lastUpdated))} ago
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-lg mb-4">{systemStatus.message}</p>
-              
+
               {systemStatus.recentIssues.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Active Issues:</h4>
                   {systemStatus.recentIssues.map((issue, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      <Badge className={getSeverityColor(issue.severity || "low")}>
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <Badge
+                        className={getSeverityColor(issue.severity || "low")}
+                      >
                         {issue.severity?.toUpperCase() || "LOW"}
                       </Badge>
                       <span>{issue.title}</span>
@@ -219,7 +256,10 @@ export default function ChangelogPage() {
                   <SelectItem value="security">Security</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
+              <Select
+                value={selectedSeverity}
+                onValueChange={setSelectedSeverity}
+              >
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Filter by severity" />
                 </SelectTrigger>
@@ -232,7 +272,9 @@ export default function ChangelogPage() {
                 </SelectContent>
               </Select>
             </div>
-            {(searchQuery || selectedType !== "all" || selectedSeverity !== "all") && (
+            {(searchQuery ||
+              selectedType !== "all" ||
+              selectedSeverity !== "all") && (
               <div className="mt-4 flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {filteredChangelog?.length || 0} entries found
@@ -256,7 +298,7 @@ export default function ChangelogPage() {
         {/* Changelog Entries */}
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Recent Updates</h2>
-          
+
           {!changelog && (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -278,13 +320,19 @@ export default function ChangelogPage() {
           {changelog && filteredChangelog.length === 0 && !searchQuery && (
             <Card>
               <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">No changelog entries yet.</p>
+                <p className="text-muted-foreground">
+                  No changelog entries yet.
+                </p>
               </CardContent>
             </Card>
           )}
 
           {filteredChangelog?.map((entry) => (
-            <Card key={entry._id} className="overflow-hidden" id={`entry-${entry._id}`}>
+            <Card
+              key={entry._id}
+              className="overflow-hidden"
+              id={`entry-${entry._id}`}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -295,75 +343,88 @@ export default function ChangelogPage() {
                           {entry.type.toUpperCase()}
                         </div>
                       </Badge>
-                      
+
                       {entry.version && (
                         <Badge variant="outline">v{entry.version}</Badge>
                       )}
-                      
+
                       {entry.severity && (
                         <Badge className={getSeverityColor(entry.severity)}>
                           {entry.severity.toUpperCase()}
                         </Badge>
                       )}
-                      
+
                       {entry.type === "issue" && (
-                        <Badge 
-                          className={entry.isResolved 
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" 
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                        <Badge
+                          className={
+                            entry.isResolved
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
                           }
                         >
                           {entry.isResolved ? "RESOLVED" : "ACTIVE"}
                         </Badge>
                       )}
                     </div>
-                    
-                    <CardTitle className="text-xl mb-2">{entry.title}</CardTitle>
+
+                    <CardTitle className="text-xl mb-2">
+                      {entry.title}
+                    </CardTitle>
                     <CardDescription className="text-base">
                       {entry.description}
                     </CardDescription>
                   </div>
-                  
+
                   <div className="text-right text-sm text-muted-foreground">
                     <div>
-                      {entry.publishedAt 
-                        ? formatDistanceToNow(new Date(entry.publishedAt)) + " ago"
-                        : formatDistanceToNow(new Date(entry.createdAt)) + " ago"
-                      }
+                      {entry.publishedAt
+                        ? formatDistanceToNow(new Date(entry.publishedAt)) +
+                          " ago"
+                        : formatDistanceToNow(new Date(entry.createdAt)) +
+                          " ago"}
                     </div>
                     <div>by {entry.authorName}</div>
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent>
-                {entry.affectedServices && entry.affectedServices.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-medium mb-2">Affected Services:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {entry.affectedServices.map((service, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
+                {entry.affectedServices &&
+                  entry.affectedServices.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-2">Affected Services:</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {entry.affectedServices.map((service, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {service}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                
+                  )}
+
                 <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: entry.content.replace(/\n/g, "<br />") 
-                    }} 
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: entry.content.replace(/\n/g, "<br />"),
+                    }}
                   />
                 </div>
-                
+
                 {entry.tags && entry.tags.length > 0 && (
                   <>
                     <Separator className="my-4" />
                     <div className="flex flex-wrap gap-1">
                       {entry.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           #{tag}
                         </Badge>
                       ))}
@@ -378,11 +439,13 @@ export default function ChangelogPage() {
         {/* Footer */}
         <div className="text-center mt-12 py-8 border-t">
           <p className="text-muted-foreground mb-4">
-            For technical support or to report issues, please contact our support team.
+            For technical support or to report issues, please contact our
+            support team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <p className="text-sm text-muted-foreground">
-              Want to get notified of updates? Follow us on social media or subscribe to our newsletter.
+              Want to get notified of updates? Follow us on social media or
+              subscribe to our newsletter.
             </p>
           </div>
         </div>
