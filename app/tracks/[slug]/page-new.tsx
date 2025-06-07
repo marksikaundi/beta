@@ -110,7 +110,7 @@ function LessonCard({
 }) {
   const LessonIcon = getLessonIcon(lesson.type);
   const StatusIcon = getStatusIcon(progress?.status || "not-started");
-  
+
   const isCompleted = progress?.status === "completed";
   const isInProgress = progress?.status === "in-progress";
 
@@ -119,7 +119,7 @@ function LessonCard({
       className={`group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-2px] border border-border/40 ${
         isCompleted
           ? "bg-gradient-to-r from-green-50/70 to-green-50/30 border-green-200/70"
-          : isInProgress 
+          : isInProgress
           ? "bg-gradient-to-r from-blue-50/50 to-blue-50/20"
           : "bg-card/60 hover:bg-card/90"
       } ${isLocked ? "opacity-60 hover:opacity-70" : ""}`}
@@ -127,7 +127,7 @@ function LessonCard({
       {isCompleted && (
         <div className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-r-[40px] border-t-green-200 border-r-transparent z-10"></div>
       )}
-      
+
       <CardContent className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center space-x-4 flex-1">
@@ -156,9 +156,14 @@ function LessonCard({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center flex-wrap gap-2 mb-1.5">
-                <h3 className="font-semibold text-sm truncate">{lesson.title}</h3>
+                <h3 className="font-semibold text-sm truncate">
+                  {lesson.title}
+                </h3>
                 {lesson.isPremium && (
-                  <Badge variant="secondary" className="text-xs bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200"
+                  >
                     <Award className="h-3 w-3 mr-1" />
                     Pro
                   </Badge>
@@ -177,7 +182,9 @@ function LessonCard({
                   {lesson.experiencePoints} XP
                 </span>
                 <Badge
-                  className={`${getDifficultyColor(lesson.difficulty)} transition-colors`}
+                  className={`${getDifficultyColor(
+                    lesson.difficulty
+                  )} transition-colors`}
                   variant="outline"
                 >
                   {lesson.difficulty}
@@ -188,27 +195,38 @@ function LessonCard({
 
           <div className="flex items-center gap-3 ml-2">
             {progress?.score && (
-              <Badge variant="secondary" className="text-xs bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700">
+              <Badge
+                variant="secondary"
+                className="text-xs bg-gradient-to-r from-indigo-50 to-indigo-100 text-indigo-700"
+              >
                 {progress.score}%
               </Badge>
             )}
             {isLocked ? (
-              <Button size="sm" variant="outline" disabled className="relative overflow-hidden">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled
+                className="relative overflow-hidden"
+              >
                 <Lock className="h-4 w-4" />
               </Button>
             ) : (
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className={`transition-all duration-300 ${
-                  isCompleted 
-                    ? "bg-green-600 hover:bg-green-700" 
-                    : isInProgress 
-                    ? "bg-blue-600 hover:bg-blue-700 relative" 
+                  isCompleted
+                    ? "bg-green-600 hover:bg-green-700"
+                    : isInProgress
+                    ? "bg-blue-600 hover:bg-blue-700 relative"
                     : "relative"
                 }`}
                 asChild
               >
-                <Link href={`/tracks/${trackSlug}/lessons/${lesson.slug}`} className="flex items-center gap-1.5">
+                <Link
+                  href={`/tracks/${trackSlug}/lessons/${lesson.slug}`}
+                  className="flex items-center gap-1.5"
+                >
                   {isCompleted ? (
                     <>
                       <CheckCircle className="h-4 w-4" />
@@ -316,26 +334,26 @@ export default function TrackDetailPage() {
                       <Skeleton className="h-5 w-96" />
                     </div>
                   </div>
-                  
+
                   <Skeleton className="h-24 w-full rounded-xl" />
-                  
+
                   <Skeleton className="h-20 w-full" />
-                  
+
                   <div className="flex flex-wrap gap-2">
                     {[...Array(5)].map((_, i) => (
                       <Skeleton key={i} className="h-6 w-20 rounded-full" />
                     ))}
                   </div>
                 </div>
-                
+
                 <Skeleton className="h-1 w-full" />
-                
+
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <Skeleton className="h-8 w-32" />
                     <Skeleton className="h-6 w-24 rounded-full" />
                   </div>
-                  
+
                   <div className="space-y-4">
                     {[...Array(5)].map((_, i) => (
                       <Skeleton key={i} className="h-24 w-full rounded-xl" />
@@ -343,7 +361,7 @@ export default function TrackDetailPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-6">
                 <Skeleton className="h-64 w-full rounded-xl" />
                 <Skeleton className="h-72 w-full rounded-xl" />
@@ -413,7 +431,9 @@ export default function TrackDetailPage() {
                         style={{ backgroundColor: track.color }}
                       >
                         <div className="absolute inset-0 bg-white/10 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                        <span className="relative z-10">{track.title.charAt(0)}</span>
+                        <span className="relative z-10">
+                          {track.title.charAt(0)}
+                        </span>
                       </div>
                       <div>
                         <h1 className="text-3xl font-bold mb-1 relative">
@@ -436,8 +456,10 @@ export default function TrackDetailPage() {
                         Premium
                       </Badge>
                     )}
-                    <Badge 
-                      className={`${getDifficultyColor(track.difficulty)} px-3 py-1 text-sm`}
+                    <Badge
+                      className={`${getDifficultyColor(
+                        track.difficulty
+                      )} px-3 py-1 text-sm`}
                     >
                       {track.difficulty}
                     </Badge>
@@ -449,11 +471,13 @@ export default function TrackDetailPage() {
                   <div className="bg-card border border-border/30 rounded-xl p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="flex justify-between text-sm font-medium">
                       <span>Your Progress</span>
-                      <span className="text-primary">{Math.round(progressPercentage)}% Complete</span>
+                      <span className="text-primary">
+                        {Math.round(progressPercentage)}% Complete
+                      </span>
                     </div>
-                    <Progress 
-                      value={progressPercentage} 
-                      className="h-2.5 bg-secondary/30" 
+                    <Progress
+                      value={progressPercentage}
+                      className="h-2.5 bg-secondary/30"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span className="flex items-center">
@@ -474,8 +498,8 @@ export default function TrackDetailPage() {
 
                 <div className="flex flex-wrap gap-2">
                   {track.tags.map((tag) => (
-                    <Badge 
-                      key={tag} 
+                    <Badge
+                      key={tag}
                       variant="outline"
                       className="px-3 py-1.5 text-xs bg-card hover:bg-card/80 transition-colors"
                     >
@@ -491,8 +515,8 @@ export default function TrackDetailPage() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold">Lessons</h2>
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="px-3 py-1 bg-secondary/30 hover:bg-secondary/40 transition-colors"
                   >
                     {totalLessons} lessons
@@ -536,7 +560,10 @@ export default function TrackDetailPage() {
                               {Math.round(progressPercentage)}%
                             </div>
                           </div>
-                          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                          <svg
+                            className="w-full h-full transform -rotate-90"
+                            viewBox="0 0 100 100"
+                          >
                             <circle
                               className="text-muted/30 stroke-current"
                               strokeWidth="8"
@@ -554,7 +581,9 @@ export default function TrackDetailPage() {
                               r="40"
                               cx="50"
                               cy="50"
-                              strokeDasharray={`${progressPercentage * 2.51} 251.2`}
+                              strokeDasharray={`${
+                                progressPercentage * 2.51
+                              } 251.2`}
                               strokeDashoffset="0"
                             />
                           </svg>
@@ -563,8 +592,8 @@ export default function TrackDetailPage() {
                           Your learning journey is underway!
                         </div>
                       </div>
-                      <Button 
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300" 
+                      <Button
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300"
                         size="lg"
                         asChild
                       >
@@ -586,7 +615,11 @@ export default function TrackDetailPage() {
                           Ready to start?
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Join <span className="font-medium text-foreground">{track.enrollmentCount.toLocaleString()}</span> learners
+                          Join{" "}
+                          <span className="font-medium text-foreground">
+                            {track.enrollmentCount.toLocaleString()}
+                          </span>{" "}
+                          learners
                         </div>
                       </div>
                       <Button
@@ -662,7 +695,9 @@ export default function TrackDetailPage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-between p-1">
                       <span className="text-muted-foreground">Category</span>
-                      <span className="capitalize font-medium">{track.category}</span>
+                      <span className="capitalize font-medium">
+                        {track.category}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between p-1">
                       <span className="text-muted-foreground">Level</span>
