@@ -98,7 +98,12 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={cn("bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t", className)}>
+    <footer
+      className={cn(
+        "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t",
+        className
+      )}
+    >
       <div className="container mx-auto px-4">
         <div className="py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
@@ -114,7 +119,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 Master backend development with hands-on projects, interactive
                 coding challenges, and structured learning paths.
               </p>
-              
+
               {/* Status Badge */}
               <Badge variant="outline" className="w-fit">
                 <GraduationCap className="h-3 w-3 mr-1" />
@@ -176,7 +181,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
                 Designed and developed by Mark Sikaundi
               </p>
             </div>
-            
+
             {/* Additional footer actions */}
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" asChild>
