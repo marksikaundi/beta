@@ -1,14 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -17,57 +14,246 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  BookOpen,
-  Clock,
-  Users,
-  Star,
-  Search,
-  Filter,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
   Code,
   Play,
   CheckCircle,
-  Trophy,
-  Zap,
-  Target,
-  FileText,
-  Video,
-  HelpCircle,
-  ArrowRight,
+  XCircle,
+  Clock,
   Award,
+  ChevronLeft,
   ChevronRight,
+  RotateCcw,
+  Terminal,
+  BookOpen,
+  Target,
+  Lightbulb,
 } from "lucide-react";
-import { useState } from "react";
+import { executeCode, type TestCase, type ExecutionResult } from "@/lib/code-execution";
 
-interface Course {
-  _id: string;
+// Coding Challenge Interface
+interface Challenge {
+  id: string;
   title: string;
-  slug: string;
-  description: string;
   difficulty: "beginner" | "intermediate" | "advanced";
-  estimatedHours: number;
-  thumbnail: string;
-  color: string;
-  category: string;
-  totalLessons: number;
-  enrollmentCount: number;
-  averageRating: number;
-  isPremium: boolean;
+  description: string;
+  problemStatement: string;
+  examples: Array<{
+    input: string;
+    output: string;
+    explanation?: string;
+  }>;
+  testCases: TestCase[];
+  starterCode: {
+    javascript: string;
+    python: string;
+  };
+  hints: string[];
+  constraints: string[];
   tags: string[];
+  points: number;
+  timeLimit: number; // in minutes
 }
 
-interface Lesson {
-  _id: string;
-  title: string;
-  slug: string;
-  description: string;
-  type: "reading" | "coding" | "quiz" | "video" | "project";
-  difficulty: "beginner" | "intermediate" | "advanced";
-  estimatedMinutes: number;
-  experiencePoints: number;
-  isPremium: boolean;
-  trackId: string;
-  order: number;
-}
+// Sample challenges data
+const sampleChallenges: Challenge[] = [
+  {
+    id: "two-sum",
+    title: "Two Sum",
+    difficulty: "beginner",
+    description: "Find two numbers in an array that add up to a target sum.",
+    problemStatement: `Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.`,
+    examples: [
+      {
+        input: "nums = [2,7,11,15], target = 9",
+        output: "[0,1]",
+        explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]."
+      },
+      {
+        input: "nums = [3,2,4], target = 6",
+        output: "[1,2]"
+      },
+      {
+        input: "nums = [3,3], target = 6",
+        output: "[0,1]"
+      }
+    ],
+    testCases: [
+      {
+        input: "[[2,7,11,15], 9]",
+        expectedOutput: "[0,1]",
+        description: "Basic case with solution at beginning"
+      },
+      {
+        input: "[[3,2,4], 6]",
+        expectedOutput: "[1,2]",
+        description: "Solution not at beginning"
+      },
+      {
+        input: "[[3,3], 6]",
+        expectedOutput: "[0,1]",
+        description: "Duplicate numbers"
+      }
+    ],
+    starterCode: {
+      javascript: `function twoSum(nums, target) {
+    // Your code here
+    
+}`,
+      python: `def two_sum(nums, target):
+    # Your code here
+    pass`
+    },
+    hints: [
+      "Try using a hash map to store numbers you've seen",
+      "For each number, check if (target - number) exists in your hash map",
+      "Don't forget to return the indices, not the values"
+    ],
+    constraints: [
+      "2 ≤ nums.length ≤ 10⁴",
+      "-10⁹ ≤ nums[i] ≤ 10⁹",
+      "-10⁹ ≤ target ≤ 10⁹",
+      "Only one valid answer exists."
+    ],
+    tags: ["Array", "Hash Table"],
+    points: 100,
+    timeLimit: 30
+  },
+  {
+    id: "reverse-string",
+    title: "Reverse String",
+    difficulty: "beginner",
+    description: "Write a function that reverses a string.",
+    problemStatement: `Write a function that reverses a string. The input string is given as an array of characters s.
+
+You must do this by modifying the input array in-place with O(1) extra memory.`,
+    examples: [
+      {
+        input: 's = ["h","e","l","l","o"]',
+        output: '["o","l","l","e","h"]'
+      },
+      {
+        input: 's = ["H","a","n","n","a","h"]',
+        output: '["h","a","n","n","a","H"]'
+      }
+    ],
+    testCases: [
+      {
+        input: '[["h","e","l","l","o"]]',
+        expectedOutput: '["o","l","l","e","h"]',
+        description: "Basic string reversal"
+      },
+      {
+        input: '[["H","a","n","n","a","h"]]',
+        expectedOutput: '["h","a","n","n","a","H"]',
+        description: "Palindrome-like string"
+      }
+    ],
+    starterCode: {
+      javascript: `function reverseString(s) {
+    // Your code here
+    
+}`,
+      python: `def reverse_string(s):
+    # Your code here
+    pass`
+    },
+    hints: [
+      "Use two pointers, one at the start and one at the end",
+      "Swap characters and move pointers towards each other",
+      "Stop when pointers meet in the middle"
+    ],
+    constraints: [
+      "1 ≤ s.length ≤ 10⁵",
+      "s[i] is a printable ascii character."
+    ],
+    tags: ["Two Pointers", "String"],
+    points: 80,
+    timeLimit: 20
+  },
+  {
+    id: "fibonacci",
+    title: "Fibonacci Number",
+    difficulty: "beginner", 
+    description: "Calculate the nth Fibonacci number.",
+    problemStatement: `The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.
+
+F(0) = 0, F(1) = 1
+F(n) = F(n - 1) + F(n - 2), for n > 1.
+
+Given n, calculate F(n).`,
+    examples: [
+      {
+        input: "n = 2",
+        output: "1",
+        explanation: "F(2) = F(1) + F(0) = 1 + 0 = 1."
+      },
+      {
+        input: "n = 3", 
+        output: "2",
+        explanation: "F(3) = F(2) + F(1) = 1 + 1 = 2."
+      },
+      {
+        input: "n = 4",
+        output: "3",
+        explanation: "F(4) = F(3) + F(2) = 2 + 1 = 3."
+      }
+    ],
+    testCases: [
+      {
+        input: "[2]",
+        expectedOutput: "1",
+        description: "Small fibonacci number"
+      },
+      {
+        input: "[3]",
+        expectedOutput: "2", 
+        description: "Another small case"
+      },
+      {
+        input: "[4]",
+        expectedOutput: "3",
+        description: "Slightly larger case"
+      }
+    ],
+    starterCode: {
+      javascript: `function fib(n) {
+    // Your code here
+    
+}`,
+      python: `def fib(n):
+    # Your code here
+    pass`
+    },
+    hints: [
+      "Try the iterative approach for better performance",
+      "You only need to keep track of the last two numbers",
+      "Handle the base cases n=0 and n=1 first"
+    ],
+    constraints: [
+      "0 ≤ n ≤ 30"
+    ],
+    tags: ["Math", "Dynamic Programming", "Recursion", "Memoization"],
+    points: 90,
+    timeLimit: 25
+  }
+];
 
 function getDifficultyColor(difficulty: string) {
   switch (difficulty) {
@@ -82,475 +268,459 @@ function getDifficultyColor(difficulty: string) {
   }
 }
 
-function getLessonIcon(type: string) {
-  switch (type) {
-    case "reading":
-      return FileText;
-    case "coding":
-      return Code;
-    case "quiz":
-      return HelpCircle;
-    case "video":
-      return Video;
-    case "project":
-      return Trophy;
-    default:
-      return BookOpen;
-  }
-}
-
-function CourseCard({
-  course,
-  isEnrolled = false,
-}: {
-  course: Course;
-  isEnrolled?: boolean;
-}) {
-  return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between mb-2">
-          <div
-            className="w-4 h-4 rounded-full shrink-0"
-            style={{ backgroundColor: course.color }}
-          />
-          <div className="flex gap-1">
-            {course.isPremium && (
-              <Badge
-                variant="secondary"
-                className="text-xs bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800"
-              >
-                <Award className="h-3 w-3 mr-1" />
-                Pro
-              </Badge>
-            )}
-            <Badge
-              className={getDifficultyColor(course.difficulty)}
-              variant="outline"
-            >
-              {course.difficulty}
-            </Badge>
-          </div>
-        </div>
-
-        <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2">
-          <Link href={`/tracks/${course.slug}`}>{course.title}</Link>
-        </CardTitle>
-
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-          {course.description}
-        </p>
-
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center space-x-3">
-            <span className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {course.estimatedHours}h
-            </span>
-            <span className="flex items-center">
-              <BookOpen className="h-3 w-3 mr-1" />
-              {course.totalLessons} lessons
-            </span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span>{course.averageRating.toFixed(1)}</span>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap gap-1 mb-4">
-          {course.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-          {course.tags.length > 2 && (
-            <Badge variant="outline" className="text-xs">
-              +{course.tags.length - 2}
-            </Badge>
-          )}
-        </div>
-
-        <Button
-          asChild
-          className="w-full"
-          variant={isEnrolled ? "outline" : "default"}
-        >
-          <Link href={`/tracks/${course.slug}`}>
-            {isEnrolled ? (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Continue
-              </>
-            ) : (
-              <>
-                <BookOpen className="h-4 w-4 mr-2" />
-                Start Course
-              </>
-            )}
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function LessonCard({
-  lesson,
-  trackTitle,
-  progress,
-}: {
-  lesson: Lesson;
-  trackTitle: string;
-  progress?: any;
-}) {
-  const LessonIcon = getLessonIcon(lesson.type);
-  const isCompleted = progress?.status === "completed";
-
-  return (
-    <Card className="group hover:shadow-md transition-all duration-200 border hover:border-primary/20">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-3">
-          <div
-            className={`p-2 rounded-lg shrink-0 ${
-              isCompleted
-                ? "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400"
-                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-            }`}
-          >
-            <LessonIcon className="h-4 w-4" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-1">
-              <h3 className="font-medium text-sm group-hover:text-primary transition-colors truncate">
-                {lesson.title}
-              </h3>
-              {lesson.isPremium && (
-                <Badge variant="secondary" className="text-xs">
-                  <Award className="h-3 w-3 mr-1" />
-                  Pro
-                </Badge>
-              )}
-              {isCompleted && (
-                <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-              )}
-            </div>
-
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
-              {lesson.description}
-            </p>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-                <span className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
-                  {lesson.estimatedMinutes}m
-                </span>
-                <span className="flex items-center">
-                  <Target className="h-3 w-3 mr-1" />
-                  {lesson.experiencePoints} XP
-                </span>
-                <Badge
-                  className={getDifficultyColor(lesson.difficulty)}
-                  variant="outline"
-                >
-                  {lesson.difficulty}
-                </Badge>
-              </div>
-
-              <Button size="sm" variant="ghost" asChild>
-                <Link href={`/tracks/${lesson.trackId}/lessons/${lesson.slug}`}>
-                  {isCompleted ? "Review" : "Start"}
-                  <ChevronRight className="h-3 w-3 ml-1" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function LabPage() {
   const { user } = useUser();
-  const [activeTab, setActiveTab] = useState<"courses" | "lessons">("courses");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
+  const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
+  const [language, setLanguage] = useState<"javascript" | "python">("javascript");
+  const [code, setCode] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+  const [showHints, setShowHints] = useState(false);
+  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
 
-  // Get all tracks/courses
-  const allTracks = useQuery(api.tracks.getAllTracks, {
-    category: selectedCategory !== "all" ? selectedCategory : undefined,
-    difficulty:
-      selectedDifficulty !== "all" ? (selectedDifficulty as any) : undefined,
-  });
+  const currentChallenge = sampleChallenges[currentChallengeIndex];
 
-  // Get recent lessons
-  const recentLessons = useQuery(api.lessons.getRecentLessons, { limit: 12 });
+  // Load starter code when challenge or language changes
+  useEffect(() => {
+    setCode(currentChallenge.starterCode[language]);
+    setExecutionResult(null);
+  }, [currentChallenge, language]);
 
-  // Get user enrollments
-  const userEnrollments = useQuery(
-    api.tracks.getUserEnrollments,
-    user ? { clerkId: user.id } : "skip"
-  );
+  const handleRunCode = async () => {
+    setIsRunning(true);
+    try {
+      const result = await executeCode(code, language, currentChallenge.testCases);
+      setExecutionResult(result);
+      
+      // Mark challenge as completed if all tests pass
+      if (result.passed && result.testResults?.every(t => t.passed)) {
+        setCompletedChallenges(prev => new Set([...prev, currentChallenge.id]));
+      }
+    } catch (error) {
+      setExecutionResult({
+        output: "",
+        error: error instanceof Error ? error.message : "Unknown error",
+        passed: false,
+        executionTime: 0,
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
 
-  const enrolledTrackIds =
-    userEnrollments?.map((e) => e.track?._id).filter(Boolean) || [];
+  const handleResetCode = () => {
+    setCode(currentChallenge.starterCode[language]);
+    setExecutionResult(null);
+  };
 
-  // Filter tracks based on search
-  const filteredTracks =
-    allTracks?.filter(
-      (track) =>
-        track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        track.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        track.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    ) || [];
+  const goToChallenge = (index: number) => {
+    if (index >= 0 && index < sampleChallenges.length) {
+      setCurrentChallengeIndex(index);
+    }
+  };
 
-  // Get unique categories for filter
-  const categories = [
-    ...new Set(allTracks?.map((track) => track.category) || []),
-  ];
-
-  if (!allTracks) {
-    return (
-      <>
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-8">
-            <div className="text-center">
-              <Skeleton className="h-12 w-64 mx-auto mb-4" />
-              <Skeleton className="h-6 w-96 mx-auto" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-64" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const isCompleted = completedChallenges.has(currentChallenge.id);
 
   return (
-    <>
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Development Lab
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Interactive courses and hands-on lessons to master programming
-              skills. Learn by building, coding, and solving real-world
-              challenges.
-            </p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {allTracks.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Courses</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {recentLessons?.length || 0}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Active Lessons
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {enrolledTrackIds.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Enrolled</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  {allTracks.filter((t) => t.difficulty === "beginner").length}
-                </div>
-                <div className="text-sm text-muted-foreground">Beginner</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="flex items-center justify-center">
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button
-                variant={activeTab === "courses" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("courses")}
-                className="rounded-md"
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Courses
-              </Button>
-              <Button
-                variant={activeTab === "lessons" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("lessons")}
-                className="rounded-md"
-              >
-                <Code className="h-4 w-4 mr-2" />
-                Lessons
-              </Button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={`Search ${activeTab}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+    <div className="h-screen flex flex-col">
+      {/* Header */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Code className="h-6 w-6 text-primary" />
+                <h1 className="text-xl font-bold">Coding Lab</h1>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">Challenge</span>
+                <span className="text-sm font-medium">
+                  {currentChallengeIndex + 1} of {sampleChallenges.length}
+                </span>
+              </div>
             </div>
 
-            <Select
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={selectedDifficulty}
-              onValueChange={setSelectedDifficulty}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <Target className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                <SelectItem value="beginner">Beginner</SelectItem>
-                <SelectItem value="intermediate">Intermediate</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Content */}
-          {activeTab === "courses" ? (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">
-                  {searchQuery ||
-                  selectedCategory !== "all" ||
-                  selectedDifficulty !== "all"
-                    ? `Filtered Courses (${filteredTracks.length})`
-                    : "All Courses"}
-                </h2>
-                {user && enrolledTrackIds.length > 0 && (
-                  <Button variant="outline" asChild>
-                    <Link href="/dashboard">
-                      <Play className="h-4 w-4 mr-2" />
-                      Continue Learning
-                    </Link>
-                  </Button>
-                )}
+            <div className="flex items-center space-x-4">
+              {/* Challenge Navigation */}
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToChallenge(currentChallengeIndex - 1)}
+                  disabled={currentChallengeIndex === 0}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToChallenge(currentChallengeIndex + 1)}
+                  disabled={currentChallengeIndex === sampleChallenges.length - 1}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
 
-              {filteredTracks.length === 0 ? (
-                <Card>
-                  <CardContent className="py-16 text-center">
-                    <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">
-                      No courses found
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your search criteria or browse all courses.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setSearchQuery("");
-                        setSelectedCategory("all");
-                        setSelectedDifficulty("all");
-                      }}
-                    >
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredTracks.map((track) => (
-                    <CourseCard
-                      key={track._id}
-                      course={track}
-                      isEnrolled={enrolledTrackIds.includes(track._id)}
-                    />
-                  ))}
-                </div>
-              )}
+              {/* Language Selector */}
+              <Select value={language} onValueChange={(value: "javascript" | "python") => setLanguage(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  <SelectItem value="python">Python</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold">Recent Lessons</h2>
-              {recentLessons && recentLessons.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {recentLessons.map((lesson: any) => (
-                    <LessonCard
-                      key={lesson._id}
-                      lesson={lesson}
-                      trackTitle={lesson.trackTitle || "Unknown Track"}
-                      progress={null}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="py-16 text-center">
-                    <Code className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">
-                      No lessons available
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Lessons will appear here as courses are created.
-                    </p>
-                    <Button asChild>
-                      <Link href="/tracks">Browse Courses</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-hidden">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Problem Statement Panel */}
+          <ResizablePanel defaultSize={45} minSize={30}>
+            <div className="h-full flex flex-col">
+              <div className="border-b p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <h2 className="text-lg font-semibold">{currentChallenge.title}</h2>
+                    {isCompleted && (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Completed
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={getDifficultyColor(currentChallenge.difficulty)} variant="outline">
+                      {currentChallenge.difficulty}
+                    </Badge>
+                    <Badge variant="outline">
+                      <Target className="h-3 w-3 mr-1" />
+                      {currentChallenge.points} pts
+                    </Badge>
+                    <Badge variant="outline">
+                      <Clock className="h-3 w-3 mr-1" />
+                      {currentChallenge.timeLimit}m
+                    </Badge>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {currentChallenge.description}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {currentChallenge.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1">
+                <div className="p-4 space-y-6">
+                  {/* Problem Statement */}
+                  <div>
+                    <h3 className="font-medium mb-2 flex items-center">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Problem Statement
+                    </h3>
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
+                        {currentChallenge.problemStatement}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Examples */}
+                  <div>
+                    <h3 className="font-medium mb-3">Examples</h3>
+                    <div className="space-y-4">
+                      {currentChallenge.examples.map((example, index) => (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="font-medium text-sm mb-2">Example {index + 1}:</div>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="font-medium">Input:</span>
+                              <code className="ml-2 bg-muted px-2 py-1 rounded">{example.input}</code>
+                            </div>
+                            <div>
+                              <span className="font-medium">Output:</span>
+                              <code className="ml-2 bg-muted px-2 py-1 rounded">{example.output}</code>
+                            </div>
+                            {example.explanation && (
+                              <div>
+                                <span className="font-medium">Explanation:</span>
+                                <span className="ml-2 text-muted-foreground">{example.explanation}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Constraints */}
+                  <div>
+                    <h3 className="font-medium mb-2">Constraints</h3>
+                    <ul className="text-sm space-y-1">
+                      {currentChallenge.constraints.map((constraint, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-muted-foreground mr-2">•</span>
+                          <code className="text-xs bg-muted px-1 py-0.5 rounded">{constraint}</code>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Hints */}
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowHints(!showHints)}
+                      className="mb-3"
+                    >
+                      <Lightbulb className="h-4 w-4 mr-2" />
+                      {showHints ? "Hide" : "Show"} Hints ({currentChallenge.hints.length})
+                    </Button>
+                    {showHints && (
+                      <div className="space-y-2">
+                        {currentChallenge.hints.map((hint, index) => (
+                          <div key={index} className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                            <div className="text-sm">
+                              <span className="font-medium text-blue-700 dark:text-blue-300">Hint {index + 1}:</span>
+                              <span className="ml-2 text-blue-600 dark:text-blue-400">{hint}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </ScrollArea>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          {/* Code Editor Panel */}
+          <ResizablePanel defaultSize={55} minSize={40}>
+            <div className="h-full flex flex-col">
+              <div className="border-b p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Terminal className="h-4 w-4" />
+                    <span className="font-medium">Code Editor</span>
+                    <Badge variant="outline" className="text-xs">
+                      {language}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResetCode}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Reset
+                    </Button>
+                    <Button
+                      onClick={handleRunCode}
+                      disabled={isRunning}
+                      size="sm"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      {isRunning ? "Running..." : "Run Code"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Code Input */}
+                <div className="flex-1 border-b">
+                  <Textarea
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    placeholder={`Write your ${language} code here...`}
+                    className="h-full resize-none border-0 rounded-none font-mono text-sm"
+                    style={{ minHeight: "300px" }}
+                  />
+                </div>
+
+                {/* Results Panel */}
+                <div className="h-1/2 flex flex-col">
+                  <Tabs defaultValue="output" className="flex-1 flex flex-col">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="output">Output</TabsTrigger>
+                      <TabsTrigger value="tests">Test Results</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="output" className="flex-1 mt-0">
+                      <ScrollArea className="h-full">
+                        <div className="p-4">
+                          {executionResult ? (
+                            <div className="space-y-3">
+                              {executionResult.error ? (
+                                <div className="flex items-start space-x-2 text-red-600">
+                                  <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                                  <div>
+                                    <div className="font-medium">Error</div>
+                                    <pre className="text-sm mt-1 whitespace-pre-wrap">{executionResult.error}</pre>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-start space-x-2 text-green-600">
+                                  <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                                  <div>
+                                    <div className="font-medium">Success</div>
+                                    <pre className="text-sm mt-1 whitespace-pre-wrap bg-muted p-3 rounded">
+                                      {executionResult.output || "No output"}
+                                    </pre>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="text-xs text-muted-foreground">
+                                Execution time: {executionResult.executionTime}ms
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center text-muted-foreground py-8">
+                              <Terminal className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>Run your code to see the output</p>
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </TabsContent>
+
+                    <TabsContent value="tests" className="flex-1 mt-0">
+                      <ScrollArea className="h-full">
+                        <div className="p-4">
+                          {executionResult?.testResults ? (
+                            <div className="space-y-3">
+                              {executionResult.testResults.map((result, index) => (
+                                <div
+                                  key={index}
+                                  className={`border rounded-lg p-3 ${
+                                    result.passed
+                                      ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20"
+                                      : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="font-medium text-sm">{result.description}</span>
+                                    <div className="flex items-center space-x-1">
+                                      {result.passed ? (
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                      ) : (
+                                        <XCircle className="h-4 w-4 text-red-600" />
+                                      )}
+                                      <span className={`text-xs font-medium ${
+                                        result.passed ? "text-green-600" : "text-red-600"
+                                      }`}>
+                                        {result.passed ? "PASS" : "FAIL"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-1 text-sm">
+                                    <div>
+                                      <span className="font-medium">Input:</span>
+                                      <code className="ml-2 bg-background px-2 py-1 rounded text-xs">
+                                        {result.input}
+                                      </code>
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">Expected:</span>
+                                      <code className="ml-2 bg-background px-2 py-1 rounded text-xs">
+                                        {result.expected}
+                                      </code>
+                                    </div>
+                                    <div>
+                                      <span className="font-medium">Actual:</span>
+                                      <code className={`ml-2 px-2 py-1 rounded text-xs ${
+                                        result.passed ? "bg-background" : "bg-red-100 dark:bg-red-900/20"
+                                      }`}>
+                                        {result.actual}
+                                      </code>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                              
+                              <Separator />
+                              
+                              <div className="text-center">
+                                <div className={`text-sm font-medium ${
+                                  executionResult.passed ? "text-green-600" : "text-red-600"
+                                }`}>
+                                  {executionResult.testResults.filter(t => t.passed).length} of{" "}
+                                  {executionResult.testResults.length} tests passed
+                                </div>
+                                {executionResult.passed && (
+                                  <div className="mt-2 flex items-center justify-center text-green-600">
+                                    <Award className="h-4 w-4 mr-2" />
+                                    <span className="text-sm">Challenge completed! +{currentChallenge.points} points</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center text-muted-foreground py-8">
+                              <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>Run your code to see test results</p>
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* Challenge Progress Bar */}
+      <div className="border-t bg-background p-2">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center space-x-4">
+              <span className="text-muted-foreground">Progress:</span>
+              <div className="flex space-x-1">
+                {sampleChallenges.map((challenge, index) => (
+                  <Button
+                    key={challenge.id}
+                    variant={index === currentChallengeIndex ? "default" : "outline"}
+                    size="sm"
+                    className={`w-8 h-8 p-0 ${
+                      completedChallenges.has(challenge.id)
+                        ? "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
+                        : ""
+                    }`}
+                    onClick={() => goToChallenge(index)}
+                  >
+                    {completedChallenges.has(challenge.id) ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      index + 1
+                    )}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="text-muted-foreground">
+              {completedChallenges.size} of {sampleChallenges.length} completed
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
