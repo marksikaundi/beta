@@ -11,8 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Plus, Edit, Trash, Send, BarChart3 } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Plus, Edit, Send, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
