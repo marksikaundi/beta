@@ -11,12 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -42,7 +37,11 @@ import {
   Zap,
   ArrowRight,
 } from "lucide-react";
-import { executeCode, type TestCase, type ExecutionResult } from "@/lib/code-execution";
+import {
+  executeCode,
+  type TestCase,
+  type ExecutionResult,
+} from "@/lib/code-execution";
 
 // Coding Challenge Interface
 interface Challenge {
@@ -84,33 +83,33 @@ You can return the answer in any order.`,
       {
         input: "nums = [2,7,11,15], target = 9",
         output: "[0,1]",
-        explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]."
+        explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
       },
       {
         input: "nums = [3,2,4], target = 6",
-        output: "[1,2]"
+        output: "[1,2]",
       },
       {
         input: "nums = [3,3], target = 6",
-        output: "[0,1]"
-      }
+        output: "[0,1]",
+      },
     ],
     testCases: [
       {
         input: "[[2,7,11,15], 9]",
         expectedOutput: "[0,1]",
-        description: "Basic case with solution at beginning"
+        description: "Basic case with solution at beginning",
       },
       {
         input: "[[3,2,4], 6]",
         expectedOutput: "[1,2]",
-        description: "Solution not at beginning"
+        description: "Solution not at beginning",
       },
       {
         input: "[[3,3], 6]",
         expectedOutput: "[0,1]",
-        description: "Duplicate numbers"
-      }
+        description: "Duplicate numbers",
+      },
     ],
     starterCode: {
       javascript: `function twoSum(nums, target) {
@@ -119,22 +118,22 @@ You can return the answer in any order.`,
 }`,
       python: `def two_sum(nums, target):
     # Write your solution here
-    pass`
+    pass`,
     },
     hints: [
       "Try using a hash map to store numbers you've seen",
       "For each number, check if (target - number) exists in your hash map",
-      "Don't forget to return the indices, not the values"
+      "Don't forget to return the indices, not the values",
     ],
     constraints: [
       "2 ≤ nums.length ≤ 10⁴",
       "-10⁹ ≤ nums[i] ≤ 10⁹",
       "-10⁹ ≤ target ≤ 10⁹",
-      "Only one valid answer exists."
+      "Only one valid answer exists.",
     ],
     tags: ["Array", "Hash Table"],
     points: 100,
-    timeLimit: 30
+    timeLimit: 30,
   },
   {
     id: "reverse-string",
@@ -147,24 +146,24 @@ You must do this by modifying the input array in-place with O(1) extra memory.`,
     examples: [
       {
         input: 's = ["h","e","l","l","o"]',
-        output: '["o","l","l","e","h"]'
+        output: '["o","l","l","e","h"]',
       },
       {
         input: 's = ["H","a","n","n","a","h"]',
-        output: '["h","a","n","n","a","H"]'
-      }
+        output: '["h","a","n","n","a","H"]',
+      },
     ],
     testCases: [
       {
         input: '[["h","e","l","l","o"]]',
         expectedOutput: '["o","l","l","e","h"]',
-        description: "Basic string reversal"
+        description: "Basic string reversal",
       },
       {
         input: '[["H","a","n","n","a","h"]]',
         expectedOutput: '["h","a","n","n","a","H"]',
-        description: "Palindrome-like string"
-      }
+        description: "Palindrome-like string",
+      },
     ],
     starterCode: {
       javascript: `function reverseString(s) {
@@ -173,20 +172,17 @@ You must do this by modifying the input array in-place with O(1) extra memory.`,
 }`,
       python: `def reverse_string(s):
     # Write your solution here
-    pass`
+    pass`,
     },
     hints: [
       "Use two pointers, one at the start and one at the end",
       "Swap characters and move pointers towards each other",
-      "Stop when pointers meet in the middle"
+      "Stop when pointers meet in the middle",
     ],
-    constraints: [
-      "1 ≤ s.length ≤ 10⁵",
-      "s[i] is a printable ascii character."
-    ],
+    constraints: ["1 ≤ s.length ≤ 10⁵", "s[i] is a printable ascii character."],
     tags: ["Two Pointers", "String"],
     points: 80,
-    timeLimit: 20
+    timeLimit: 20,
   },
   {
     id: "palindrome-number",
@@ -202,35 +198,38 @@ For example, 121 is a palindrome while 123 is not.`,
       {
         input: "x = 121",
         output: "true",
-        explanation: "121 reads as 121 from left to right and from right to left."
+        explanation:
+          "121 reads as 121 from left to right and from right to left.",
       },
       {
         input: "x = -121",
         output: "false",
-        explanation: "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome."
+        explanation:
+          "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome.",
       },
       {
         input: "x = 10",
         output: "false",
-        explanation: "Reads 01 from right to left. Therefore it is not a palindrome."
-      }
+        explanation:
+          "Reads 01 from right to left. Therefore it is not a palindrome.",
+      },
     ],
     testCases: [
       {
         input: "[121]",
         expectedOutput: "true",
-        description: "Positive palindrome"
+        description: "Positive palindrome",
       },
       {
         input: "[-121]",
         expectedOutput: "false",
-        description: "Negative number"
+        description: "Negative number",
       },
       {
         input: "[10]",
         expectedOutput: "false",
-        description: "Number ending with 0"
-      }
+        description: "Number ending with 0",
+      },
     ],
     starterCode: {
       javascript: `function isPalindrome(x) {
@@ -239,19 +238,17 @@ For example, 121 is a palindrome while 123 is not.`,
 }`,
       python: `def is_palindrome(x):
     # Write your solution here
-    pass`
+    pass`,
     },
     hints: [
       "Negative numbers are not palindromes",
       "You can convert to string or reverse the number mathematically",
-      "Think about edge cases like numbers ending with 0"
+      "Think about edge cases like numbers ending with 0",
     ],
-    constraints: [
-      "-2³¹ ≤ x ≤ 2³¹ - 1"
-    ],
+    constraints: ["-2³¹ ≤ x ≤ 2³¹ - 1"],
     tags: ["Math"],
     points: 90,
-    timeLimit: 25
+    timeLimit: 25,
   },
   {
     id: "valid-parentheses",
@@ -267,33 +264,33 @@ An input string is valid if:
     examples: [
       {
         input: 's = "()"',
-        output: "true"
+        output: "true",
       },
       {
         input: 's = "()[]{}"',
-        output: "true"
+        output: "true",
       },
       {
         input: 's = "(]"',
-        output: "false"
-      }
+        output: "false",
+      },
     ],
     testCases: [
       {
         input: '["()"]',
         expectedOutput: "true",
-        description: "Simple valid parentheses"
+        description: "Simple valid parentheses",
       },
       {
         input: '["()[]{}" ]',
         expectedOutput: "true",
-        description: "Multiple valid brackets"
+        description: "Multiple valid brackets",
       },
       {
         input: '["(]"]',
         expectedOutput: "false",
-        description: "Mismatched brackets"
-      }
+        description: "Mismatched brackets",
+      },
     ],
     starterCode: {
       javascript: `function isValid(s) {
@@ -302,20 +299,20 @@ An input string is valid if:
 }`,
       python: `def is_valid(s):
     # Write your solution here
-    pass`
+    pass`,
     },
     hints: [
       "Use a stack data structure",
       "Push opening brackets onto the stack",
-      "When you see a closing bracket, check if it matches the top of the stack"
+      "When you see a closing bracket, check if it matches the top of the stack",
     ],
     constraints: [
       "1 ≤ s.length ≤ 10⁴",
-      "s consists of parentheses only '()[]{}'."
+      "s consists of parentheses only '()[]{}'.",
     ],
     tags: ["Stack", "String"],
     points: 120,
-    timeLimit: 30
+    timeLimit: 30,
   },
   {
     id: "merge-two-lists",
@@ -330,33 +327,33 @@ Return the head of the merged linked list.`,
     examples: [
       {
         input: "list1 = [1,2,4], list2 = [1,3,4]",
-        output: "[1,1,2,3,4,4]"
+        output: "[1,1,2,3,4,4]",
       },
       {
         input: "list1 = [], list2 = []",
-        output: "[]"
+        output: "[]",
       },
       {
         input: "list1 = [], list2 = [0]",
-        output: "[0]"
-      }
+        output: "[0]",
+      },
     ],
     testCases: [
       {
         input: "[[1,2,4], [1,3,4]]",
         expectedOutput: "[1,1,2,3,4,4]",
-        description: "Both lists have elements"
+        description: "Both lists have elements",
       },
       {
         input: "[[], []]",
         expectedOutput: "[]",
-        description: "Both lists empty"
+        description: "Both lists empty",
       },
       {
         input: "[[], [0]]",
         expectedOutput: "[0]",
-        description: "One list empty"
-      }
+        description: "One list empty",
+      },
     ],
     starterCode: {
       javascript: `// Definition for singly-linked list.
@@ -377,22 +374,22 @@ class ListNode:
 
 def merge_two_lists(list1, list2):
     # Write your solution here
-    pass`
+    pass`,
     },
     hints: [
       "Use a dummy node to simplify the logic",
       "Compare the values of the current nodes",
-      "Link the smaller node and advance that pointer"
+      "Link the smaller node and advance that pointer",
     ],
     constraints: [
       "The number of nodes in both lists is in the range [0, 50].",
       "-100 ≤ Node.val ≤ 100",
-      "Both list1 and list2 are sorted in non-decreasing order."
+      "Both list1 and list2 are sorted in non-decreasing order.",
     ],
     tags: ["Linked List", "Recursion"],
     points: 150,
-    timeLimit: 40
-  }
+    timeLimit: 40,
+  },
 ];
 
 function getDifficultyColor(difficulty: string) {
@@ -410,12 +407,17 @@ function getDifficultyColor(difficulty: string) {
 
 export default function LabPage() {
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
-  const [language, setLanguage] = useState<"javascript" | "python">("javascript");
+  const [language, setLanguage] = useState<"javascript" | "python">(
+    "javascript"
+  );
   const [code, setCode] = useState("");
   const [isRunning, setIsRunning] = useState(false);
-  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+  const [executionResult, setExecutionResult] =
+    useState<ExecutionResult | null>(null);
   const [showHints, setShowHints] = useState(false);
-  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
+  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(
+    new Set()
+  );
 
   const currentChallenge = codingChallenges[currentChallengeIndex];
 
@@ -428,12 +430,18 @@ export default function LabPage() {
   const handleRunCode = async () => {
     setIsRunning(true);
     try {
-      const result = await executeCode(code, language, currentChallenge.testCases);
+      const result = await executeCode(
+        code,
+        language,
+        currentChallenge.testCases
+      );
       setExecutionResult(result);
-      
+
       // Mark challenge as completed if all tests pass
-      if (result.passed && result.testResults?.every(t => t.passed)) {
-        setCompletedChallenges(prev => new Set([...prev, currentChallenge.id]));
+      if (result.passed && result.testResults?.every((t) => t.passed)) {
+        setCompletedChallenges(
+          (prev) => new Set([...prev, currentChallenge.id])
+        );
       }
     } catch (error) {
       setExecutionResult({
@@ -477,7 +485,12 @@ export default function LabPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Select value={language} onValueChange={(value: "javascript" | "python") => setLanguage(value)}>
+            <Select
+              value={language}
+              onValueChange={(value: "javascript" | "python") =>
+                setLanguage(value)
+              }
+            >
               <SelectTrigger className="w-32 h-8">
                 <SelectValue />
               </SelectTrigger>
@@ -486,7 +499,7 @@ export default function LabPage() {
                 <SelectItem value="python">Python</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <div className="flex items-center gap-2 ml-2">
               <Button
                 variant="ghost"
@@ -520,9 +533,11 @@ export default function LabPage() {
             <div className="h-full flex flex-col">
               <div className="border-b p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold">{currentChallenge.title}</h2>
-                  <Badge 
-                    variant="outline" 
+                  <h2 className="text-lg font-semibold">
+                    {currentChallenge.title}
+                  </h2>
+                  <Badge
+                    variant="outline"
                     className={getDifficultyColor(currentChallenge.difficulty)}
                   >
                     {currentChallenge.difficulty}
@@ -544,7 +559,9 @@ export default function LabPage() {
                 <div className="p-4 space-y-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm font-medium">Problem Statement</CardTitle>
+                      <CardTitle className="text-sm font-medium">
+                        Problem Statement
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -558,20 +575,28 @@ export default function LabPage() {
                   {/* Examples */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm font-medium">Examples</CardTitle>
+                      <CardTitle className="text-sm font-medium">
+                        Examples
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {currentChallenge.examples.map((example, index) => (
                         <div key={index} className="text-sm space-y-2">
-                          <div className="font-medium">Example {index + 1}:</div>
+                          <div className="font-medium">
+                            Example {index + 1}:
+                          </div>
                           <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                             <div>
                               <span className="font-mono">Input:</span>
-                              <code className="ml-2 font-mono text-xs">{example.input}</code>
+                              <code className="ml-2 font-mono text-xs">
+                                {example.input}
+                              </code>
                             </div>
                             <div>
                               <span className="font-mono">Output:</span>
-                              <code className="ml-2 font-mono text-xs">{example.output}</code>
+                              <code className="ml-2 font-mono text-xs">
+                                {example.output}
+                              </code>
                             </div>
                             {example.explanation && (
                               <div className="text-muted-foreground text-xs">
@@ -587,18 +612,25 @@ export default function LabPage() {
                   {/* Constraints */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm font-medium">Constraints</CardTitle>
+                      <CardTitle className="text-sm font-medium">
+                        Constraints
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="text-sm space-y-1.5">
-                        {currentChallenge.constraints.map((constraint, index) => (
-                          <li key={index} className="flex items-baseline gap-2">
-                            <span className="text-muted-foreground">•</span>
-                            <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
-                              {constraint}
-                            </code>
-                          </li>
-                        ))}
+                        {currentChallenge.constraints.map(
+                          (constraint, index) => (
+                            <li
+                              key={index}
+                              className="flex items-baseline gap-2"
+                            >
+                              <span className="text-muted-foreground">•</span>
+                              <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                                {constraint}
+                              </code>
+                            </li>
+                          )
+                        )}
                       </ul>
                     </CardContent>
                   </Card>
@@ -714,63 +746,71 @@ export default function LabPage() {
                       <div className="p-4 space-y-3">
                         {executionResult?.testResults ? (
                           <>
-                            {executionResult.testResults.map((result, index) => (
-                              <div
-                                key={index}
-                                className={`border rounded-lg p-3 ${
-                                  result.passed
-                                    ? "border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20"
-                                    : "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20"
-                                }`}
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium">
-                                    Test Case {index + 1}
-                                  </span>
-                                  <Badge
-                                    variant="outline"
-                                    className={
-                                      result.passed
-                                        ? "border-green-500 text-green-600"
-                                        : "border-red-500 text-red-600"
-                                    }
-                                  >
-                                    {result.passed ? (
-                                      <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                                    ) : (
-                                      <XCircle className="h-3.5 w-3.5 mr-1" />
-                                    )}
-                                    {result.passed ? "Pass" : "Fail"}
-                                  </Badge>
-                                </div>
-                                <div className="space-y-1.5 text-sm">
-                                  <div className="font-mono text-xs">
-                                    <span className="text-muted-foreground">Input:</span>
-                                    <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
-                                      {result.input}
-                                    </code>
-                                  </div>
-                                  <div className="font-mono text-xs">
-                                    <span className="text-muted-foreground">Expected:</span>
-                                    <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
-                                      {result.expected}
-                                    </code>
-                                  </div>
-                                  <div className="font-mono text-xs">
-                                    <span className="text-muted-foreground">Actual:</span>
-                                    <code
-                                      className={`ml-2 px-1.5 py-0.5 rounded ${
+                            {executionResult.testResults.map(
+                              (result, index) => (
+                                <div
+                                  key={index}
+                                  className={`border rounded-lg p-3 ${
+                                    result.passed
+                                      ? "border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20"
+                                      : "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium">
+                                      Test Case {index + 1}
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className={
                                         result.passed
-                                          ? "bg-muted"
-                                          : "bg-red-100 dark:bg-red-950/30"
-                                      }`}
+                                          ? "border-green-500 text-green-600"
+                                          : "border-red-500 text-red-600"
+                                      }
                                     >
-                                      {result.actual}
-                                    </code>
+                                      {result.passed ? (
+                                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                      ) : (
+                                        <XCircle className="h-3.5 w-3.5 mr-1" />
+                                      )}
+                                      {result.passed ? "Pass" : "Fail"}
+                                    </Badge>
+                                  </div>
+                                  <div className="space-y-1.5 text-sm">
+                                    <div className="font-mono text-xs">
+                                      <span className="text-muted-foreground">
+                                        Input:
+                                      </span>
+                                      <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
+                                        {result.input}
+                                      </code>
+                                    </div>
+                                    <div className="font-mono text-xs">
+                                      <span className="text-muted-foreground">
+                                        Expected:
+                                      </span>
+                                      <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
+                                        {result.expected}
+                                      </code>
+                                    </div>
+                                    <div className="font-mono text-xs">
+                                      <span className="text-muted-foreground">
+                                        Actual:
+                                      </span>
+                                      <code
+                                        className={`ml-2 px-1.5 py-0.5 rounded ${
+                                          result.passed
+                                            ? "bg-muted"
+                                            : "bg-red-100 dark:bg-red-950/30"
+                                        }`}
+                                      >
+                                        {result.actual}
+                                      </code>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              )
+                            )}
 
                             <div className="text-center pt-2">
                               <div
@@ -780,15 +820,20 @@ export default function LabPage() {
                                     : "text-red-600"
                                 }`}
                               >
-                                {executionResult.testResults.filter((t) => t.passed)
-                                  .length}{" "}
-                                of {executionResult.testResults.length} tests passed
+                                {
+                                  executionResult.testResults.filter(
+                                    (t) => t.passed
+                                  ).length
+                                }{" "}
+                                of {executionResult.testResults.length} tests
+                                passed
                               </div>
                               {executionResult.passed && (
                                 <div className="mt-2 flex items-center justify-center gap-1.5 text-green-600">
                                   <Award className="h-4 w-4" />
                                   <span className="text-sm">
-                                    Challenge completed! +{currentChallenge.points} points
+                                    Challenge completed! +
+                                    {currentChallenge.points} points
                                   </span>
                                 </div>
                               )}
