@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Code,
   Play,
@@ -38,6 +39,8 @@ import {
   BookOpen,
   Target,
   Lightbulb,
+  Zap,
+  ArrowRight,
 } from "lucide-react";
 import { executeCode, type TestCase, type ExecutionResult } from "@/lib/code-execution";
 
@@ -45,7 +48,7 @@ import { executeCode, type TestCase, type ExecutionResult } from "@/lib/code-exe
 interface Challenge {
   id: string;
   title: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
+  difficulty: "Easy" | "Medium" | "Hard";
   description: string;
   problemStatement: string;
   examples: Array<{
@@ -65,12 +68,12 @@ interface Challenge {
   timeLimit: number; // in minutes
 }
 
-// Sample challenges data
-const sampleChallenges: Challenge[] = [
+// Sample challenges data - more comprehensive and boot.dev style
+const codingChallenges: Challenge[] = [
   {
     id: "two-sum",
     title: "Two Sum",
-    difficulty: "beginner",
+    difficulty: "Easy",
     description: "Find two numbers in an array that add up to a target sum.",
     problemStatement: `Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to target.
 
@@ -111,11 +114,11 @@ You can return the answer in any order.`,
     ],
     starterCode: {
       javascript: `function twoSum(nums, target) {
-    // Your code here
+    // Write your solution here
     
 }`,
       python: `def two_sum(nums, target):
-    # Your code here
+    # Write your solution here
     pass`
     },
     hints: [
@@ -136,8 +139,8 @@ You can return the answer in any order.`,
   {
     id: "reverse-string",
     title: "Reverse String",
-    difficulty: "beginner",
-    description: "Write a function that reverses a string.",
+    difficulty: "Easy",
+    description: "Write a function that reverses a string in-place.",
     problemStatement: `Write a function that reverses a string. The input string is given as an array of characters s.
 
 You must do this by modifying the input array in-place with O(1) extra memory.`,
@@ -165,11 +168,11 @@ You must do this by modifying the input array in-place with O(1) extra memory.`,
     ],
     starterCode: {
       javascript: `function reverseString(s) {
-    // Your code here
+    // Write your solution here
     
 }`,
       python: `def reverse_string(s):
-    # Your code here
+    # Write your solution here
     pass`
     },
     hints: [
@@ -186,83 +189,222 @@ You must do this by modifying the input array in-place with O(1) extra memory.`,
     timeLimit: 20
   },
   {
-    id: "fibonacci",
-    title: "Fibonacci Number",
-    difficulty: "beginner", 
-    description: "Calculate the nth Fibonacci number.",
-    problemStatement: `The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.
+    id: "palindrome-number",
+    title: "Palindrome Number",
+    difficulty: "Easy",
+    description: "Determine whether an integer is a palindrome.",
+    problemStatement: `Given an integer x, return true if x is palindrome integer.
 
-F(0) = 0, F(1) = 1
-F(n) = F(n - 1) + F(n - 2), for n > 1.
+An integer is a palindrome when it reads the same backward as forward.
 
-Given n, calculate F(n).`,
+For example, 121 is a palindrome while 123 is not.`,
     examples: [
       {
-        input: "n = 2",
-        output: "1",
-        explanation: "F(2) = F(1) + F(0) = 1 + 0 = 1."
+        input: "x = 121",
+        output: "true",
+        explanation: "121 reads as 121 from left to right and from right to left."
       },
       {
-        input: "n = 3", 
-        output: "2",
-        explanation: "F(3) = F(2) + F(1) = 1 + 1 = 2."
+        input: "x = -121",
+        output: "false",
+        explanation: "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome."
       },
       {
-        input: "n = 4",
-        output: "3",
-        explanation: "F(4) = F(3) + F(2) = 2 + 1 = 3."
+        input: "x = 10",
+        output: "false",
+        explanation: "Reads 01 from right to left. Therefore it is not a palindrome."
       }
     ],
     testCases: [
       {
-        input: "[2]",
-        expectedOutput: "1",
-        description: "Small fibonacci number"
+        input: "[121]",
+        expectedOutput: "true",
+        description: "Positive palindrome"
       },
       {
-        input: "[3]",
-        expectedOutput: "2", 
-        description: "Another small case"
+        input: "[-121]",
+        expectedOutput: "false",
+        description: "Negative number"
       },
       {
-        input: "[4]",
-        expectedOutput: "3",
-        description: "Slightly larger case"
+        input: "[10]",
+        expectedOutput: "false",
+        description: "Number ending with 0"
       }
     ],
     starterCode: {
-      javascript: `function fib(n) {
-    // Your code here
+      javascript: `function isPalindrome(x) {
+    // Write your solution here
     
 }`,
-      python: `def fib(n):
-    # Your code here
+      python: `def is_palindrome(x):
+    # Write your solution here
     pass`
     },
     hints: [
-      "Try the iterative approach for better performance",
-      "You only need to keep track of the last two numbers",
-      "Handle the base cases n=0 and n=1 first"
+      "Negative numbers are not palindromes",
+      "You can convert to string or reverse the number mathematically",
+      "Think about edge cases like numbers ending with 0"
     ],
     constraints: [
-      "0 ≤ n ≤ 30"
+      "-2³¹ ≤ x ≤ 2³¹ - 1"
     ],
-    tags: ["Math", "Dynamic Programming", "Recursion", "Memoization"],
+    tags: ["Math"],
     points: 90,
     timeLimit: 25
+  },
+  {
+    id: "valid-parentheses",
+    title: "Valid Parentheses",
+    difficulty: "Easy",
+    description: "Determine if parentheses are valid and properly nested.",
+    problemStatement: `Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+1. Open brackets must be closed by the same type of brackets.
+2. Open brackets must be closed in the correct order.
+3. Every close bracket has a corresponding open bracket of the same type.`,
+    examples: [
+      {
+        input: 's = "()"',
+        output: "true"
+      },
+      {
+        input: 's = "()[]{}"',
+        output: "true"
+      },
+      {
+        input: 's = "(]"',
+        output: "false"
+      }
+    ],
+    testCases: [
+      {
+        input: '["()"]',
+        expectedOutput: "true",
+        description: "Simple valid parentheses"
+      },
+      {
+        input: '["()[]{}" ]',
+        expectedOutput: "true",
+        description: "Multiple valid brackets"
+      },
+      {
+        input: '["(]"]',
+        expectedOutput: "false",
+        description: "Mismatched brackets"
+      }
+    ],
+    starterCode: {
+      javascript: `function isValid(s) {
+    // Write your solution here
+    
+}`,
+      python: `def is_valid(s):
+    # Write your solution here
+    pass`
+    },
+    hints: [
+      "Use a stack data structure",
+      "Push opening brackets onto the stack",
+      "When you see a closing bracket, check if it matches the top of the stack"
+    ],
+    constraints: [
+      "1 ≤ s.length ≤ 10⁴",
+      "s consists of parentheses only '()[]{}'."
+    ],
+    tags: ["Stack", "String"],
+    points: 120,
+    timeLimit: 30
+  },
+  {
+    id: "merge-two-lists",
+    title: "Merge Two Sorted Lists",
+    difficulty: "Easy",
+    description: "Merge two sorted linked lists into one sorted list.",
+    problemStatement: `You are given the heads of two sorted linked lists list1 and list2.
+
+Merge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists.
+
+Return the head of the merged linked list.`,
+    examples: [
+      {
+        input: "list1 = [1,2,4], list2 = [1,3,4]",
+        output: "[1,1,2,3,4,4]"
+      },
+      {
+        input: "list1 = [], list2 = []",
+        output: "[]"
+      },
+      {
+        input: "list1 = [], list2 = [0]",
+        output: "[0]"
+      }
+    ],
+    testCases: [
+      {
+        input: "[[1,2,4], [1,3,4]]",
+        expectedOutput: "[1,1,2,3,4,4]",
+        description: "Both lists have elements"
+      },
+      {
+        input: "[[], []]",
+        expectedOutput: "[]",
+        description: "Both lists empty"
+      },
+      {
+        input: "[[], [0]]",
+        expectedOutput: "[0]",
+        description: "One list empty"
+      }
+    ],
+    starterCode: {
+      javascript: `// Definition for singly-linked list.
+function ListNode(val, next) {
+    this.val = (val===undefined ? 0 : val)
+    this.next = (next===undefined ? null : next)
+}
+
+function mergeTwoLists(list1, list2) {
+    // Write your solution here
+    
+}`,
+      python: `# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def merge_two_lists(list1, list2):
+    # Write your solution here
+    pass`
+    },
+    hints: [
+      "Use a dummy node to simplify the logic",
+      "Compare the values of the current nodes",
+      "Link the smaller node and advance that pointer"
+    ],
+    constraints: [
+      "The number of nodes in both lists is in the range [0, 50].",
+      "-100 ≤ Node.val ≤ 100",
+      "Both list1 and list2 are sorted in non-decreasing order."
+    ],
+    tags: ["Linked List", "Recursion"],
+    points: 150,
+    timeLimit: 40
   }
 ];
 
 function getDifficultyColor(difficulty: string) {
   switch (difficulty) {
-    case "beginner":
-      return "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400";
-    case "intermediate":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400";
-    case "advanced":
-      return "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400";
+    case "Easy":
+      return "text-green-600 border-green-300";
+    case "Medium":
+      return "text-yellow-600 border-yellow-300";
+    case "Hard":
+      return "text-red-600 border-red-300";
     default:
-      return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200";
+      return "text-gray-600 border-gray-300";
   }
 }
 
@@ -275,7 +417,7 @@ export default function LabPage() {
   const [showHints, setShowHints] = useState(false);
   const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
 
-  const currentChallenge = sampleChallenges[currentChallengeIndex];
+  const currentChallenge = codingChallenges[currentChallengeIndex];
 
   // Load starter code when challenge or language changes
   useEffect(() => {
@@ -311,7 +453,7 @@ export default function LabPage() {
   };
 
   const goToChallenge = (index: number) => {
-    if (index >= 0 && index < sampleChallenges.length) {
+    if (index >= 0 && index < codingChallenges.length) {
       setCurrentChallengeIndex(index);
     }
   };
@@ -319,57 +461,52 @@ export default function LabPage() {
   const isCompleted = completedChallenges.has(currentChallenge.id);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-background">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Code className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-bold">Coding Lab</h1>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Challenge</span>
-                <span className="text-sm font-medium">
-                  {currentChallengeIndex + 1} of {sampleChallenges.length}
-                </span>
-              </div>
+        <div className="container flex items-center justify-between h-14">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-500" />
+              <h1 className="font-semibold">Coding Challenges</h1>
             </div>
+            <Badge variant="secondary" className="gap-1">
+              <Target className="h-3.5 w-3.5" />
+              Level {currentChallengeIndex + 1}
+            </Badge>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Challenge Navigation */}
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => goToChallenge(currentChallengeIndex - 1)}
-                  disabled={currentChallengeIndex === 0}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => goToChallenge(currentChallengeIndex + 1)}
-                  disabled={currentChallengeIndex === sampleChallenges.length - 1}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+          <div className="flex items-center gap-3">
+            <Select value={language} onValueChange={(value: "javascript" | "python") => setLanguage(value)}>
+              <SelectTrigger className="w-32 h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="javascript">JavaScript</SelectItem>
+                <SelectItem value="python">Python</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <div className="flex items-center gap-2 ml-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => goToChallenge(currentChallengeIndex - 1)}
+                disabled={currentChallengeIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                {currentChallengeIndex + 1} / {codingChallenges.length}
               </div>
-
-              {/* Language Selector */}
-              <Select value={language} onValueChange={(value: "javascript" | "python") => setLanguage(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="javascript">JavaScript</SelectItem>
-                  <SelectItem value="python">Python</SelectItem>
-                </SelectContent>
-              </Select>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => goToChallenge(currentChallengeIndex + 1)}
+                disabled={currentChallengeIndex === codingChallenges.length - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -379,125 +516,129 @@ export default function LabPage() {
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Problem Statement Panel */}
-          <ResizablePanel defaultSize={45} minSize={30}>
+          <ResizablePanel defaultSize={40} minSize={30}>
             <div className="h-full flex flex-col">
               <div className="border-b p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-3">
-                    <h2 className="text-lg font-semibold">{currentChallenge.title}</h2>
-                    {isCompleted && (
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Completed
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge className={getDifficultyColor(currentChallenge.difficulty)} variant="outline">
-                      {currentChallenge.difficulty}
-                    </Badge>
-                    <Badge variant="outline">
-                      <Target className="h-3 w-3 mr-1" />
-                      {currentChallenge.points} pts
-                    </Badge>
-                    <Badge variant="outline">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {currentChallenge.timeLimit}m
-                    </Badge>
-                  </div>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold">{currentChallenge.title}</h2>
+                  <Badge 
+                    variant="outline" 
+                    className={getDifficultyColor(currentChallenge.difficulty)}
+                  >
+                    {currentChallenge.difficulty}
+                  </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {currentChallenge.description}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {currentChallenge.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Badge variant="secondary" className="gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {currentChallenge.timeLimit}m
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1">
+                    <Target className="h-3.5 w-3.5" />
+                    {currentChallenge.points} pts
+                  </Badge>
                 </div>
               </div>
 
               <ScrollArea className="flex-1">
                 <div className="p-4 space-y-6">
-                  {/* Problem Statement */}
-                  <div>
-                    <h3 className="font-medium mb-2 flex items-center">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Problem Statement
-                    </h3>
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <div className="bg-muted/50 rounded-lg p-4 text-sm whitespace-pre-wrap">
-                        {currentChallenge.problemStatement}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Problem Statement</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <div className="text-sm whitespace-pre-wrap">
+                          {currentChallenge.problemStatement}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Examples */}
-                  <div>
-                    <h3 className="font-medium mb-3">Examples</h3>
-                    <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Examples</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       {currentChallenge.examples.map((example, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="font-medium text-sm mb-2">Example {index + 1}:</div>
-                          <div className="space-y-2 text-sm">
+                        <div key={index} className="text-sm space-y-2">
+                          <div className="font-medium">Example {index + 1}:</div>
+                          <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                             <div>
-                              <span className="font-medium">Input:</span>
-                              <code className="ml-2 bg-muted px-2 py-1 rounded">{example.input}</code>
+                              <span className="font-mono">Input:</span>
+                              <code className="ml-2 font-mono text-xs">{example.input}</code>
                             </div>
                             <div>
-                              <span className="font-medium">Output:</span>
-                              <code className="ml-2 bg-muted px-2 py-1 rounded">{example.output}</code>
+                              <span className="font-mono">Output:</span>
+                              <code className="ml-2 font-mono text-xs">{example.output}</code>
                             </div>
                             {example.explanation && (
-                              <div>
-                                <span className="font-medium">Explanation:</span>
-                                <span className="ml-2 text-muted-foreground">{example.explanation}</span>
+                              <div className="text-muted-foreground text-xs">
+                                {example.explanation}
                               </div>
                             )}
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Constraints */}
-                  <div>
-                    <h3 className="font-medium mb-2">Constraints</h3>
-                    <ul className="text-sm space-y-1">
-                      {currentChallenge.constraints.map((constraint, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-muted-foreground mr-2">•</span>
-                          <code className="text-xs bg-muted px-1 py-0.5 rounded">{constraint}</code>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Hints */}
-                  <div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowHints(!showHints)}
-                      className="mb-3"
-                    >
-                      <Lightbulb className="h-4 w-4 mr-2" />
-                      {showHints ? "Hide" : "Show"} Hints ({currentChallenge.hints.length})
-                    </Button>
-                    {showHints && (
-                      <div className="space-y-2">
-                        {currentChallenge.hints.map((hint, index) => (
-                          <div key={index} className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                            <div className="text-sm">
-                              <span className="font-medium text-blue-700 dark:text-blue-300">Hint {index + 1}:</span>
-                              <span className="ml-2 text-blue-600 dark:text-blue-400">{hint}</span>
-                            </div>
-                          </div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Constraints</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="text-sm space-y-1.5">
+                        {currentChallenge.constraints.map((constraint, index) => (
+                          <li key={index} className="flex items-baseline gap-2">
+                            <span className="text-muted-foreground">•</span>
+                            <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                              {constraint}
+                            </code>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
+                    </CardContent>
+                  </Card>
+
+                  {/* Hints Section */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Hints</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowHints(!showHints)}
+                          className="h-7"
+                        >
+                          <Lightbulb className="h-4 w-4 mr-1" />
+                          {showHints ? "Hide" : "Show"}
+                        </Button>
+                      </CardTitle>
+                    </CardHeader>
+                    {showHints && (
+                      <CardContent className="pt-2">
+                        <div className="space-y-2">
+                          {currentChallenge.hints.map((hint, index) => (
+                            <div
+                              key={index}
+                              className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2.5 text-sm"
+                            >
+                              <span className="text-blue-700 dark:text-blue-300 font-medium">
+                                Hint {index + 1}:
+                              </span>
+                              <span className="ml-2 text-blue-600 dark:text-blue-400">
+                                {hint}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
                     )}
-                  </div>
+                  </Card>
                 </div>
               </ScrollArea>
             </div>
@@ -505,218 +646,208 @@ export default function LabPage() {
 
           <ResizableHandle withHandle />
 
-          {/* Code Editor Panel */}
-          <ResizablePanel defaultSize={55} minSize={40}>
+          {/* Code Editor and Output Panel */}
+          <ResizablePanel defaultSize={60} minSize={40}>
             <div className="h-full flex flex-col">
-              <div className="border-b p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Terminal className="h-4 w-4" />
-                    <span className="font-medium">Code Editor</span>
-                    <Badge variant="outline" className="text-xs">
-                      {language}
-                    </Badge>
+              {/* Code Editor */}
+              <div className="flex-1 flex flex-col">
+                <div className="border-b p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Code className="h-4 w-4" />
+                    <span className="font-medium">Solution</span>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleResetCode}
+                      className="h-8"
                     >
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
                       Reset
                     </Button>
                     <Button
                       onClick={handleRunCode}
                       disabled={isRunning}
                       size="sm"
+                      className="h-8"
                     >
-                      <Play className="h-4 w-4 mr-2" />
-                      {isRunning ? "Running..." : "Run Code"}
+                      {isRunning ? (
+                        <>Running...</>
+                      ) : (
+                        <>
+                          <Play className="h-3.5 w-3.5 mr-1.5" />
+                          Run Tests
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Code Input */}
-                <div className="flex-1 border-b">
+                <div className="flex-1">
                   <Textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder={`Write your ${language} code here...`}
-                    className="h-full resize-none border-0 rounded-none font-mono text-sm"
-                    style={{ minHeight: "300px" }}
+                    className="h-full resize-none rounded-none border-0 bg-background font-mono text-sm p-4"
+                    placeholder={`Write your ${language} solution here...`}
+                    spellCheck={false}
                   />
                 </div>
+              </div>
 
-                {/* Results Panel */}
-                <div className="h-1/2 flex flex-col">
-                  <Tabs defaultValue="output" className="flex-1 flex flex-col">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="output">Output</TabsTrigger>
-                      <TabsTrigger value="tests">Test Results</TabsTrigger>
+              {/* Output Panel */}
+              <div className="h-[40%] border-t">
+                <Tabs defaultValue="tests" className="h-full flex flex-col">
+                  <div className="border-b px-2">
+                    <TabsList className="h-10">
+                      <TabsTrigger value="tests" className="h-8">
+                        Test Results
+                      </TabsTrigger>
+                      <TabsTrigger value="output" className="h-8">
+                        Output
+                      </TabsTrigger>
                     </TabsList>
-                    
-                    <TabsContent value="output" className="flex-1 mt-0">
-                      <ScrollArea className="h-full">
-                        <div className="p-4">
-                          {executionResult ? (
-                            <div className="space-y-3">
-                              {executionResult.error ? (
-                                <div className="flex items-start space-x-2 text-red-600">
-                                  <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                                  <div>
-                                    <div className="font-medium">Error</div>
-                                    <pre className="text-sm mt-1 whitespace-pre-wrap">{executionResult.error}</pre>
+                  </div>
+
+                  <TabsContent value="tests" className="flex-1 p-0 mt-0">
+                    <ScrollArea className="h-full">
+                      <div className="p-4 space-y-3">
+                        {executionResult?.testResults ? (
+                          <>
+                            {executionResult.testResults.map((result, index) => (
+                              <div
+                                key={index}
+                                className={`border rounded-lg p-3 ${
+                                  result.passed
+                                    ? "border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/20"
+                                    : "border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium">
+                                    Test Case {index + 1}
+                                  </span>
+                                  <Badge
+                                    variant="outline"
+                                    className={
+                                      result.passed
+                                        ? "border-green-500 text-green-600"
+                                        : "border-red-500 text-red-600"
+                                    }
+                                  >
+                                    {result.passed ? (
+                                      <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                    ) : (
+                                      <XCircle className="h-3.5 w-3.5 mr-1" />
+                                    )}
+                                    {result.passed ? "Pass" : "Fail"}
+                                  </Badge>
+                                </div>
+                                <div className="space-y-1.5 text-sm">
+                                  <div className="font-mono text-xs">
+                                    <span className="text-muted-foreground">Input:</span>
+                                    <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
+                                      {result.input}
+                                    </code>
+                                  </div>
+                                  <div className="font-mono text-xs">
+                                    <span className="text-muted-foreground">Expected:</span>
+                                    <code className="ml-2 bg-muted px-1.5 py-0.5 rounded">
+                                      {result.expected}
+                                    </code>
+                                  </div>
+                                  <div className="font-mono text-xs">
+                                    <span className="text-muted-foreground">Actual:</span>
+                                    <code
+                                      className={`ml-2 px-1.5 py-0.5 rounded ${
+                                        result.passed
+                                          ? "bg-muted"
+                                          : "bg-red-100 dark:bg-red-950/30"
+                                      }`}
+                                    >
+                                      {result.actual}
+                                    </code>
                                   </div>
                                 </div>
-                              ) : (
-                                <div className="flex items-start space-x-2 text-green-600">
-                                  <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                                  <div>
-                                    <div className="font-medium">Success</div>
-                                    <pre className="text-sm mt-1 whitespace-pre-wrap bg-muted p-3 rounded">
-                                      {executionResult.output || "No output"}
-                                    </pre>
-                                  </div>
+                              </div>
+                            ))}
+
+                            <div className="text-center pt-2">
+                              <div
+                                className={`text-sm font-medium ${
+                                  executionResult.passed
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {executionResult.testResults.filter((t) => t.passed)
+                                  .length}{" "}
+                                of {executionResult.testResults.length} tests passed
+                              </div>
+                              {executionResult.passed && (
+                                <div className="mt-2 flex items-center justify-center gap-1.5 text-green-600">
+                                  <Award className="h-4 w-4" />
+                                  <span className="text-sm">
+                                    Challenge completed! +{currentChallenge.points} points
+                                  </span>
                                 </div>
                               )}
-                              <div className="text-xs text-muted-foreground">
-                                Execution time: {executionResult.executionTime}ms
-                              </div>
                             </div>
-                          ) : (
-                            <div className="text-center text-muted-foreground py-8">
-                              <Terminal className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                              <p>Run your code to see the output</p>
-                            </div>
-                          )}
-                        </div>
-                      </ScrollArea>
-                    </TabsContent>
+                          </>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p>Run your code to see test results</p>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
 
-                    <TabsContent value="tests" className="flex-1 mt-0">
-                      <ScrollArea className="h-full">
-                        <div className="p-4">
-                          {executionResult?.testResults ? (
-                            <div className="space-y-3">
-                              {executionResult.testResults.map((result, index) => (
-                                <div
-                                  key={index}
-                                  className={`border rounded-lg p-3 ${
-                                    result.passed
-                                      ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20"
-                                      : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20"
-                                  }`}
-                                >
-                                  <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-sm">{result.description}</span>
-                                    <div className="flex items-center space-x-1">
-                                      {result.passed ? (
-                                        <CheckCircle className="h-4 w-4 text-green-600" />
-                                      ) : (
-                                        <XCircle className="h-4 w-4 text-red-600" />
-                                      )}
-                                      <span className={`text-xs font-medium ${
-                                        result.passed ? "text-green-600" : "text-red-600"
-                                      }`}>
-                                        {result.passed ? "PASS" : "FAIL"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="space-y-1 text-sm">
-                                    <div>
-                                      <span className="font-medium">Input:</span>
-                                      <code className="ml-2 bg-background px-2 py-1 rounded text-xs">
-                                        {result.input}
-                                      </code>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium">Expected:</span>
-                                      <code className="ml-2 bg-background px-2 py-1 rounded text-xs">
-                                        {result.expected}
-                                      </code>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium">Actual:</span>
-                                      <code className={`ml-2 px-2 py-1 rounded text-xs ${
-                                        result.passed ? "bg-background" : "bg-red-100 dark:bg-red-900/20"
-                                      }`}>
-                                        {result.actual}
-                                      </code>
-                                    </div>
-                                  </div>
+                  <TabsContent value="output" className="flex-1 p-0 mt-0">
+                    <ScrollArea className="h-full">
+                      <div className="p-4">
+                        {executionResult ? (
+                          <div className="space-y-3">
+                            {executionResult.error ? (
+                              <div className="flex items-start gap-2 text-red-600">
+                                <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                                <div>
+                                  <div className="font-medium">Error</div>
+                                  <pre className="text-sm mt-1 whitespace-pre-wrap">
+                                    {executionResult.error}
+                                  </pre>
                                 </div>
-                              ))}
-                              
-                              <Separator />
-                              
-                              <div className="text-center">
-                                <div className={`text-sm font-medium ${
-                                  executionResult.passed ? "text-green-600" : "text-red-600"
-                                }`}>
-                                  {executionResult.testResults.filter(t => t.passed).length} of{" "}
-                                  {executionResult.testResults.length} tests passed
-                                </div>
-                                {executionResult.passed && (
-                                  <div className="mt-2 flex items-center justify-center text-green-600">
-                                    <Award className="h-4 w-4 mr-2" />
-                                    <span className="text-sm">Challenge completed! +{currentChallenge.points} points</span>
-                                  </div>
-                                )}
                               </div>
+                            ) : (
+                              <div className="flex items-start gap-2 text-green-600">
+                                <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                                <div>
+                                  <div className="font-medium">Success</div>
+                                  <pre className="text-sm mt-1 whitespace-pre-wrap bg-muted p-3 rounded">
+                                    {executionResult.output || "No output"}
+                                  </pre>
+                                </div>
+                              </div>
+                            )}
+                            <div className="text-xs text-muted-foreground">
+                              Execution time: {executionResult.executionTime}ms
                             </div>
-                          ) : (
-                            <div className="text-center text-muted-foreground py-8">
-                              <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                              <p>Run your code to see test results</p>
-                            </div>
-                          )}
-                        </div>
-                      </ScrollArea>
-                    </TabsContent>
-                  </Tabs>
-                </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            <Terminal className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p>Run your code to see the output</p>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
-      </div>
-
-      {/* Challenge Progress Bar */}
-      <div className="border-t bg-background p-2">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-4">
-              <span className="text-muted-foreground">Progress:</span>
-              <div className="flex space-x-1">
-                {sampleChallenges.map((challenge, index) => (
-                  <Button
-                    key={challenge.id}
-                    variant={index === currentChallengeIndex ? "default" : "outline"}
-                    size="sm"
-                    className={`w-8 h-8 p-0 ${
-                      completedChallenges.has(challenge.id)
-                        ? "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
-                        : ""
-                    }`}
-                    onClick={() => goToChallenge(index)}
-                  >
-                    {completedChallenges.has(challenge.id) ? (
-                      <CheckCircle className="h-4 w-4" />
-                    ) : (
-                      index + 1
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="text-muted-foreground">
-              {completedChallenges.size} of {sampleChallenges.length} completed
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
