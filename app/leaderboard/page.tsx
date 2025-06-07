@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -103,7 +102,6 @@ export default function LeaderboardPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <MainNavigation />
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Leaderboards</h1>
         <p className="text-muted-foreground">

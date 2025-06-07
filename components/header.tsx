@@ -24,7 +24,7 @@ import {
   Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NotificationsDropdown } from "./notifications-dropdown";
+import { NotificationsDropdown } from "./navigation/notifications-dropdown";
 
 const navigationItems = [
   {
@@ -57,7 +57,7 @@ const navigationItems = [
   },
 ];
 
-export function MainNavigation() {
+export function Header() {
   const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -230,3 +230,5 @@ export function MainNavigation() {
     </header>
   );
 }
+
+export default Header;

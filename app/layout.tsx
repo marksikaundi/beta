@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Footer } from "@/components/footer";
 import "./globals.css";
+import Header from "@/components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -46,6 +47,7 @@ export default function RootLayout({
           >
             <ConvexClientProvider>
               <div className="flex min-h-screen flex-col">
+                <Header />
                 {children}
                 <Footer />
               </div>

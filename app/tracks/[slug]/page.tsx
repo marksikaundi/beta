@@ -25,7 +25,6 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -348,7 +347,6 @@ export default function TrackDetailPage() {
           className="absolute inset-0 opacity-[0.03]"
           style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}
         ></div>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
           <div className="space-y-10">
             <Button
@@ -419,7 +417,6 @@ export default function TrackDetailPage() {
           className="absolute inset-0 opacity-[0.03]"
           style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}
         ></div>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8 relative z-10">
           <div className="text-center py-20 max-w-lg mx-auto">
             <div className="inline-flex items-center justify-center p-6 rounded-full bg-muted/50 mb-6">
@@ -450,7 +447,6 @@ export default function TrackDetailPage() {
         className="absolute inset-0 opacity-[0.03]"
         style={isDark ? bgPatternStyles.dark : bgPatternStyles.light}
       ></div>
-      <MainNavigation />
       <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
         <div className="space-y-10">
           <Button
