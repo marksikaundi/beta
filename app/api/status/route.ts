@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/convex/_generated/api';
 import { fetchQuery } from 'convex/nextjs';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Fetch system status
     const systemStatus = await fetchQuery(api.changelog.getSystemStatus, {});
