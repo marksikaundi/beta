@@ -3,7 +3,6 @@
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { ContinueLearning } from "@/components/dashboard/continue-learning";
@@ -35,7 +34,6 @@ export default function DashboardPage() {
   if (!isLoaded || !user) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-6">
             <Skeleton className="h-12 w-64" />
@@ -54,7 +52,6 @@ export default function DashboardPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Welcome Header */}

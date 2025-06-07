@@ -4,7 +4,6 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -322,7 +321,6 @@ export default function LabPage() {
   if (!allTracks) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-8">
             <div className="text-center">
@@ -342,7 +340,6 @@ export default function LabPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
