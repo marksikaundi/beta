@@ -75,6 +75,8 @@ export const validateSolution = mutation({
     return {
       passed,
       testResults,
+      output: "Tests completed",
+      executionTime: 0, // Placeholder since we're not actually measuring execution time yet
     };
   },
 });

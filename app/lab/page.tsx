@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Code,
@@ -38,381 +38,21 @@ import {
   Target,
   Lightbulb,
   Zap,
-  ArrowRight,
 } from "lucide-react";
-import {
-  executeCode,
-  type TestCase,
-  type ExecutionResult,
-} from "@/lib/code-execution";
-
-// Coding Challenge Interface
-interface Challenge {
-  id: string;
-  title: string;
-  difficulty: "Easy" | "Medium" | "Hard";
-  description: string;
-  problemStatement: string;
-  examples: Array<{
-    input: string;
-    output: string;
-    explanation?: string;
-  }>;
-  testCases: TestCase[];
-  starterCode: {
-    javascript: string;
-    python: string;
-  };
-  hints: string[];
-  constraints: string[];
-  tags: string[];
-  points: number;
-  timeLimit: number; // in minutes
-}
-
-// Sample challenges data - more comprehensive and boot.dev style
-const codingChallenges: Challenge[] = [
-  {
-    id: "two-sum",
-    title: "Two Sum",
-    difficulty: "Easy",
-    description: "Find two numbers in an array that add up to a target sum.",
-    problemStatement: `Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to target.
-
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
-
-You can return the answer in any order.`,
-    examples: [
-      {
-        input: "nums = [2,7,11,15], target = 9",
-        output: "[0,1]",
-        explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
-      },
-      {
-        input: "nums = [3,2,4], target = 6",
-        output: "[1,2]",
-      },
-      {
-        input: "nums = [3,3], target = 6",
-        output: "[0,1]",
-      },
-    ],
-    testCases: [
-      {
-        input: "[[2,7,11,15], 9]",
-        expectedOutput: "[0,1]",
-        description: "Basic case with solution at beginning",
-      },
-      {
-        input: "[[3,2,4], 6]",
-        expectedOutput: "[1,2]",
-        description: "Solution not at beginning",
-      },
-      {
-        input: "[[3,3], 6]",
-        expectedOutput: "[0,1]",
-        description: "Duplicate numbers",
-      },
-    ],
-    starterCode: {
-      javascript: `function twoSum(nums, target) {
-    // Write your solution here
-    
-}`,
-      python: `def two_sum(nums, target):
-    # Write your solution here
-    pass`,
-    },
-    hints: [
-      "Try using a hash map to store numbers you've seen",
-      "For each number, check if (target - number) exists in your hash map",
-      "Don't forget to return the indices, not the values",
-    ],
-    constraints: [
-      "2 ≤ nums.length ≤ 10⁴",
-      "-10⁹ ≤ nums[i] ≤ 10⁹",
-      "-10⁹ ≤ target ≤ 10⁹",
-      "Only one valid answer exists.",
-    ],
-    tags: ["Array", "Hash Table"],
-    points: 100,
-    timeLimit: 30,
-  },
-  {
-    id: "reverse-string",
-    title: "Reverse String",
-    difficulty: "Easy",
-    description: "Write a function that reverses a string in-place.",
-    problemStatement: `Write a function that reverses a string. The input string is given as an array of characters s.
-
-You must do this by modifying the input array in-place with O(1) extra memory.`,
-    examples: [
-      {
-        input: 's = ["h","e","l","l","o"]',
-        output: '["o","l","l","e","h"]',
-      },
-      {
-        input: 's = ["H","a","n","n","a","h"]',
-        output: '["h","a","n","n","a","H"]',
-      },
-    ],
-    testCases: [
-      {
-        input: '[["h","e","l","l","o"]]',
-        expectedOutput: '["o","l","l","e","h"]',
-        description: "Basic string reversal",
-      },
-      {
-        input: '[["H","a","n","n","a","h"]]',
-        expectedOutput: '["h","a","n","n","a","H"]',
-        description: "Palindrome-like string",
-      },
-    ],
-    starterCode: {
-      javascript: `function reverseString(s) {
-    // Write your solution here
-    
-}`,
-      python: `def reverse_string(s):
-    # Write your solution here
-    pass`,
-    },
-    hints: [
-      "Use two pointers, one at the start and one at the end",
-      "Swap characters and move pointers towards each other",
-      "Stop when pointers meet in the middle",
-    ],
-    constraints: ["1 ≤ s.length ≤ 10⁵", "s[i] is a printable ascii character."],
-    tags: ["Two Pointers", "String"],
-    points: 80,
-    timeLimit: 20,
-  },
-  {
-    id: "palindrome-number",
-    title: "Palindrome Number",
-    difficulty: "Easy",
-    description: "Determine whether an integer is a palindrome.",
-    problemStatement: `Given an integer x, return true if x is palindrome integer.
-
-An integer is a palindrome when it reads the same backward as forward.
-
-For example, 121 is a palindrome while 123 is not.`,
-    examples: [
-      {
-        input: "x = 121",
-        output: "true",
-        explanation:
-          "121 reads as 121 from left to right and from right to left.",
-      },
-      {
-        input: "x = -121",
-        output: "false",
-        explanation:
-          "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome.",
-      },
-      {
-        input: "x = 10",
-        output: "false",
-        explanation:
-          "Reads 01 from right to left. Therefore it is not a palindrome.",
-      },
-    ],
-    testCases: [
-      {
-        input: "[121]",
-        expectedOutput: "true",
-        description: "Positive palindrome",
-      },
-      {
-        input: "[-121]",
-        expectedOutput: "false",
-        description: "Negative number",
-      },
-      {
-        input: "[10]",
-        expectedOutput: "false",
-        description: "Number ending with 0",
-      },
-    ],
-    starterCode: {
-      javascript: `function isPalindrome(x) {
-    // Write your solution here
-    
-}`,
-      python: `def is_palindrome(x):
-    # Write your solution here
-    pass`,
-    },
-    hints: [
-      "Negative numbers are not palindromes",
-      "You can convert to string or reverse the number mathematically",
-      "Think about edge cases like numbers ending with 0",
-    ],
-    constraints: ["-2³¹ ≤ x ≤ 2³¹ - 1"],
-    tags: ["Math"],
-    points: 90,
-    timeLimit: 25,
-  },
-  {
-    id: "valid-parentheses",
-    title: "Valid Parentheses",
-    difficulty: "Easy",
-    description: "Determine if parentheses are valid and properly nested.",
-    problemStatement: `Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
-
-An input string is valid if:
-1. Open brackets must be closed by the same type of brackets.
-2. Open brackets must be closed in the correct order.
-3. Every close bracket has a corresponding open bracket of the same type.`,
-    examples: [
-      {
-        input: 's = "()"',
-        output: "true",
-      },
-      {
-        input: 's = "()[]{}"',
-        output: "true",
-      },
-      {
-        input: 's = "(]"',
-        output: "false",
-      },
-    ],
-    testCases: [
-      {
-        input: '["()"]',
-        expectedOutput: "true",
-        description: "Simple valid parentheses",
-      },
-      {
-        input: '["()[]{}" ]',
-        expectedOutput: "true",
-        description: "Multiple valid brackets",
-      },
-      {
-        input: '["(]"]',
-        expectedOutput: "false",
-        description: "Mismatched brackets",
-      },
-    ],
-    starterCode: {
-      javascript: `function isValid(s) {
-    // Write your solution here
-    
-}`,
-      python: `def is_valid(s):
-    # Write your solution here
-    pass`,
-    },
-    hints: [
-      "Use a stack data structure",
-      "Push opening brackets onto the stack",
-      "When you see a closing bracket, check if it matches the top of the stack",
-    ],
-    constraints: [
-      "1 ≤ s.length ≤ 10⁴",
-      "s consists of parentheses only '()[]{}'.",
-    ],
-    tags: ["Stack", "String"],
-    points: 120,
-    timeLimit: 30,
-  },
-  {
-    id: "merge-two-lists",
-    title: "Merge Two Sorted Lists",
-    difficulty: "Easy",
-    description: "Merge two sorted linked lists into one sorted list.",
-    problemStatement: `You are given the heads of two sorted linked lists list1 and list2.
-
-Merge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists.
-
-Return the head of the merged linked list.`,
-    examples: [
-      {
-        input: "list1 = [1,2,4], list2 = [1,3,4]",
-        output: "[1,1,2,3,4,4]",
-      },
-      {
-        input: "list1 = [], list2 = []",
-        output: "[]",
-      },
-      {
-        input: "list1 = [], list2 = [0]",
-        output: "[0]",
-      },
-    ],
-    testCases: [
-      {
-        input: "[[1,2,4], [1,3,4]]",
-        expectedOutput: "[1,1,2,3,4,4]",
-        description: "Both lists have elements",
-      },
-      {
-        input: "[[], []]",
-        expectedOutput: "[]",
-        description: "Both lists empty",
-      },
-      {
-        input: "[[], [0]]",
-        expectedOutput: "[0]",
-        description: "One list empty",
-      },
-    ],
-    starterCode: {
-      javascript: `// Definition for singly-linked list.
-function ListNode(val, next) {
-    this.val = (val===undefined ? 0 : val)
-    this.next = (next===undefined ? null : next)
-}
-
-function mergeTwoLists(list1, list2) {
-    // Write your solution here
-    
-}`,
-      python: `# Definition for singly-linked list.
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-def merge_two_lists(list1, list2):
-    # Write your solution here
-    pass`,
-    },
-    hints: [
-      "Use a dummy node to simplify the logic",
-      "Compare the values of the current nodes",
-      "Link the smaller node and advance that pointer",
-    ],
-    constraints: [
-      "The number of nodes in both lists is in the range [0, 50].",
-      "-100 ≤ Node.val ≤ 100",
-      "Both list1 and list2 are sorted in non-decreasing order.",
-    ],
-    tags: ["Linked List", "Recursion"],
-    points: 150,
-    timeLimit: 40,
-  },
-];
-
-function getDifficultyColor(difficulty: string) {
-  switch (difficulty) {
-    case "Easy":
-      return "text-green-600 border-green-300";
-    case "Medium":
-      return "text-yellow-600 border-yellow-300";
-    case "Hard":
-      return "text-red-600 border-red-300";
-    default:
-      return "text-gray-600 border-gray-300";
-  }
-}
+import { type TestCase, type ExecutionResult } from "@/lib/code-execution";
 
 export default function LabPage() {
-  const labs = useQuery(api.labs.list) || [];
+  const searchParams = useSearchParams();
+  const labId = searchParams.get("id");
+  const lab = useQuery(
+    api.labs.getById,
+    // Only pass the id if it looks like a valid Convex ID
+    labId && labId.length > 0 && labId.includes("_")
+      ? { id: labId as Id<"labs"> }
+      : "skip"
+  );
   const validateSolution = useMutation(api.labs.validateSolution);
 
-  const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [language, setLanguage] = useState<"javascript" | "python">(
     "javascript"
   );
@@ -421,68 +61,77 @@ export default function LabPage() {
   const [executionResult, setExecutionResult] =
     useState<ExecutionResult | null>(null);
   const [showHints, setShowHints] = useState(false);
-  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(
-    new Set()
-  );
+  const [isCompleted, setIsCompleted] = useState(false);
 
-  const currentChallenge = labs[currentChallengeIndex];
+  // Loading and error states
+  if (!labId) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-destructive">No lab ID provided</p>
+      </div>
+    );
+  }
 
-  // Load starter code when challenge or language changes
+  if (!lab) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  // Load starter code when lab or language changes
   useEffect(() => {
-    if (currentChallenge) {
-      setCode(currentChallenge.starterCode[language]);
+    if (lab) {
+      setCode(lab.starterCode[language]);
       setExecutionResult(null);
     }
-  }, [currentChallenge, language]);
+  }, [lab, language]);
 
   const handleRunCode = async () => {
-    if (!currentChallenge) return;
+    if (!lab) return;
 
     setIsRunning(true);
     try {
       const result = await validateSolution({
-        labId: currentChallenge._id,
+        labId: lab._id,
         code,
         language,
       });
 
-      setExecutionResult({
-        ...result,
-        output: "",
-        error: undefined,
-        executionTime: 0,
-      });
+      setExecutionResult(result);
 
-      // Mark challenge as completed if all tests pass
+      // Mark lab as completed if all tests pass
       if (result.passed) {
-        setCompletedChallenges(
-          (prev) => new Set([...prev, currentChallenge._id])
-        );
+        setIsCompleted(true);
       }
     } catch (error) {
-      setExecutionResult({
+      const errorResult: ExecutionResult = {
         output: "",
         error: error instanceof Error ? error.message : "Unknown error",
         passed: false,
         executionTime: 0,
-      });
+        testResults: [
+          {
+            passed: false,
+            input: "",
+            expectedOutput: "",
+            actual: error instanceof Error ? error.message : "Unknown error",
+            description: "Execution failed",
+          },
+        ],
+      };
+      setExecutionResult(errorResult);
     } finally {
       setIsRunning(false);
     }
   };
 
   const handleResetCode = () => {
-    setCode(currentChallenge.starterCode[language]);
+    if (!lab) return;
+    setCode(lab.starterCode[language]);
     setExecutionResult(null);
   };
-
-  const goToChallenge = (index: number) => {
-    if (index >= 0 && index < codingChallenges.length) {
-      setCurrentChallengeIndex(index);
-    }
-  };
-
-  const isCompleted = completedChallenges.has(currentChallenge._id);
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -492,11 +141,13 @@ export default function LabPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
-              <h1 className="font-semibold">Coding Challenges</h1>
+              <h1 className="font-semibold">{lab.title}</h1>
             </div>
-            <Badge variant="secondary" className="gap-1">
-              <Target className="h-3.5 w-3.5" />
-              Level {currentChallengeIndex + 1}
+            <Badge
+              variant="outline"
+              className={getDifficultyColor(lab.difficulty)}
+            >
+              {lab.difficulty}
             </Badge>
           </div>
 
@@ -516,27 +167,21 @@ export default function LabPage() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2 ml-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => goToChallenge(currentChallengeIndex - 1)}
-                disabled={currentChallengeIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm text-muted-foreground">
-                {currentChallengeIndex + 1} / {codingChallenges.length}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => goToChallenge(currentChallengeIndex + 1)}
-                disabled={currentChallengeIndex === codingChallenges.length - 1}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              onClick={handleRunCode}
+              disabled={isRunning}
+              size="sm"
+              className="h-8"
+            >
+              {isRunning ? (
+                <>Running...</>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5 mr-1.5" />
+                  Run Tests
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -548,25 +193,14 @@ export default function LabPage() {
           <ResizablePanel defaultSize={40} minSize={30}>
             <div className="h-full flex flex-col">
               <div className="border-b p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold">
-                    {currentChallenge.title}
-                  </h2>
-                  <Badge
-                    variant="outline"
-                    className={getDifficultyColor(currentChallenge.difficulty)}
-                  >
-                    {currentChallenge.difficulty}
-                  </Badge>
-                </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {currentChallenge.timeLimit}m
+                    {lab.timeLimit}m
                   </Badge>
                   <Badge variant="secondary" className="gap-1">
                     <Target className="h-3.5 w-3.5" />
-                    {currentChallenge.points} pts
+                    {lab.points} pts
                   </Badge>
                 </div>
               </div>
@@ -582,7 +216,7 @@ export default function LabPage() {
                     <CardContent>
                       <div className="prose prose-sm dark:prose-invert max-w-none">
                         <div className="text-sm whitespace-pre-wrap">
-                          {currentChallenge.problemStatement}
+                          {lab.problemStatement}
                         </div>
                       </div>
                     </CardContent>
@@ -596,7 +230,7 @@ export default function LabPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {currentChallenge.examples.map((example, index) => (
+                      {lab.examples.map((example, index) => (
                         <div key={index} className="text-sm space-y-2">
                           <div className="font-medium">
                             Example {index + 1}:
@@ -634,19 +268,14 @@ export default function LabPage() {
                     </CardHeader>
                     <CardContent>
                       <ul className="text-sm space-y-1.5">
-                        {currentChallenge.constraints.map(
-                          (constraint, index) => (
-                            <li
-                              key={index}
-                              className="flex items-baseline gap-2"
-                            >
-                              <span className="text-muted-foreground">•</span>
-                              <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
-                                {constraint}
-                              </code>
-                            </li>
-                          )
-                        )}
+                        {lab.constraints.map((constraint, index) => (
+                          <li key={index} className="flex items-baseline gap-2">
+                            <span className="text-muted-foreground">•</span>
+                            <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                              {constraint}
+                            </code>
+                          </li>
+                        ))}
                       </ul>
                     </CardContent>
                   </Card>
@@ -670,7 +299,7 @@ export default function LabPage() {
                     {showHints && (
                       <CardContent className="pt-2">
                         <div className="space-y-2">
-                          {currentChallenge.hints.map((hint, index) => (
+                          {lab.hints.map((hint, index) => (
                             <div
                               key={index}
                               className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2.5 text-sm"
@@ -704,32 +333,15 @@ export default function LabPage() {
                     <Code className="h-4 w-4" />
                     <span className="font-medium">Solution</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResetCode}
-                      className="h-8"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                      Reset
-                    </Button>
-                    <Button
-                      onClick={handleRunCode}
-                      disabled={isRunning}
-                      size="sm"
-                      className="h-8"
-                    >
-                      {isRunning ? (
-                        <>Running...</>
-                      ) : (
-                        <>
-                          <Play className="h-3.5 w-3.5 mr-1.5" />
-                          Run Tests
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetCode}
+                    className="h-8"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                    Reset
+                  </Button>
                 </div>
 
                 <div className="flex-1">
@@ -844,12 +456,11 @@ export default function LabPage() {
                                 of {executionResult.testResults.length} tests
                                 passed
                               </div>
-                              {executionResult.passed && (
+                              {executionResult.passed && !isCompleted && (
                                 <div className="mt-2 flex items-center justify-center gap-1.5 text-green-600">
                                   <Award className="h-4 w-4" />
                                   <span className="text-sm">
-                                    Challenge completed! +
-                                    {currentChallenge.points} points
+                                    Challenge completed! +{lab.points} points
                                   </span>
                                 </div>
                               )}
@@ -912,4 +523,17 @@ export default function LabPage() {
       </div>
     </div>
   );
+}
+
+function getDifficultyColor(difficulty: string) {
+  switch (difficulty) {
+    case "Easy":
+      return "text-green-600 border-green-300";
+    case "Medium":
+      return "text-yellow-600 border-yellow-300";
+    case "Hard":
+      return "text-red-600 border-red-300";
+    default:
+      return "text-gray-600 border-gray-300";
+  }
 }
