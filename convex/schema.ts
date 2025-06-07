@@ -256,6 +256,14 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_user_discussion", ["userId", "discussionId"]),
 
+  // Reply votes
+  replyVotes: defineTable({
+    userId: v.id("users"),
+    replyId: v.id("discussionReplies"),
+    voteType: v.union(v.literal("up"), v.literal("down")),
+    createdAt: v.number(),
+  }).index("by_user_reply", ["userId", "replyId"]),
+
   // User code submissions and portfolio
   submissions: defineTable({
     userId: v.string(),

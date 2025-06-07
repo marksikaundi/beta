@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -348,9 +349,13 @@ export default function CommunityPage() {
                         )}
                         {discussion.isResolved && (
                           <CheckCircle className="h-4 w-4 text-green-500" />
-                        )}
+                        )}{" "}
                         <h3 className="font-semibold text-lg hover:text-blue-600 cursor-pointer">
-                          {discussion.title}
+                          <Link
+                            href={`/community/discussion/${discussion._id}`}
+                          >
+                            {discussion.title}
+                          </Link>
                         </h3>
                       </div>
 

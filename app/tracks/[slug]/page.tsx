@@ -1,18 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { MainNavigation } from "@/components/navigation/main-navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
 import {
   BookOpen,
   Clock,
@@ -31,7 +18,21 @@ import {
   Loader2,
   Star,
   Users,
+  Settings,
 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { MainNavigation } from "@/components/navigation/main-navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -114,11 +115,15 @@ function LessonCard({
   progress,
   trackSlug,
   isLocked = false,
+  user,
+  router,
 }: {
   lesson: Lesson;
   progress?: Progress;
   trackSlug: string;
   isLocked?: boolean;
+  user: any;
+  router: any;
 }) {
   const LessonIcon = getLessonIcon(lesson.type);
   const StatusIcon = getStatusIcon(progress?.status || "not-started");
@@ -213,6 +218,21 @@ function LessonCard({
               >
                 {progress.score}%
               </Badge>
+            )}
+            {user?.publicMetadata?.role === "admin" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(
+                    `/admin/tracks/${trackSlug}/lessons/edit/${lesson.slug}`
+                  );
+                }}
+                className="h-8 w-8 p-0"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
             )}
             {isLocked ? (
               <Button
@@ -447,6 +467,7 @@ export default function TrackDetailPage() {
             <div className="lg:col-span-2 space-y-8">
               {/* Track Header */}
               <div className="space-y-6">
+                {" "}
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
@@ -470,26 +491,39 @@ export default function TrackDetailPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {track.isPremium && (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      {track.isPremium && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200 px-3 py-1 text-sm"
+                        >
+                          <Award className="h-4 w-4 mr-2" />
+                          Premium
+                        </Badge>
+                      )}
                       <Badge
-                        variant="secondary"
-                        className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-700 border-amber-200 px-3 py-1 text-sm"
+                        className={`${getDifficultyColor(
+                          track.difficulty
+                        )} px-3 py-1 text-sm`}
                       >
-                        <Award className="h-4 w-4 mr-2" />
-                        Premium
+                        {track.difficulty}
                       </Badge>
+                    </div>
+                    {user?.publicMetadata?.role === "admin" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          router.push(`/admin/tracks/edit/${track.slug}`)
+                        }
+                        className="self-end"
+                      >
+                        Edit Track
+                      </Button>
                     )}
-                    <Badge
-                      className={`${getDifficultyColor(
-                        track.difficulty
-                      )} px-3 py-1 text-sm`}
-                    >
-                      {track.difficulty}
-                    </Badge>
                   </div>
                 </div>
-
                 {/* Progress Bar */}
                 {trackProgress && (
                   <div className="bg-card border border-border/30 rounded-xl p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -515,11 +549,9 @@ export default function TrackDetailPage() {
                     </div>
                   </div>
                 )}
-
                 <p className="text-muted-foreground leading-relaxed text-base">
                   {track.longDescription}
                 </p>
-
                 <div className="flex flex-wrap gap-2">
                   {track.tags.map((tag: string) => (
                     <Badge
@@ -552,13 +584,30 @@ export default function TrackDetailPage() {
                     const isLocked =
                       !trackProgress && lessonData.lesson.isPremium;
                     return (
-                      <LessonCard
-                        key={lessonData.lesson._id}
-                        lesson={lessonData.lesson}
-                        progress={lessonData.progress}
-                        trackSlug={trackSlug}
-                        isLocked={isLocked}
-                      />
+                      <div key={lessonData.lesson._id} className="relative">
+                        <LessonCard
+                          lesson={lessonData.lesson}
+                          progress={lessonData.progress}
+                          trackSlug={trackSlug}
+                          isLocked={isLocked}
+                          user={user}
+                          router={router}
+                        />
+                        {user?.publicMetadata?.role === "admin" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              router.push(
+                                `/admin/tracks/${trackSlug}/lessons/edit/${lessonData.lesson.slug}`
+                              )
+                            }
+                            className="absolute top-2 right-2 h-8 w-8 p-0"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
