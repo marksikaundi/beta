@@ -5,7 +5,6 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { MainNavigation } from "@/components/navigation/main-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -416,7 +415,6 @@ export default function LessonPage() {
   if (!lessonData) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-8">
             <div className="flex items-center space-x-4">
@@ -442,7 +440,6 @@ export default function LessonPage() {
   if (!lesson || !track) {
     return (
       <>
-        <MainNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-16">
             <h1 className="text-2xl font-bold mb-4">Lesson Not Found</h1>
@@ -462,7 +459,6 @@ export default function LessonPage() {
 
   return (
     <>
-      <MainNavigation />
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
           {/* Breadcrumb */}
