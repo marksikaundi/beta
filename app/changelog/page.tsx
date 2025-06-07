@@ -1,16 +1,47 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Search, Filter, Rss, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 
 export default function ChangelogPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
+  
   const changelog = useQuery(api.changelog.getPublicChangelog, {});
   const systemStatus = useQuery(api.changelog.getSystemStatus, {});
+
+  // Filter and search logic
+  const filteredChangelog = useMemo(() => {
+    if (!changelog) return [];
+    
+    return changelog.filter(entry => {
+      // Search filter
+      const searchMatch = searchQuery === "" || 
+        entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      // Type filter
+      const typeMatch = selectedType === "all" || entry.type === selectedType;
+      
+      // Severity filter
+      const severityMatch = selectedSeverity === "all" || entry.severity === selectedSeverity;
+      
+      return searchMatch && typeMatch && severityMatch;
+    });
+  }, [changelog, searchQuery, selectedType, selectedSeverity]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -137,6 +168,91 @@ export default function ChangelogPage() {
           </Card>
         )}
 
+        {/* Filters and Controls */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Filter & Search
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/api/changelog/rss" target="_blank">
+                    <Rss className="h-4 w-4 mr-2" />
+                    RSS Feed
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/api/changelog" target="_blank">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    JSON API
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search changelog entries..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              <Select value={selectedType} onValueChange={setSelectedType}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="feature">Features</SelectItem>
+                  <SelectItem value="improvement">Improvements</SelectItem>
+                  <SelectItem value="bugfix">Bug Fixes</SelectItem>
+                  <SelectItem value="issue">Issues</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="security">Security</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Filter by severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Severities</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(searchQuery || selectedType !== "all" || selectedSeverity !== "all") && (
+              <div className="mt-4 flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {filteredChangelog?.length || 0} entries found
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedType("all");
+                    setSelectedSeverity("all");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Changelog Entries */}
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Recent Updates</h2>
@@ -147,7 +263,19 @@ export default function ChangelogPage() {
             </div>
           )}
 
-          {changelog && changelog.length === 0 && (
+          {changelog && filteredChangelog.length === 0 && searchQuery && (
+            <Card>
+              <CardContent className="text-center py-8">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No results found</h3>
+                <p className="text-muted-foreground">
+                  Try adjusting your search or filter criteria.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {changelog && filteredChangelog.length === 0 && !searchQuery && (
             <Card>
               <CardContent className="text-center py-8">
                 <p className="text-muted-foreground">No changelog entries yet.</p>
@@ -155,8 +283,8 @@ export default function ChangelogPage() {
             </Card>
           )}
 
-          {changelog?.map((entry) => (
-            <Card key={entry._id} className="overflow-hidden">
+          {filteredChangelog?.map((entry) => (
+            <Card key={entry._id} className="overflow-hidden" id={`entry-${entry._id}`}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

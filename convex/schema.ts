@@ -332,7 +332,8 @@ export default defineSchema({
       v.literal("new-lesson"),
       v.literal("discussion-reply"),
       v.literal("level-up"),
-      v.literal("certificate-earned")
+      v.literal("certificate-earned"),
+      v.literal("platform-update")
     ),
     title: v.string(),
     message: v.string(),
@@ -344,6 +345,7 @@ export default defineSchema({
         url: v.optional(v.string()),
       })
     ),
+    metadata: v.optional(v.any()), // For additional data like changelog info
     isRead: v.boolean(),
     createdAt: v.string(),
   })

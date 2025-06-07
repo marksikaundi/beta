@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Plus, Edit, Trash } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Info, Shield, Wrench, Zap, Plus, Edit, Trash, Send, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -42,8 +42,10 @@ export default function ChangelogAdmin() {
   });
 
   const entries = useQuery(api.changelog.getAllChangelogEntries, {});
+  const stats = useQuery(api.changelog.getChangelogStats, {});
   const createEntry = useMutation(api.changelog.createChangelogEntry);
   const updateEntry = useMutation(api.changelog.updateChangelogEntry);
+  const sendNotification = useMutation(api.changelog.sendChangelogNotification);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +108,19 @@ export default function ChangelogAdmin() {
     }
   };
 
+  const handleSendNotification = async (entryId: any) => {
+    try {
+      const result = await sendNotification({
+        changelogId: entryId,
+        notificationType: "in-app",
+      });
+      
+      toast.success(result.message);
+    } catch (error) {
+      toast.error("Failed to send notification");
+    }
+  };
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "feature": return <Zap className="h-4 w-4" />;
@@ -159,6 +174,63 @@ export default function ChangelogAdmin() {
             New Entry
           </Button>
         </div>
+
+        {/* Statistics Dashboard */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Entries</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stats.published} published, {stats.drafts} drafts
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Issues</CardTitle>
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{stats.activeIssues}</div>
+                <p className="text-xs text-muted-foreground">
+                  Requires attention
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Features Added</CardTitle>
+                <Zap className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{stats.typeStats.feature}</div>
+                <p className="text-xs text-muted-foreground">
+                  New features released
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Bugs Fixed</CardTitle>
+                <Wrench className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">{stats.typeStats.bugfix}</div>
+                <p className="text-xs text-muted-foreground">
+                  Issues resolved
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Form */}
         {showForm && (
@@ -364,6 +436,16 @@ export default function ChangelogAdmin() {
                   </div>
                   
                   <div className="flex items-center gap-2">
+                    {(entry.severity === "critical" || entry.type === "issue") && entry.status === "published" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleSendNotification(entry._id)}
+                      >
+                        <Send className="h-4 w-4 mr-1" />
+                        Notify Users
+                      </Button>
+                    )}
                     {entry.type === "issue" && !entry.isResolved && (
                       <Button 
                         size="sm" 

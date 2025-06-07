@@ -452,3 +452,126 @@ If you have any security concerns, please contact our security team at security@
     };
   },
 });
+
+// Email notification function for critical updates (placeholder for future integration)
+export const sendChangelogNotification = mutation({
+  args: {
+    changelogId: v.id("changelog"),
+    notificationType: v.union(
+      v.literal("email"),
+      v.literal("push"),
+      v.literal("in-app")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("clerkId"), identity.subject))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const changelogEntry = await ctx.db.get(args.changelogId);
+    if (!changelogEntry) {
+      throw new Error("Changelog entry not found");
+    }
+
+    // For now, create in-app notifications for all users
+    // In production, this would integrate with email service
+    if (changelogEntry.severity === "critical" || changelogEntry.type === "issue") {
+      const allUsers = await ctx.db.query("users").collect();
+      
+      const notifications = [];
+      for (const targetUser of allUsers) {
+        const notification = await ctx.db.insert("notifications", {
+          userId: targetUser.clerkId,
+          type: "platform-update",
+          title: `🚨 ${changelogEntry.type === "issue" ? "Platform Issue" : "Critical Update"}`,
+          message: `${changelogEntry.title}: ${changelogEntry.description}`,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+          metadata: {
+            changelogId: args.changelogId,
+            severity: changelogEntry.severity,
+            type: changelogEntry.type,
+          },
+        });
+        notifications.push(notification);
+      }
+
+      return {
+        success: true,
+        notificationsSent: notifications.length,
+        message: `Sent ${notifications.length} in-app notifications for ${changelogEntry.title}`,
+      };
+    }
+
+    return {
+      success: true,
+      notificationsSent: 0,
+      message: "No notifications sent - entry does not meet critical criteria",
+    };
+  },
+});
+
+// Function to get changelog statistics for admin dashboard
+export const getChangelogStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
+    const allEntries = await ctx.db.query("changelog").collect();
+    const publishedEntries = allEntries.filter(entry => entry.status === "published");
+    const draftEntries = allEntries.filter(entry => entry.status === "draft");
+    const activeIssues = allEntries.filter(entry => 
+      entry.type === "issue" && 
+      entry.status === "published" && 
+      !entry.isResolved
+    );
+
+    const typeStats = {
+      feature: publishedEntries.filter(e => e.type === "feature").length,
+      improvement: publishedEntries.filter(e => e.type === "improvement").length,
+      bugfix: publishedEntries.filter(e => e.type === "bugfix").length,
+      issue: publishedEntries.filter(e => e.type === "issue").length,
+      maintenance: publishedEntries.filter(e => e.type === "maintenance").length,
+      security: publishedEntries.filter(e => e.type === "security").length,
+    };
+
+    const severityStats = {
+      critical: publishedEntries.filter(e => e.severity === "critical").length,
+      high: publishedEntries.filter(e => e.severity === "high").length,
+      medium: publishedEntries.filter(e => e.severity === "medium").length,
+      low: publishedEntries.filter(e => e.severity === "low").length,
+    };
+
+    return {
+      total: allEntries.length,
+      published: publishedEntries.length,
+      drafts: draftEntries.length,
+      activeIssues: activeIssues.length,
+      typeStats,
+      severityStats,
+      recentEntries: publishedEntries
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5)
+        .map(entry => ({
+          id: entry._id,
+          title: entry.title,
+          type: entry.type,
+          severity: entry.severity,
+          createdAt: entry.createdAt,
+        })),
+    };
+  },
+});
