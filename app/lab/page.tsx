@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -269,7 +267,6 @@ function getDifficultyColor(difficulty: string) {
 }
 
 export default function LabPage() {
-  const { user } = useUser();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [language, setLanguage] = useState<"javascript" | "python">("javascript");
   const [code, setCode] = useState("");
