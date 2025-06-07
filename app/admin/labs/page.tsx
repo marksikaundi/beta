@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useQuery, useMutation } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
+import { Plus, Pencil, Trash2, FileCode, Clock } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,29 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Pencil, Trash2, FileCode, Clock } from "lucide-react";
+import { LabFormDialog } from "@/components/admin/lab-form-dialog";
+import { toast } from "sonner";
 
 // Lab interface matching Convex schema
 interface Lab {
@@ -78,51 +60,44 @@ export default function AdminLabsPage() {
   const updateLab = useMutation(api.labs_admin.updateLab);
   const deleteLab = useMutation(api.labs_admin.deleteLab);
 
-  const defaultNewLab: Omit<
-    Lab,
-    "_id" | "_creationTime" | "createdAt" | "updatedAt"
-  > = {
-    title: "",
-    difficulty: "Easy" as const,
-    description: "",
-    problemStatement: "",
-    examples: [{ input: "", output: "", explanation: "" }],
-    testCases: [{ input: "", expectedOutput: "", description: "" }],
-    starterCode: {
-      javascript: "function solution() {\n  // Write your code here\n}",
-      python: "def solution():\n    # Write your code here\n    pass",
-    },
-    hints: [""],
-    constraints: [""],
-    tags: [],
-    points: 100,
-    timeLimit: 30,
-    isPublished: false,
+  const handleCreateLab = async (
+    labData: Omit<Lab, "_id" | "_creationTime" | "createdAt" | "updatedAt">
+  ) => {
+    try {
+      await createLab(labData);
+      setIsCreateDialogOpen(false);
+      toast.success("Lab created successfully");
+    } catch (error) {
+      toast.error("Failed to create lab");
+      console.error(error);
+    }
   };
 
-  const [newLab, setNewLab] = useState(defaultNewLab);
-
-  const handleCreateLab = async () => {
-    await createLab(newLab);
-    setNewLab(defaultNewLab);
-    setIsCreateDialogOpen(false);
-  };
-
-  const handleUpdateLab = async () => {
+  const handleUpdateLab = async (
+    labData: Omit<Lab, "_id" | "_creationTime" | "createdAt" | "updatedAt">
+  ) => {
     if (!selectedLab) return;
 
-    // Transform the lab object to match the expected format
-    const { _id, _creationTime, createdAt, updatedAt, ...labData } =
-      selectedLab;
-    await updateLab({ id: _id, ...labData });
-
-    setSelectedLab(null);
-    setIsEditDialogOpen(false);
+    try {
+      await updateLab({ id: selectedLab._id, ...labData });
+      setSelectedLab(null);
+      setIsEditDialogOpen(false);
+      toast.success("Lab updated successfully");
+    } catch (error) {
+      toast.error("Failed to update lab");
+      console.error(error);
+    }
   };
 
   const handleDeleteLab = async (labId: Id<"labs">) => {
     if (confirm("Are you sure you want to delete this lab?")) {
-      await deleteLab({ id: labId });
+      try {
+        await deleteLab({ id: labId });
+        toast.success("Lab deleted successfully");
+      } catch (error) {
+        toast.error("Failed to delete lab");
+        console.error(error);
+      }
     }
   };
 
@@ -190,79 +165,25 @@ export default function AdminLabsPage() {
         ))}
       </div>
 
-      {/* Create Lab Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Create New Lab</DialogTitle>
-            <DialogDescription>
-              Create a new coding challenge for users to solve.
-            </DialogDescription>
-          </DialogHeader>
+      <LabFormDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSubmit={handleCreateLab}
+        mode="create"
+      />
 
-          <ScrollArea className="p-6">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <Label>Basic Information</Label>
-                <Input
-                  placeholder="Lab Title"
-                  value={newLab.title}
-                  onChange={(e) =>
-                    setNewLab({ ...newLab, title: e.target.value })
-                  }
-                />
-                <Select
-                  value={newLab.difficulty}
-                  onValueChange={(value: "Easy" | "Medium" | "Hard") =>
-                    setNewLab({ ...newLab, difficulty: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Textarea
-                  placeholder="Short description"
-                  value={newLab.description}
-                  onChange={(e) =>
-                    setNewLab({ ...newLab, description: e.target.value })
-                  }
-                />
-                <Textarea
-                  placeholder="Problem statement (supports markdown)"
-                  value={newLab.problemStatement}
-                  onChange={(e) =>
-                    setNewLab({ ...newLab, problemStatement: e.target.value })
-                  }
-                  className="min-h-[200px]"
-                />
-              </div>
-
-              {/* Add more fields for examples, test cases, starter code, etc. */}
-            </div>
-          </ScrollArea>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsCreateDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCreateLab}>Create Lab</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Lab Dialog - Similar to Create but with pre-filled values */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        {/* Similar structure to Create Dialog */}
-      </Dialog>
+      {selectedLab && (
+        <LabFormDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => {
+            setIsEditDialogOpen(false);
+            setSelectedLab(null);
+          }}
+          onSubmit={handleUpdateLab}
+          initialData={selectedLab}
+          mode="edit"
+        />
+      )}
     </div>
   );
 }
