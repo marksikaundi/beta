@@ -41,6 +41,16 @@ const navigation = [
   },
 ];
 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+
 export default function AdminLayout({
   children,
 }: {
@@ -49,53 +59,68 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-72 md:fixed md:inset-y-0">
-        <div className="flex flex-col h-full bg-card/50 backdrop-filter backdrop-blur-sm border-r border-border/40">
-          <div className="flex h-16 items-center gap-x-3 border-b border-border/40 px-6">
+    <div className="min-h-screen bg-background">
+      {/* Header with Navigation Trigger */}
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-2 px-0 hover:bg-transparent"
+              >
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle admin navigation</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] p-0">
+              <SheetHeader className="border-b border-border/40 px-6 py-4">
+                <SheetTitle className="flex items-center gap-x-2">
+                  <Layout className="h-5 w-5 text-primary" />
+                  <span>Admin Navigation</span>
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="flex-1 space-y-1 p-4">
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "group flex items-center gap-x-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "h-4 w-4 shrink-0 transition-colors duration-150",
+                          isActive
+                            ? "text-primary"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
+          <div className="flex items-center gap-x-2">
             <Layout className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold">Admin Panel</span>
+            <h1 className="text-lg font-semibold">Admin Panel</h1>
           </div>
-
-          <nav className="flex-1 space-y-1 p-4">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "group flex items-center gap-x-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all",
-                    isActive
-                      ? "bg-primary/10 text-primary shadow-sm"
-                      : "text-muted-foreground/90 hover:bg-accent/50 hover:text-foreground"
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      "h-4 w-4 shrink-0 transition-colors duration-150",
-                      isActive
-                        ? "text-primary"
-                        : "text-muted-foreground/70 group-hover:text-foreground"
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
         </div>
-      </aside>
+      </header>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col md:pl-72">
-        <main className="flex-1 px-6 py-6">
-          <div className="mx-auto max-w-6xl">{children}</div>
-        </main>
-      </div>
+      <main className="container max-w-screen-2xl py-6">{children}</main>
     </div>
   );
 }
