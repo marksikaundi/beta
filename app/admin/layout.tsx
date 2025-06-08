@@ -66,11 +66,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-x-4">
             <Sheet>
               <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-accent"
-                >
+                <Button variant="ghost" size="icon" className="hover:bg-accent">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle navigation</span>
                 </Button>
@@ -121,7 +117,7 @@ export default function AdminLayout({
               <h1 className="text-lg font-semibold">Admin Panel</h1>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-x-4">
             {/* Add any header actions here if needed */}
           </div>
