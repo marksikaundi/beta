@@ -1,8 +1,17 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, action } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { getOrCreateUser } from "./users";
+import { api } from "./_generated/api";
 
-// Query to get all invites sent by a user
+interface AuthIdentity {
+  tokenIdentifier: string;
+  subject: string;
+  email?: string | null;
+  emailAddresses?: Array<{ emailAddress: string }>;
+  name?: string;
+}
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -11,7 +20,6 @@ export const list = query({
       throw new Error("Not authenticated");
     }
 
-    // Get the user's ID from their clerk ID
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
@@ -21,7 +29,6 @@ export const list = query({
       throw new Error("User not found");
     }
 
-    // Get all invites sent by this user
     const invites = await ctx.db
       .query("invites")
       .withIndex("by_inviter", (q) => q.eq("inviterId", user._id))
@@ -31,7 +38,6 @@ export const list = query({
   },
 });
 
-// Mutation to create a new invite
 export const create = mutation({
   args: {
     email: v.string(),
@@ -42,17 +48,17 @@ export const create = mutation({
       throw new Error("Not authenticated");
     }
 
-    // Get the user's ID from their clerk ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .first();
+    const user = await getOrCreateUser(ctx, {
+      subject: identity.subject,
+      email: identity.email ?? undefined,
+      emailAddresses: identity.emailAddresses as { emailAddress: string }[],
+      username:
+        identity.tokenIdentifier?.split("|")[1] ??
+        identity.email?.split("@")[0],
+      name: identity.name,
+    });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // Check if an invite already exists for this email
+    // Check for existing invite
     const existingInvite = await ctx.db
       .query("invites")
       .withIndex("by_invitee_email", (q) => q.eq("inviteeEmail", args.email))
@@ -62,12 +68,24 @@ export const create = mutation({
       throw new Error("Invite already sent to this email");
     }
 
-    // Create the invite
-    const invite = await ctx.db.insert("invites", {
+    // Create new invite
+    const inviteId = await ctx.db.insert("invites", {
       inviterId: user._id,
       inviteeEmail: args.email,
-      status: "pending",
+      status: "pending" as const,
       createdAt: new Date().toISOString(),
+    });
+
+    const invite = await ctx.db.get(inviteId);
+    if (!invite) {
+      throw new Error("Failed to create invite");
+    }
+
+    // Send the invite email - we'll handle this as a separate action that gets triggered
+    // after the invite is created successfully
+    await ctx.scheduler.runAfter(0, api.emails.sendInviteEmail, {
+      to: args.email,
+      inviterName: user.displayName || "A CodePlex user",
     });
 
     return invite;

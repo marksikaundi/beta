@@ -1,5 +1,65 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import {
+  mutation,
+  query,
+  internalMutation,
+  QueryCtx,
+  MutationCtx,
+} from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
+
+type Identity = {
+  subject: string;
+  email?: string;
+  emailAddresses?: { emailAddress: string }[];
+  username?: string;
+  name?: string;
+};
+
+// Helper function to get or create a user
+export async function getOrCreateUser(
+  ctx: MutationCtx,
+  identity: Identity
+): Promise<Doc<"users">> {
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+    .first();
+
+  if (user) {
+    return user;
+  }
+
+  const email = identity.emailAddresses?.[0]?.emailAddress ?? identity.email;
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  const username = identity.username ?? email.split("@")[0];
+  const now = new Date().toISOString();
+
+  const newUserId = await ctx.db.insert("users", {
+    clerkId: identity.subject,
+    email,
+    username,
+    displayName: identity.name ?? username,
+    level: 1,
+    experience: 0,
+    streakDays: 0,
+    lastActiveDate: now,
+    subscriptionTier: "free",
+    preferredLanguages: [],
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  const newUser = await ctx.db.get(newUserId);
+  if (!newUser) {
+    throw new Error("Failed to create user");
+  }
+
+  return newUser;
+}
 
 // Create or update user profile
 export const createOrUpdateUser = mutation({

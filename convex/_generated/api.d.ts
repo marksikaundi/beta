@@ -16,6 +16,7 @@ import type {
 import type * as changelog from "../changelog.js";
 import type * as discussions from "../discussions.js";
 import type * as discussions_reply from "../discussions_reply.js";
+import type * as emails from "../emails.js";
 import type * as invites from "../invites.js";
 import type * as labs from "../labs.js";
 import type * as labs_admin from "../labs_admin.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   changelog: typeof changelog;
   discussions: typeof discussions;
   discussions_reply: typeof discussions_reply;
+  emails: typeof emails;
   invites: typeof invites;
   labs: typeof labs;
   labs_admin: typeof labs_admin;
