@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserButton } from "@clerk/nextjs";
-import { User, Home, BookOpen, LogOut } from "lucide-react";
+import { User, Home, BookOpen, LogOut, Share } from "lucide-react";
 
 export function ProfileDropdown() {
   const { signOut } = useAuth();
@@ -49,6 +49,12 @@ export function ProfileDropdown() {
           <Link href="/tracks" className="flex items-center">
             <BookOpen className="mr-2 h-4 w-4" />
             <span>My Tracks</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/invites" className="flex items-center">
+            <Share className="mr-2 h-4 w-4" />
+            <span>Invites</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
