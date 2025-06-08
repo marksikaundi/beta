@@ -22,7 +22,19 @@ import {
   Zap,
   GraduationCap,
   Home,
+  User,
+  Settings,
+  LogOut,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { cn } from "@/lib/utils";
 import { NotificationsDropdown } from "./navigation/notifications-dropdown";
 import { SystemStatusWidget } from "./system-status-widget";
@@ -238,6 +250,47 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+function ProfileDropdown() {
+  const { signOut } = useAuth();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div>
+          <UserButton afterSignOutUrl="/" />
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <Link href="/profile">
+          <DropdownMenuItem>
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/dashboard">
+          <DropdownMenuItem>
+            <Home className="mr-2 h-4 w-4" />
+            <span>Dashboard</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/tracks">
+          <DropdownMenuItem>
+            <BookOpen className="mr-2 h-4 w-4" />
+            <span>My Tracks</span>
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOut()}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
