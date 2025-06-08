@@ -62,59 +62,68 @@ export default function AdminLayout({
     <div className="min-h-screen bg-background">
       {/* Header with Navigation Trigger */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 max-w-screen-2xl items-center">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="mr-2 px-0 hover:bg-transparent"
-              >
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle admin navigation</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] p-0">
-              <SheetHeader className="border-b border-border/40 px-6 py-4">
-                <SheetTitle className="flex items-center gap-x-2">
-                  <Layout className="h-5 w-5 text-primary" />
-                  <span>Admin Navigation</span>
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="flex-1 space-y-1 p-4">
-                {navigation.map((item) => {
-                  const isActive = pathname === item.href;
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={cn(
-                        "group flex items-center gap-x-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          "h-4 w-4 shrink-0 transition-colors duration-150",
-                          isActive
-                            ? "text-primary"
-                            : "text-muted-foreground group-hover:text-foreground"
-                        )}
-                        aria-hidden="true"
-                      />
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </SheetContent>
-          </Sheet>
-          <div className="flex items-center gap-x-2">
-            <Layout className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold">Admin Panel</h1>
+        <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-x-4">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-accent"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle navigation</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] p-0">
+                <SheetHeader className="border-b border-border/40 px-6 py-4">
+                  <SheetTitle className="flex items-center gap-x-2">
+                    <Layout className="h-5 w-5 text-primary" />
+                    <span>Navigation Menu</span>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex-1 overflow-y-auto">
+                  <div className="space-y-1 p-4">
+                    {navigation.map((item) => {
+                      const isActive = pathname === item.href;
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className={cn(
+                            "group flex items-center gap-x-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all",
+                            isActive
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          )}
+                        >
+                          <Icon
+                            className={cn(
+                              "h-4 w-4 shrink-0 transition-colors duration-150",
+                              isActive
+                                ? "text-primary"
+                                : "text-muted-foreground group-hover:text-foreground"
+                            )}
+                            aria-hidden="true"
+                          />
+                          <span>{item.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+
+            <div className="flex items-center gap-x-2">
+              <Layout className="h-5 w-5 text-primary" />
+              <h1 className="text-lg font-semibold">Admin Panel</h1>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-x-4">
+            {/* Add any header actions here if needed */}
           </div>
         </div>
       </header>
