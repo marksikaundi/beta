@@ -400,34 +400,34 @@ export default function ProfilePage() {
               <CardContent>
                 {recentActivity && recentActivity.length > 0 ? (
                   <div className="space-y-3">
-                    {recentActivity.map((activity: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-3 rounded-lg border"
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900">
-                          <BookOpen className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    {recentActivity.map((activity: any, index: number) => {
+                      const timestamp =
+                        activity?.progress?.completedAt ||
+                        activity?.timestamp ||
+                        new Date().toISOString();
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 rounded-lg border"
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900">
+                            <BookOpen className="h-4 w-4 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Completed a lesson
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {activity.lesson?.title} •{" "}
+                              {formatDistanceToNow(new Date(timestamp))} ago
+                            </p>
+                          </div>
+                          <Badge variant="secondary">
+                            +{activity.lesson?.experiencePoints || 0} XP
+                          </Badge>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            Completed a lesson
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {activity.lesson?.title} •{" "}
-                            {formatDistanceToNow(
-                              new Date(
-                                activity.progress.completedAt ||
-                                  activity.timestamp
-                              )
-                            )}{" "}
-                            ago
-                          </p>
-                        </div>
-                        <Badge variant="secondary">
-                          +{activity.lesson?.experiencePoints || 0} XP
-                        </Badge>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-center text-muted-foreground py-8">
