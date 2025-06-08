@@ -32,9 +32,17 @@ export default function InvitesPage() {
       setEmail("");
       toast.success("Invite sent successfully!");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to send invite"
-      );
+      // Show warning for duplicate invites, error for other cases
+      if (
+        error instanceof Error &&
+        error.message === "Invite already sent to this email"
+      ) {
+        toast.warning(error.message);
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to send invite"
+        );
+      }
     }
   };
 
