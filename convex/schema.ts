@@ -462,4 +462,19 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_lab", ["labId"])
     .index("by_user_and_lab", ["userId", "labId"]),
+
+  // Invites table to track user invitations
+  invites: defineTable({
+    inviterId: v.id("users"), // User who sent the invite
+    inviteeEmail: v.string(), // Email of the invited person
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("expired")
+    ),
+    createdAt: v.string(),
+    acceptedAt: v.optional(v.string()),
+  })
+    .index("by_inviter", ["inviterId"])
+    .index("by_invitee_email", ["inviteeEmail"]),
 });
