@@ -9,8 +9,6 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
 
 export default function InvitesPage() {
   const { isLoaded, isSignedIn } = useUser();
