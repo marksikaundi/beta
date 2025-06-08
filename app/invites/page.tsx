@@ -20,7 +20,9 @@ export default function InvitesPage() {
       setEmail("");
       toast.success("Invite sent successfully!");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to send invite");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send invite"
+      );
     }
   };
 
