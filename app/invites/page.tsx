@@ -7,11 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 export default function InvitesPage() {
+  const { isLoaded, isSignedIn } = useUser();
   const [email, setEmail] = useState("");
   const invites = useQuery(api.invites.list);
   const sendInvite = useMutation(api.invites.create);
+
+  // Handle authentication
+  if (!isLoaded) {
+    return null; // Or a loading spinner
+  }
+
+  if (!isSignedIn) {
+    redirect("/sign-in");
+  }
 
   const handleSendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +60,13 @@ export default function InvitesPage() {
 
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold mb-4">Sent Invites</h2>
-        {invites?.length === 0 ? (
+        {!invites ? (
+          <p className="text-muted-foreground">Loading...</p>
+        ) : invites.length === 0 ? (
           <p className="text-muted-foreground">No invites sent yet</p>
         ) : (
           <div className="grid gap-4">
-            {invites?.map((invite) => (
+            {invites.map((invite) => (
               <Card key={invite._id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
