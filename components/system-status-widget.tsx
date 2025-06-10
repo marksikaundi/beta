@@ -61,7 +61,10 @@ export function SystemStatusWidget() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
+      <PopoverContent
+        className="w-80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+        align="end"
+      >
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             {getStatusIcon()}
