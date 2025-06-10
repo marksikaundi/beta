@@ -65,20 +65,23 @@ export const voteReply = mutation({
     }
 
     if (existingVote) {
-      // Update existing vote
-      if (existingVote.voteType !== args.voteType) {
-        await ctx.db.patch(existingVote._id, { voteType: args.voteType });
-
-        // Update reply counts
-        const upvoteDiff = args.voteType === "up" ? 2 : -2;
-        const downvoteDiff = args.voteType === "down" ? 2 : -2;
-
-        await ctx.db.patch(args.replyId, {
-          upvotes: reply.upvotes + (args.voteType === "up" ? upvoteDiff : 0),
-          downvotes:
-            reply.downvotes + (args.voteType === "down" ? downvoteDiff : 0),
-        });
+      // If the user is trying to vote the same way again, prevent it
+      if (existingVote.voteType === args.voteType) {
+        throw new Error(`You have already ${args.voteType}voted this reply`);
       }
+
+      // Update the vote type
+      await ctx.db.patch(existingVote._id, {
+        voteType: args.voteType,
+      });
+
+      // When changing from upvote to downvote, decrease upvotes and increase downvotes
+      // When changing from downvote to upvote, increase upvotes and decrease downvotes
+      await ctx.db.patch(args.replyId, {
+        upvotes: reply.upvotes + (args.voteType === "up" ? 1 : -1),
+        downvotes: reply.downvotes + (args.voteType === "down" ? 1 : -1),
+        updatedAt: Date.now(), // This field exists on the discussionReplies table
+      });
     } else {
       // Create new vote
       await ctx.db.insert("replyVotes", {
@@ -88,11 +91,11 @@ export const voteReply = mutation({
         createdAt: Date.now(),
       });
 
-      // Update reply counts
+      // Update reply counts - only increment the relevant counter
       await ctx.db.patch(args.replyId, {
-        upvotes: args.voteType === "up" ? reply.upvotes + 1 : reply.upvotes,
-        downvotes:
-          args.voteType === "down" ? reply.downvotes + 1 : reply.downvotes,
+        upvotes: reply.upvotes + (args.voteType === "up" ? 1 : 0),
+        downvotes: reply.downvotes + (args.voteType === "down" ? 1 : 0),
+        updatedAt: Date.now(), // This field exists on the discussionReplies table
       });
     }
   },

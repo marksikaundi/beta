@@ -279,22 +279,25 @@ export const voteDiscussion = mutation({
     }
 
     if (existingVote) {
-      // Update existing vote
-      if (existingVote.voteType !== args.voteType) {
-        await ctx.db.patch(existingVote._id, { voteType: args.voteType });
-
-        // Update discussion counts
-        const upvoteDiff = args.voteType === "up" ? 2 : -2;
-        const downvoteDiff = args.voteType === "down" ? 2 : -2;
-
-        await ctx.db.patch(args.discussionId, {
-          upvotes:
-            discussion.upvotes + (args.voteType === "up" ? upvoteDiff : 0),
-          downvotes:
-            discussion.downvotes +
-            (args.voteType === "down" ? downvoteDiff : 0),
-        });
+      // If the user is trying to vote the same way again, prevent it
+      if (existingVote.voteType === args.voteType) {
+        throw new Error(
+          `You have already ${args.voteType}voted this discussion`
+        );
       }
+
+      // Update the vote type
+      await ctx.db.patch(existingVote._id, {
+        voteType: args.voteType,
+      });
+
+      // When changing from upvote to downvote, decrease upvotes and increase downvotes
+      // When changing from downvote to upvote, increase upvotes and decrease downvotes
+      await ctx.db.patch(args.discussionId, {
+        upvotes: discussion.upvotes + (args.voteType === "up" ? 1 : -1),
+        downvotes: discussion.downvotes + (args.voteType === "down" ? 1 : -1),
+        updatedAt: Date.now(), // This field exists on the discussion table
+      });
     } else {
       // Create new vote
       await ctx.db.insert("discussionVotes", {
@@ -304,14 +307,11 @@ export const voteDiscussion = mutation({
         createdAt: Date.now(),
       });
 
-      // Update discussion counts
+      // Update discussion counts - only increment the relevant counter
       await ctx.db.patch(args.discussionId, {
-        upvotes:
-          args.voteType === "up" ? discussion.upvotes + 1 : discussion.upvotes,
-        downvotes:
-          args.voteType === "down"
-            ? discussion.downvotes + 1
-            : discussion.downvotes,
+        upvotes: discussion.upvotes + (args.voteType === "up" ? 1 : 0),
+        downvotes: discussion.downvotes + (args.voteType === "down" ? 1 : 0),
+        updatedAt: Date.now(), // This field exists on the discussion table
       });
     }
   },

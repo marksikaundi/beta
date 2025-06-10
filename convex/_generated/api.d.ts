@@ -28,6 +28,7 @@ import type * as progress from "../progress.js";
 import type * as tracks from "../tracks.js";
 import type * as tracks_admin from "../tracks_admin.js";
 import type * as users from "../users.js";
+import type * as votes from "../votes.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   tracks: typeof tracks;
   tracks_admin: typeof tracks_admin;
   users: typeof users;
+  votes: typeof votes;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
