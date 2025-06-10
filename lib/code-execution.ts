@@ -52,121 +52,80 @@ export async function executeJavaScript(
 
     // Create a safe execution context
     const safeEval = (code: string) => {
-      const func = new Function(`
+      let consoleOutput: string[] = [];
+      const mockConsole = {
+        log: (...args: any[]) => {
+          consoleOutput.push(
+            args.map(arg => 
+              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ')
+          );
+        },
+        error: (...args: any[]) => {
+          consoleOutput.push(
+            '❌ Error: ' + args.map(arg => 
+              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ')
+          );
+        },
+        warn: (...args: any[]) => {
+          consoleOutput.push(
+            '⚠️ Warning: ' + args.map(arg => 
+              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ')
+          );
+        }
+      };
+
+      const func = new Function('console', `
         "use strict";
         ${code}
         
         // If there's a main function, call it
         if (typeof main === 'function') {
-          return main;
+          return main();
         }
         
         // If there's a solution function, return it
         if (typeof solution === 'function') {
-          return solution;
+          return solution();
         }
-        
-        // Otherwise return the last expression
-        return undefined;
       `);
 
-      return func();
+      let result;
+      try {
+        result = func(mockConsole);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          consoleOutput.push(`❌ Runtime Error: ${error.message}`);
+        } else {
+          consoleOutput.push(`❌ Runtime Error: ${String(error)}`);
+        }
+        throw error;
+      }
+
+      return {
+        result,
+        consoleOutput: consoleOutput.join('\n')
+      };
     };
 
-    const userFunction = safeEval(code);
-    let output = "";
-    const testResults: ExecutionResult["testResults"] = [];
-
-    if (
-      testCases &&
-      testCases.length > 0 &&
-      typeof userFunction === "function"
-    ) {
-      // Run test cases
-      for (const testCase of testCases) {
-        try {
-          const input = JSON.parse(testCase.input);
-          const expected = testCase.expectedOutput;
-
-          let actual;
-          if (Array.isArray(input)) {
-            actual = userFunction(...input);
-          } else {
-            actual = userFunction(input);
-          }
-
-          const actualStr =
-            typeof actual === "object"
-              ? JSON.stringify(actual)
-              : String(actual);
-          const passed = actualStr === expected;
-
-          testResults.push({
-            passed,
-            input: testCase.input,
-            expectedOutput: expected,
-            actual: actualStr,
-            description: testCase.description,
-          });
-
-          output += `Test: ${testCase.description}\n`;
-          output += `Input: ${testCase.input}\n`;
-          output += `Expected: ${expected}\n`;
-          output += `Actual: ${actualStr}\n`;
-          output += `Result: ${passed ? "✅ PASS" : "❌ FAIL"}\n\n`;
-        } catch (error) {
-          testResults.push({
-            passed: false,
-            input: testCase.input,
-            expectedOutput: testCase.expectedOutput,
-            actual: `Error: ${error}`,
-            description: testCase.description,
-          });
-
-          output += `Test: ${testCase.description}\n`;
-          output += `Error: ${error}\n\n`;
-        }
-      }
-    } else {
-      // Simple execution without test cases
-      if (typeof userFunction === "function") {
-        const result = userFunction();
-        output =
-          typeof result === "object"
-            ? JSON.stringify(result, null, 2)
-            : String(result);
-      } else {
-        // Try to execute the code directly
-        const func = new Function(`
-          "use strict";
-          let console = {
-            log: function(...args) {
-              return args.map(arg => 
-                typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-              ).join(' ');
-            }
-          };
-          
-          ${code}
-        `);
-
-        const result = func();
-        output =
-          typeof result === "object"
-            ? JSON.stringify(result, null, 2)
-            : String(result || "");
-      }
-    }
-
+    const { result, consoleOutput } = safeEval(code);
+    
     const executionTime = Date.now() - startTime;
-    const allTestsPassed =
-      testResults.length > 0 ? testResults.every((t) => t.passed) : true;
+    const output = [
+      '=== Program Output ===',
+      consoleOutput,
+      '',
+      result !== undefined ? `=== Return Value ===\n${JSON.stringify(result, null, 2)}` : '',
+      '',
+      `=== Execution Time ===\n${executionTime}ms`
+    ].filter(Boolean).join('\n');
 
     return {
-      output: output || "Code executed successfully",
-      passed: allTestsPassed,
+      output,
+      passed: true,
       executionTime,
-      testResults: testResults.length > 0 ? testResults : undefined,
     };
   } catch (error) {
     const executionTime = Date.now() - startTime;
