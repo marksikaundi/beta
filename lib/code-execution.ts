@@ -56,28 +56,44 @@ export async function executeJavaScript(
       const mockConsole = {
         log: (...args: any[]) => {
           consoleOutput.push(
-            args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ')
+            args
+              .map((arg) =>
+                typeof arg === "object"
+                  ? JSON.stringify(arg, null, 2)
+                  : String(arg)
+              )
+              .join(" ")
           );
         },
         error: (...args: any[]) => {
           consoleOutput.push(
-            '❌ Error: ' + args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ')
+            "❌ Error: " +
+              args
+                .map((arg) =>
+                  typeof arg === "object"
+                    ? JSON.stringify(arg, null, 2)
+                    : String(arg)
+                )
+                .join(" ")
           );
         },
         warn: (...args: any[]) => {
           consoleOutput.push(
-            '⚠️ Warning: ' + args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ')
+            "⚠️ Warning: " +
+              args
+                .map((arg) =>
+                  typeof arg === "object"
+                    ? JSON.stringify(arg, null, 2)
+                    : String(arg)
+                )
+                .join(" ")
           );
-        }
+        },
       };
 
-      const func = new Function('console', `
+      const func = new Function(
+        "console",
+        `
         "use strict";
         ${code}
         
@@ -90,7 +106,8 @@ export async function executeJavaScript(
         if (typeof solution === 'function') {
           return solution();
         }
-      `);
+      `
+      );
 
       let result;
       try {
@@ -106,21 +123,25 @@ export async function executeJavaScript(
 
       return {
         result,
-        consoleOutput: consoleOutput.join('\n')
+        consoleOutput: consoleOutput.join("\n"),
       };
     };
 
     const { result, consoleOutput } = safeEval(code);
-    
+
     const executionTime = Date.now() - startTime;
     const output = [
-      '=== Program Output ===',
+      "=== Program Output ===",
       consoleOutput,
-      '',
-      result !== undefined ? `=== Return Value ===\n${JSON.stringify(result, null, 2)}` : '',
-      '',
-      `=== Execution Time ===\n${executionTime}ms`
-    ].filter(Boolean).join('\n');
+      "",
+      result !== undefined
+        ? `=== Return Value ===\n${JSON.stringify(result, null, 2)}`
+        : "",
+      "",
+      `=== Execution Time ===\n${executionTime}ms`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     return {
       output,
