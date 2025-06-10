@@ -89,7 +89,7 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-6">
             {filteredItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -100,7 +100,7 @@ export function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`enterprise-nav-item flex items-center space-x-2 text-sm font-medium ${
+                  className={`enterprise-nav-item flex items-center space-x-2 text-sm font-medium transition-colors ${
                     isActive
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
