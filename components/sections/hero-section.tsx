@@ -90,7 +90,10 @@ export function HeroSection() {
       <section className="relative py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           {/* Hero Badge */}
-          <Badge variant="secondary" className="animate-fade-in mb-6 px-4 py-2 glass-effect">
+          <Badge
+            variant="secondary"
+            className="animate-fade-in mb-6 px-4 py-2 glass-effect"
+          >
             <Zap className="h-3 w-3 mr-2 text-yellow-500" />
             New: Advanced Go Programming Track Available
           </Badge>
@@ -110,7 +113,11 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="animate-slide-up delay-200 flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="text-lg px-8 py-6 button-gradient rounded-full" asChild>
+            <Button
+              size="lg"
+              className="text-lg px-8 py-6 button-gradient rounded-full"
+              asChild
+            >
               <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
                 <Play className="h-5 w-5 mr-2" />
                 Start Learning Free
@@ -148,7 +155,11 @@ export function HeroSection() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center glass-effect p-6 rounded-xl animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+              <div
+                key={index}
+                className="text-center glass-effect p-6 rounded-xl animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                   {stat.value}
                 </div>

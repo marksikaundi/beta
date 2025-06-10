@@ -129,7 +129,10 @@ export function Header() {
             {isSignedIn && <NotificationsDropdown />}
 
             {/* Premium badge */}
-            <Badge variant="outline" className="hidden sm:inline-flex glass-effect">
+            <Badge
+              variant="outline"
+              className="hidden sm:inline-flex glass-effect"
+            >
               <GraduationCap className="h-3 w-3 mr-1 text-primary" />
               Free
             </Badge>
