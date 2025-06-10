@@ -82,118 +82,105 @@ export function HeroSection() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#4F46E580,#2563EB80)] opacity-10" />
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white [background:radial-gradient(125%_125%_at_50%_10%,#fff_40%,#63e_100%)] dark:bg-gray-900" />
+      {/* Background Elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[linear-gradient(110deg,#00DC82_0%,#36E4DA_50%,#0047E1_100%)] opacity-5" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      </div>
 
       {/* Main Hero */}
-      <section className="relative py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          {/* Hero Badge */}
-          <Badge
-            variant="secondary"
-            className="animate-fade-in mb-6 px-4 py-2 glass-effect"
-          >
-            <Zap className="h-3 w-3 mr-2 text-yellow-500" />
-            New: Advanced Go Programming Track Available
-          </Badge>
-
-          {/* Hero Title */}
-          <h1 className="animate-slide-up text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight">
-            Master <span className="text-gradient">Backend Development</span>{" "}
-            Like a Pro
-          </h1>
-
-          {/* Hero Subtitle */}
-          <p className="animate-slide-up delay-100 text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Learn programming through hands-on projects, interactive coding
-            challenges, and real-world scenarios. Join thousands of developers
-            advancing their careers.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="animate-slide-up delay-200 flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button
-              size="lg"
-              className="text-lg px-8 py-6 button-gradient rounded-full"
-              asChild
+      <section className="relative pt-24 pb-20 px-4">
+        <div className="enterprise-layout">
+          {/* Badge */}
+          <div className="flex justify-center mb-8 fade-in">
+            <Badge
+              variant="secondary"
+              className="px-4 py-2 enterprise-glass gap-2 text-sm"
             >
-              <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
-                <Play className="h-5 w-5 mr-2" />
-                Start Learning Free
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="text-lg px-8 py-6 glass-effect hover:bg-background/20 rounded-full"
-              asChild
-            >
-              <Link href="/tracks">
-                <BookOpen className="h-5 w-5 mr-2" />
-                Explore Tracks
-              </Link>
-            </Button>
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              <span>New: Advanced Go Programming Track Available</span>
+            </Badge>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="animate-fade-in delay-300 flex flex-wrap justify-center items-center gap-8 text-sm text-muted-foreground mb-16">
-            <div className="flex items-center gap-2 glass-effect px-4 py-2 rounded-full">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              No credit card required
-            </div>
-            <div className="flex items-center gap-2 glass-effect px-4 py-2 rounded-full">
-              <Clock className="h-4 w-4 text-blue-500" />
-              Learn at your own pace
-            </div>
-            <div className="flex items-center gap-2 glass-effect px-4 py-2 rounded-full">
-              <Star className="h-4 w-4 text-yellow-500" />
-              4.9/5 from 10,000+ reviews
-            </div>
-          </div>
+          {/* Hero Content */}
+          <div className="text-center max-w-4xl mx-auto slide-up">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
+              Master{" "}
+              <span className="enterprise-gradient">Backend Development</span>{" "}
+              Like a Pro
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Industry-leading curriculum designed by experts. Build real-world
+              projects and advance your career with enterprise-grade learning paths.
+            </p>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="text-center glass-effect p-6 rounded-xl animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+              <Button
+                size="lg"
+                className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                asChild
               >
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
+                <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
+                  <Play className="h-5 w-5 mr-2" />
+                  Start Learning Free
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-14 px-8 text-lg rounded-full enterprise-glass"
+                asChild
+              >
+                <Link href="/tracks">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  Explore Tracks
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-20">
+              <div className="flex items-center justify-center gap-2 enterprise-glass rounded-2xl p-4">
+                <CheckCircle className="h-5 w-5 text-primary" />
+                <span className="text-sm">No credit card required</span>
               </div>
-            ))}
+              <div className="flex items-center justify-center gap-2 enterprise-glass rounded-2xl p-4">
+                <Clock className="h-5 w-5 text-primary" />
+                <span className="text-sm">Learn at your own pace</span>
+              </div>
+              <div className="flex items-center justify-center gap-2 enterprise-glass rounded-2xl p-4">
+                <Star className="h-5 w-5 text-primary" />
+                <span className="text-sm">4.9/5 from 10,000+ reviews</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-muted/50">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-24 bg-muted/30">
+        <div className="enterprise-layout">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why Choose <span className="text-gradient">Lupleg</span>?
+            <h2 className="text-3xl font-bold mb-4">
+              Enterprise-Grade Learning Experience
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We combine the best of interactive learning, real-world projects,
-              and community support to accelerate your growth.
+              Comprehensive curriculum combining theory and practice, designed
+              to accelerate your career growth.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card
+              <div
                 key={index}
-                className="learning-card border-0 shadow-lg hover:translate-y-[-4px] transition-all duration-300"
+                className="enterprise-card p-6 scale-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <CardContent className="p-6 text-center">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 mb-4 text-white">
-                    <feature.icon className="h-6 w-6" />
+                <div className="flex flex-col items-center text-center">
+                  <div className="h-12 w-12 flex items-center justify-center rounded-lg bg-primary/10 mb-4">
+                    <feature.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">
                     {feature.title}
@@ -201,44 +188,46 @@ export function HeroSection() {
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {feature.description}
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Loved by Developers Worldwide
-          </h2>
-          <p className="text-xl text-muted-foreground mb-12">
-            Join thousands of successful developers who transformed their
-            careers with Lupleg
-          </p>
+      <section className="py-24">
+        <div className="enterprise-layout">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">
+                Trusted by Leading Developers
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Join thousands of successful developers who transformed their
+                careers with Lupleg
+              </p>
+            </div>
 
-          <Card className="glass-effect p-8 md:p-12">
-            <CardContent className="p-0">
+            <div className="enterprise-card p-8 md:p-12">
               <div className="flex justify-center mb-6">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className="h-5 w-5 text-yellow-500 fill-current"
+                    className="h-5 w-5 text-primary fill-current"
                   />
                 ))}
               </div>
 
-              <blockquote className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed italic">
+              <blockquote className="text-lg md:text-xl mb-8 text-center italic text-muted-foreground">
                 "{testimonials[currentTestimonial].content}"
               </blockquote>
 
               <div className="flex items-center justify-center space-x-4">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-semibold">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                   {testimonials[currentTestimonial].avatar}
                 </div>
-                <div className="text-left">
+                <div>
                   <div className="font-semibold">
                     {testimonials[currentTestimonial].name}
                   </div>
@@ -253,35 +242,35 @@ export function HeroSection() {
                   <button
                     key={index}
                     onClick={() => setCurrentTestimonial(index)}
-                    className={`h-2 w-2 rounded-full transition-colors ${
+                    className={`h-2 w-8 rounded-full transition-colors ${
                       index === currentTestimonial
                         ? "bg-primary"
-                        : "bg-muted hover:bg-muted-foreground"
+                        : "bg-primary/20 hover:bg-primary/40"
                     }`}
                     aria-label={`Go to testimonial ${index + 1}`}
                   />
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-        <div className="container mx-auto max-w-4xl text-center">
+      <section className="py-24 bg-primary text-primary-foreground">
+        <div className="enterprise-layout text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Start Your Journey?
+            Ready to Advance Your Career?
           </h2>
-          <p className="text-xl mb-8 text-white/90">
-            Join our community of learners and start building your backend
-            development skills today.
+          <p className="text-xl mb-8 text-primary-foreground/90 max-w-2xl mx-auto">
+            Join our community of professional developers and start building
+            enterprise-grade skills today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
               variant="secondary"
-              className="text-lg px-8 py-6 rounded-full bg-white text-primary hover:bg-white/90"
+              className="h-14 px-8 text-lg rounded-full bg-white text-primary hover:bg-white/90"
               asChild
             >
               <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
@@ -292,10 +281,10 @@ export function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="text-lg px-8 py-6 rounded-full border-white/20 text-white hover:bg-white/10"
+              className="h-14 px-8 text-lg rounded-full border-white/20 text-white hover:bg-white/10"
               asChild
             >
-              <Link href="/tracks">View All Tracks</Link>
+              <Link href="/tracks">View Learning Paths</Link>
             </Button>
           </div>
         </div>
