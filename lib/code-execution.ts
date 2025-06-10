@@ -270,8 +270,6 @@ export async function executePython(
 }
 
 // Main execution function that routes to appropriate language executor
-import { runInPythonWorker } from "./python-worker";
-
 import { executeGo } from "./go-execution";
 
 export async function executeCode(
