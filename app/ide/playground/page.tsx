@@ -62,6 +62,7 @@ export default function Playground() {
     defaultCode[language as keyof typeof defaultCode]
   );
   const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
 
   const handleRunCode = async () => {
     try {
@@ -97,15 +98,19 @@ export default function Playground() {
         </div>
       </div>
 
-      <Split className="flex-grow" style={{ height: "calc(100vh - 72px)" }}>
-        <div className="h-full">
+      <Split 
+        className="flex-grow" 
+        style={{ height: "calc(100vh - 72px)" }}
+        lineBar={true}
+      >
+        <div className="h-full w-3/5 overflow-hidden">
           <CodeEditor
             language={language}
             value={code}
             onChange={(value) => setCode(value || "")}
           />
         </div>
-        <div className="h-full w-2/5 overflow-hidden">
+        <div className="h-full w-2/5 overflow-hidden border-l border-gray-200 dark:border-gray-800">
           <OutputPanel output={output} />
         </div>
       </Split>
