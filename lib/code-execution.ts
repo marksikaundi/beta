@@ -177,11 +177,11 @@ export async function executePython(
       "For now, this is a simulation of Python execution.",
       "",
       "Example output:",
-    ].join('\n');
+    ].join("\n");
 
     // Extract print statements for simulation
     const printMatches = code.match(/print\((.*?)\)/g) || [];
-    const prints = printMatches.map(match => {
+    const prints = printMatches.map((match) => {
       try {
         // Basic evaluation of print arguments
         const arg = match.slice(6, -1).trim();
@@ -190,13 +190,13 @@ export async function executePython(
         }
         return `<simulated: ${arg}>`;
       } catch {
-        return '<could not evaluate>';
+        return "<could not evaluate>";
       }
     });
 
     const executionTime = Date.now() - startTime;
     return {
-      output: formattedOutput + prints.map(p => `> ${p}`).join('\n'),
+      output: formattedOutput + prints.map((p) => `> ${p}`).join("\n"),
       passed: true,
       executionTime,
     };
@@ -211,9 +211,8 @@ export async function executePython(
   }
 }
 
-
 // Main execution function that routes to appropriate language executor
-import { runInPythonWorker } from './python-worker';
+import { runInPythonWorker } from "./python-worker";
 
 export async function executeCode(
   code: string,
@@ -231,7 +230,8 @@ export async function executeCode(
       return executePython(code, testCases);
     case "go":
       return {
-        output: "Go execution is coming soon! For now, try JavaScript, TypeScript, or Python.",
+        output:
+          "Go execution is coming soon! For now, try JavaScript, TypeScript, or Python.",
         error: "Go execution not yet implemented",
         passed: false,
         executionTime: 0,
