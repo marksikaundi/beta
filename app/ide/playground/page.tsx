@@ -79,8 +79,8 @@ export default function Playground() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="border-b border-gray-200 p-4 flex items-center justify-between">
+    <div className="h-screen flex flex-col bg-background">
+      <div className="border-b border-gray-200 dark:border-gray-800 p-4 flex items-center justify-between bg-card">
         <div className="flex items-center gap-4">
           <Select value={language} onValueChange={handleLanguageChange}>
             <SelectTrigger className="w-[180px]">
@@ -105,7 +105,7 @@ export default function Playground() {
             onChange={(value) => setCode(value || "")}
           />
         </div>
-        <div className="h-full">
+        <div className="h-full w-2/5 overflow-hidden">
           <OutputPanel output={output} />
         </div>
       </Split>
