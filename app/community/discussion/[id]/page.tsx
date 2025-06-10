@@ -42,7 +42,7 @@ export default function DiscussionDetailPage() {
   const incrementViewCount = useMutation(api.discussions.incrementViewCount);
   const createReply = useMutation(api.discussions.createReply);
   const voteDiscussion = useMutation(api.discussions.voteDiscussion);
-  const voteReply = useMutation(api["discussions-reply"].voteReply);
+  const voteReply = useMutation(api.discussions_reply.voteReply);
 
   // Increment view count on page load
   useEffect(() => {
@@ -402,7 +402,7 @@ export default function DiscussionDetailPage() {
                         <Button
                           onClick={handleCreateReply}
                           disabled={!replyContent.trim() || isSubmitting}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                          className="bg-white text-black hover:bg-gray-50 border border-gray-200 shadow-sm hover:shadow transition-all duration-200 flex items-center gap-2"
                         >
                           {isSubmitting ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
