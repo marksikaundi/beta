@@ -33,30 +33,28 @@ export default function DashboardPage() {
 
   if (!isLoaded || !user) {
     return (
-      <>
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-64" />
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <Skeleton key={i} className="h-32" />
-              ))}
-            </div>
+      <div className="container mx-auto px-4 py-8 animate-fade-in">
+        <div className="space-y-6">
+          <Skeleton className="h-12 w-64" />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   const isNewUser = !userStats?.stats || userStats.stats.lessonsCompleted === 0;
 
   return (
-    <>
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-muted/10">
+      <div className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="space-y-8">
           {/* Welcome Header */}
           <div className="flex flex-col space-y-2">
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-3xl font-bold tracking-tight">
               Welcome back, {user.firstName || user.username}! 👋
             </h1>
             <p className="text-muted-foreground">
@@ -68,7 +66,7 @@ export default function DashboardPage() {
 
           {/* New User Welcome */}
           {isNewUser && (
-            <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <Alert className="glass-effect border-blue-200 dark:border-blue-800">
               <BookOpen className="h-4 w-4" />
               <AlertDescription>
                 <strong>Welcome to Lupleg!</strong> Start with our Backend
@@ -109,21 +107,21 @@ export default function DashboardPage() {
               <RecommendedTracks />
 
               {/* Quick Stats */}
-              <Card>
+              <Card className="learning-card">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
+                    <TrendingUp className="h-5 w-5 mr-2 text-primary" />
                     Quick Stats
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between">
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
                     <span className="text-sm text-muted-foreground">Level</span>
                     <span className="font-medium">
                       {userStats?.user?.level || 1}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
                     <span className="text-sm text-muted-foreground">
                       Experience
                     </span>
@@ -131,11 +129,11 @@ export default function DashboardPage() {
                       {userStats?.user?.experience || 0} XP
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
                     <span className="text-sm text-muted-foreground">Rank</span>
                     <span className="font-medium">Beginner</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
                     <span className="text-sm text-muted-foreground">
                       Subscription
                     </span>
@@ -149,6 +147,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

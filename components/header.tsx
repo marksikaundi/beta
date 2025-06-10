@@ -80,8 +80,8 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Code2 className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
+              <Code2 className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-gradient">Lupleg</span>
           </Link>
@@ -98,12 +98,11 @@ export function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={cn(
-                    "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  )}
+                  }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.name}</span>
@@ -119,8 +118,8 @@ export function Header() {
 
             {/* Streak indicator for signed-in users */}
             {isSignedIn && (
-              <div className="hidden sm:flex items-center space-x-1 text-sm">
-                <Zap className="h-4 w-4 text-orange-500" />
+              <div className="hidden sm:flex items-center space-x-1 text-sm px-3 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400">
+                <Zap className="h-4 w-4" />
                 <span className="font-medium">0</span>
                 <span className="text-muted-foreground">day streak</span>
               </div>
@@ -130,8 +129,8 @@ export function Header() {
             {isSignedIn && <NotificationsDropdown />}
 
             {/* Premium badge */}
-            <Badge variant="outline" className="hidden sm:inline-flex">
-              <GraduationCap className="h-3 w-3 mr-1" />
+            <Badge variant="outline" className="hidden sm:inline-flex glass-effect">
+              <GraduationCap className="h-3 w-3 mr-1 text-primary" />
               Free
             </Badge>
 
@@ -143,12 +142,14 @@ export function Header() {
                 ) : (
                   <div className="flex items-center space-x-2">
                     <SignInButton mode="modal">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="rounded-lg">
                         Sign In
                       </Button>
                     </SignInButton>
                     <SignInButton mode="modal">
-                      <Button size="sm">Get Started</Button>
+                      <Button size="sm" className="rounded-lg button-gradient">
+                        Get Started
+                      </Button>
                     </SignInButton>
                   </div>
                 )}
@@ -158,7 +159,7 @@ export function Header() {
             {/* Mobile menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="rounded-lg">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -167,7 +168,7 @@ export function Header() {
                 <div className="flex flex-col space-y-4 mt-6">
                   {/* Mobile user info */}
                   {isSignedIn && (
-                    <div className="flex items-center space-x-3 p-4 rounded-full border bg-blue-100 border-blue-200">
+                    <div className="flex items-center space-x-3 p-4 rounded-lg glass-effect">
                       <UserButton
                         appearance={{
                           elements: {
@@ -186,7 +187,7 @@ export function Header() {
                   )}
 
                   {/* Mobile navigation */}
-                  <nav className="flex flex-col space-y-2">
+                  <nav className="flex flex-col space-y-1">
                     {filteredItems.map((item) => {
                       const Icon = item.icon;
                       const isActive =
@@ -198,12 +199,11 @@ export function Header() {
                           key={item.name}
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={cn(
-                            "flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium transition-colors",
+                          className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                             isActive
-                              ? "bg-primary text-primary-foreground"
+                              ? "bg-primary text-primary-foreground shadow-sm"
                               : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                          )}
+                          }`}
                         >
                           <Icon className="h-5 w-5" />
                           <span>{item.name}</span>
@@ -216,12 +216,14 @@ export function Header() {
                   {!isSignedIn && (
                     <div className="border-t pt-4 space-y-2">
                       <SignInButton mode="modal">
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full rounded-lg">
                           Sign In
                         </Button>
                       </SignInButton>
                       <SignInButton mode="modal">
-                        <Button className="w-full">Get Started Free</Button>
+                        <Button className="w-full rounded-lg button-gradient">
+                          Get Started Free
+                        </Button>
                       </SignInButton>
                     </div>
                   )}
