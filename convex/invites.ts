@@ -16,8 +16,10 @@ export const list = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
+
+    // Return empty array if not authenticated instead of throwing
     if (!identity) {
-      throw new Error("Not authenticated");
+      return [];
     }
 
     const user = await ctx.db
@@ -25,8 +27,9 @@ export const list = query({
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .first();
 
+    // Return empty array if user not found instead of throwing
     if (!user) {
-      throw new Error("User not found");
+      return [];
     }
 
     const invites = await ctx.db
