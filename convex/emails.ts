@@ -45,6 +45,7 @@ export const sendInviteEmail = internalAction({
 
     // Validate email format
     if (!to.includes("@")) {
+      console.error("Invalid email format:", to);
       return {
         success: false,
         error: "Invalid email address format",
@@ -92,9 +93,24 @@ export const sendInviteEmail = internalAction({
         },
       });
 
+      if (!result.data?.id) {
+        console.error("Failed to send email - no message ID returned:", result);
+        return {
+          success: false,
+          error: "Failed to send email",
+        };
+      }
+
+      // Log successful send
+      console.info("Successfully sent invite email:", {
+        to,
+        messageId: result.data.id,
+        timestamp: new Date().toISOString(),
+      });
+
       return {
         success: true,
-        messageId: result.data?.id,
+        messageId: result.data.id,
       };
     } catch (error) {
       // Log the detailed error for debugging
