@@ -11,7 +11,7 @@ import { RecommendedTracks } from "@/components/dashboard/recommended-tracks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { BookOpen, TrendingUp } from "lucide-react";
+import { BookOpen, TrendingUp, Target, Code2, Trophy } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
   if (!isLoaded || !user) {
     return (
-      <div className="container mx-auto px-4 py-8 animate-fade-in">
+      <div className="modern-container py-8 animate-fade-in">
         <div className="space-y-6">
           <Skeleton className="h-12 w-64" />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -49,15 +49,15 @@ export default function DashboardPage() {
   const isNewUser = !userStats?.stats || userStats.stats.lessonsCompleted === 0;
 
   return (
-    <div className="min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 py-8 animate-fade-in">
+    <div className="min-h-screen">
+      <div className="modern-container py-8 animate-fade-in">
         <div className="space-y-8">
-          {/* Welcome Header */}
+          {/* Welcome Section */}
           <div className="flex flex-col space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-4xl font-bold tracking-tight gradient-text">
               Welcome back, {user.firstName || user.username}! 👋
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-lg">
               {isNewUser
                 ? "Ready to start your learning journey? Pick a track below to begin!"
                 : "Continue where you left off and keep building your skills."}
@@ -66,9 +66,9 @@ export default function DashboardPage() {
 
           {/* New User Welcome */}
           {isNewUser && (
-            <Alert className="glass-effect border-blue-200 dark:border-blue-800">
-              <BookOpen className="h-4 w-4" />
-              <AlertDescription>
+            <Alert className="glass-bg border-primary/20">
+              <BookOpen className="h-4 w-4 text-primary" />
+              <AlertDescription className="text-foreground/90">
                 <strong>Welcome to Lupleg!</strong> Start with our Backend
                 Fundamentals track to build a solid foundation, or explore all
                 available tracks to find what interests you most.
@@ -76,71 +76,101 @@ export default function DashboardPage() {
             </Alert>
           )}
 
-          {/* Dashboard Stats */}
-          <DashboardStats stats={userStats?.stats} isLoading={!userStats} />
+          {/* Stats Grid */}
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              {
+                icon: Code2,
+                label: "Lessons Completed",
+                value: userStats?.stats?.lessonsCompleted || 0,
+              },
+              {
+                icon: Target,
+                label: "Current Level",
+                value: userStats?.user?.level || 1,
+              },
+              {
+                icon: Trophy,
+                label: "XP Earned",
+                value: userStats?.user?.experience || 0,
+              },
+              {
+                icon: TrendingUp,
+                label: "Day Streak",
+                value: userStats?.user?.streakDays || 0,
+              },
+            ].map((stat, index) => (
+              <Card
+                key={index}
+                className="modern-card animate-scale-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 rounded-md bg-primary/10">
+                      <stat.icon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {stat.label}
+                      </p>
+                      <h3 className="text-2xl font-bold">{stat.value}</h3>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
+          {/* Main Content Grid */}
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Content - Left Side */}
+            {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Continue Learning */}
-              <ContinueLearning
-                enrollments={enrollments}
-                isLoading={!enrollments}
-              />
-
-              {/* Recent Activity */}
-              <RecentActivity
-                activity={recentActivity}
-                isLoading={!recentActivity}
-              />
-            </div>
-
-            {/* Sidebar - Right Side */}
-            <div className="space-y-6">
-              {/* Study Streak */}
-              <StudyStreak
-                streakDays={userStats?.user?.streakDays || 0}
-                isLoading={!userStats}
-              />
-
-              {/* Recommended Tracks */}
-              <RecommendedTracks />
-
-              {/* Quick Stats */}
-              <Card className="learning-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2 text-primary" />
-                    Quick Stats
+              <Card className="modern-card">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center space-x-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    <span>Continue Learning</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
-                    <span className="text-sm text-muted-foreground">Level</span>
-                    <span className="font-medium">
-                      {userStats?.user?.level || 1}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
-                    <span className="text-sm text-muted-foreground">
-                      Experience
-                    </span>
-                    <span className="font-medium">
-                      {userStats?.user?.experience || 0} XP
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
-                    <span className="text-sm text-muted-foreground">Rank</span>
-                    <span className="font-medium">Beginner</span>
-                  </div>
-                  <div className="flex items-center justify-between glass-effect rounded-lg p-3">
-                    <span className="text-sm text-muted-foreground">
-                      Subscription
-                    </span>
-                    <span className="font-medium capitalize">
-                      {userStats?.user?.subscriptionTier || "Free"}
-                    </span>
-                  </div>
+                <CardContent>
+                  <ContinueLearning
+                    enrollments={enrollments}
+                    isLoading={!enrollments}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="modern-card">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <span>Recent Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RecentActivity
+                    activity={recentActivity}
+                    isLoading={!recentActivity}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              <Card className="modern-card">
+                <CardContent className="p-6">
+                  <StudyStreak
+                    streakDays={userStats?.user?.streakDays || 0}
+                    isLoading={!userStats}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="modern-card">
+                <CardContent className="p-6">
+                  <RecommendedTracks />
                 </CardContent>
               </Card>
             </div>

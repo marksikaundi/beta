@@ -1,33 +1,21 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter as FontSans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexClientProvider } from "@/components/providers/convex-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { ConvexClientProvider } from "@/components/providers/convex-provider";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import "./globals.css";
-import Header from "@/components/header";
+import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Lupleg - Master Backend Development",
   description:
-    "Master backend development with hands-on projects, interactive coding challenges, and structured learning paths. Learn programming like a pro.",
-  keywords: [
-    "backend development",
-    "programming",
-    "coding",
-    "learn to code",
-    "software engineering",
-  ],
-  authors: [{ name: "Mark Sikaundi" }],
-  openGraph: {
-    title: "Lupleg - Master Backend Development",
-    description:
-      "Master backend development with hands-on projects and structured learning paths.",
-    type: "website",
-  },
+    "Learn backend development through interactive courses and real-world projects",
 };
 
 export default function RootLayout({
@@ -37,18 +25,41 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
+      <html lang="en" suppressHydrationWarning className="dark">
+        <body className={fontSans.className}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
+            enableSystem={false}
             disableTransitionOnChange
           >
             <ConvexClientProvider>
-              <div className="flex min-h-screen flex-col">
+              <div className="relative min-h-screen bg-background">
+                {/* Navigation */}
                 <Header />
-                {children}
+
+                {/* Main Content */}
+                <main className="relative z-10 pb-20">{children}</main>
+
+                {/* Modern Grid Pattern */}
+                <div
+                  className="fixed inset-0 -z-20 h-full w-full opacity-[0.02]"
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(to right, #808080 1px, transparent 1px),
+                      linear-gradient(to bottom, #808080 1px, transparent 1px)
+                    `,
+                    backgroundSize: "24px 24px",
+                  }}
+                />
+
+                {/* Gradient Atmosphere */}
+                <div className="fixed inset-0 -z-10">
+                  <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-primary/5 via-primary/2 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-background via-background/90 to-transparent" />
+                </div>
+
+                {/* Footer */}
                 <Footer />
               </div>
               <Toaster />
