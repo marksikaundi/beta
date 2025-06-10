@@ -159,30 +159,72 @@ export async function executeJavaScript(
   }
 }
 
-// Python code execution simulation
+// Python code execution using Pyodide
 export async function executePython(
   code: string,
   testCases?: TestCase[]
 ): Promise<ExecutionResult> {
-  // Suppress unused parameter warnings - these are intentionally unused in demo mode
-  void code;
-  void testCases;
   const startTime = Date.now();
 
-  // This is a simplified simulation
-  // In production, you'd use a secure Python execution service
-  const executionTime = Date.now() - startTime;
+  try {
+    // First, create a Python script that captures stdout
+    const wrappedCode = `
+import sys
+from io import StringIO
 
-  return {
-    output:
-      "Python execution not implemented yet. This would run in a secure sandbox.",
-    passed: false,
-    executionTime,
-    error: "Python execution service not available in demo mode",
-  };
+# Capture stdout
+stdout = StringIO()
+sys.stdout = stdout
+
+try:
+    # Execute the user's code
+    ${code}
+    
+    # Get the captured output
+    output = stdout.getvalue()
+except Exception as e:
+    output = f"Error: {str(e)}"
+
+# Reset stdout
+sys.stdout = sys.__stdout__
+
+# Print the captured output
+print(output)
+`;
+
+    // Run the code in a web worker (you'll need to implement this)
+    const result = await runInPythonWorker(wrappedCode);
+    const executionTime = Date.now() - startTime;
+
+    if (result.error) {
+      return {
+        output: "",
+        error: result.error,
+        passed: false,
+        executionTime,
+      };
+    }
+
+    return {
+      output: result.output,
+      passed: true,
+      executionTime,
+    };
+  } catch (error) {
+    const executionTime = Date.now() - startTime;
+    return {
+      output: "",
+      error: error instanceof Error ? error.message : String(error),
+      passed: false,
+      executionTime,
+    };
+  }
 }
 
+
 // Main execution function that routes to appropriate language executor
+import { runInPythonWorker } from './python-worker';
+
 export async function executeCode(
   code: string,
   language: string,
@@ -190,11 +232,20 @@ export async function executeCode(
 ): Promise<ExecutionResult> {
   switch (language.toLowerCase()) {
     case "javascript":
+    case "typescript":
     case "js":
+    case "ts":
       return executeJavaScript(code, testCases);
     case "python":
     case "py":
       return executePython(code, testCases);
+    case "go":
+      return {
+        output: "Go execution is coming soon! For now, try JavaScript, TypeScript, or Python.",
+        error: "Go execution not yet implemented",
+        passed: false,
+        executionTime: 0,
+      };
     default:
       return {
         output: "",
