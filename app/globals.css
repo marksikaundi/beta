@@ -3,128 +3,118 @@
 @import "tw-animate-css";
 
 :root {
+  /* New professional color palette */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 224 71.4% 4.1%;
+  
+  --primary: 170 100% 32%;
+  --primary-foreground: 210 20% 98%;
 
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220.9 39.3% 11%;
 
-  /* Modern blue accent */
-  --accent: 214 100% 50%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 220 14.3% 95.9%;
+  --accent-foreground: 220.9 39.3% 11%;
 
-  /* Refined grays for better contrast */
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 20% 98%;
 
-  /* Vibrant complementary colors */
+  --muted: 220 14.3% 95.9%;
+  --muted-foreground: 220 8.9% 46.1%;
+
   --success: 142 76% 36%;
   --success-foreground: 210 40% 98%;
-  --warning: 38 92% 50%;
-  --warning-foreground: 210 40% 98%;
-  --danger: 346 87% 48%;
-  --danger-foreground: 210 40% 98%;
 
-  /* UI Element colors */
-  --sidebar: 210 40% 98%;
-  --sidebar-foreground: 222.2 84% 4.9%;
-  --sidebar-muted: 215 25% 93%;
-  --sidebar-muted-foreground: 217.9 10.6% 64.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71.4% 4.1%;
 
-  /* Border & shadow colors */
-  --border: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 224 71.4% 4.1%;
+
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  --background: 224 71.4% 4.1%;
+  --foreground: 210 20% 98%;
 
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  --primary: 170 100% 32%;
+  --primary-foreground: 210 20% 98%;
 
-  /* Darker accent for dark mode */
-  --accent: 217 91% 60%;
-  --accent-foreground: 210 40% 98%;
+  --secondary: 215 27.9% 16.9%;
+  --secondary-foreground: 210 20% 98%;
 
-  /* Darker grays */
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
+  --accent: 215 27.9% 16.9%;
+  --accent-foreground: 210 20% 98%;
 
-  /* Darker UI Elements */
-  --sidebar: 222.2 84% 4.9%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-muted: 223 47% 11%;
-  --sidebar-muted-foreground: 215 20.2% 65.1%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 20% 98%;
 
-  /* Dark border & shadow */
-  --border: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+  --muted: 215 27.9% 16.9%;
+  --muted-foreground: 217.9 10.6% 64.9%;
+
+  --card: 224 71.4% 4.1%;
+  --card-foreground: 210 20% 98%;
+
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --ring: 216 12.2% 83.9%;
 }
 
 /* Modern Card Styles */
-.learning-card {
+.enterprise-card {
   background-color: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-.learning-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.enterprise-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
-/* Gradient Text */
-.text-gradient {
-  background: linear-gradient(to right, #4f46e5, #2563eb);
+/* Professional Gradient Text */
+.enterprise-gradient {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(190 100% 32%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glass Effect */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* Elegant Glass Effect */
+.enterprise-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dark .glass-effect {
-  background: rgba(17, 24, 39, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
+.dark .enterprise-glass {
+  background: rgba(17, 24, 39, 0.7);
 }
 
-/* Animations */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+/* Professional Animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
 }
 
-.animate-slide-up {
+.slide-up {
   animation: slideUp 0.5s ease-out;
 }
 
-.animate-scale {
-  animation: scale 0.3s ease-out;
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
+  from { 
     transform: translateY(20px);
     opacity: 0;
   }
@@ -134,11 +124,44 @@
   }
 }
 
-@keyframes scale {
-  from {
+@keyframes scaleIn {
+  from { 
     transform: scale(0.95);
+    opacity: 0;
   }
   to {
     transform: scale(1);
+    opacity: 1;
   }
+}
+
+/* Layout Utilities */
+.enterprise-layout {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Enterprise Navigation */
+.enterprise-nav-item {
+  position: relative;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.enterprise-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: hsl(var(--primary));
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.enterprise-nav-item:hover::after,
+.enterprise-nav-item[data-active="true"]::after {
+  transform: scaleX(1);
 }
