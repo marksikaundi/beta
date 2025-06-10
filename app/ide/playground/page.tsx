@@ -66,10 +66,14 @@ export default function Playground() {
 
   const handleRunCode = async () => {
     try {
+      setIsRunning(true);
+      setOutput("Running...");
       const result = await executeCode(code, language);
       setOutput(result.output || result.error || "No output");
     } catch (error: any) {
       setOutput(`Error: ${error?.message || "An unknown error occurred"}`);
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -94,12 +98,14 @@ export default function Playground() {
               <SelectItem value="go">Go</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={handleRunCode}>Run Code</Button>
+          <Button onClick={handleRunCode} disabled={isRunning}>
+            {isRunning ? "Running..." : "Run Code"}
+          </Button>
         </div>
       </div>
 
-      <Split 
-        className="flex-grow" 
+      <Split
+        className="flex-grow"
         style={{ height: "calc(100vh - 72px)" }}
         lineBar={true}
       >
