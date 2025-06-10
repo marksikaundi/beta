@@ -159,7 +159,7 @@ export async function executeJavaScript(
   }
 }
 
-// Python code execution simulation
+// Python code execution simulation with advanced features
 export async function executePython(
   code: string,
   testCases?: TestCase[]
@@ -167,36 +167,94 @@ export async function executePython(
   const startTime = Date.now();
 
   try {
-    // Format the code nicely for display
-    const formattedOutput = [
-      "=== Python Code ===",
-      code,
-      "",
-      "=== Output ===",
-      "Code execution would happen on a backend server.",
-      "For now, this is a simulation of Python execution.",
-      "",
-      "Example output:",
-    ].join("\n");
+    // Parse and simulate Python code execution
+    const simulatePython = (code: string) => {
+      let output: string[] = [];
+      let variables: Record<string, any> = {};
 
-    // Extract print statements for simulation
-    const printMatches = code.match(/print\((.*?)\)/g) || [];
-    const prints = printMatches.map((match) => {
-      try {
-        // Basic evaluation of print arguments
-        const arg = match.slice(6, -1).trim();
-        if (arg.startsWith('"') || arg.startsWith("'")) {
-          return arg.slice(1, -1);
+      // Simple Python expression evaluator
+      const evalPythonExpr = (expr: string): any => {
+        // Handle basic arithmetic
+        if (/^[\d\s+\-*\/().,]+$/.test(expr)) {
+          return eval(expr);
         }
-        return `<simulated: ${arg}>`;
-      } catch {
-        return "<could not evaluate>";
-      }
-    });
+        // Handle string literals
+        if (/^["'].*["']$/.test(expr)) {
+          return expr.slice(1, -1);
+        }
+        // Handle list literals
+        if (expr.startsWith("[") && expr.endsWith("]")) {
+          try {
+            return JSON.parse(expr.replace(/'/g, '"'));
+          } catch {
+            return `<list: ${expr}>`;
+          }
+        }
+        // Handle variable references
+        if (variables[expr] !== undefined) {
+          return variables[expr];
+        }
+        return `<${expr}>`;
+      };
 
+      // Parse lines and simulate execution
+      const lines = code.split("\n");
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+
+        // Skip empty lines and comments
+        if (!trimmedLine || trimmedLine.startsWith("#")) {
+          continue;
+        }
+
+        // Handle print statements
+        if (trimmedLine.startsWith("print(")) {
+          const args = trimmedLine
+            .slice(6, -1)
+            .split(",")
+            .map((arg) => evalPythonExpr(arg.trim()));
+          output.push(args.join(" "));
+          continue;
+        }
+
+        // Handle basic variable assignment
+        const assignMatch = trimmedLine.match(/^(\w+)\s*=\s*(.+)$/);
+        if (assignMatch) {
+          const [_, varName, value] = assignMatch;
+          variables[varName] = evalPythonExpr(value);
+          continue;
+        }
+
+        // Handle function definitions
+        if (trimmedLine.startsWith("def ")) {
+          output.push(
+            `Defined function: ${trimmedLine.slice(4).split("(")[0]}`
+          );
+          continue;
+        }
+
+        // Handle for loops (basic simulation)
+        if (trimmedLine.startsWith("for ")) {
+          output.push(`Simulated loop: ${trimmedLine}`);
+          continue;
+        }
+      }
+
+      return output.join("\n");
+    };
+
+    const simulatedOutput = simulatePython(code);
     const executionTime = Date.now() - startTime;
+
     return {
-      output: formattedOutput + prints.map((p) => `> ${p}`).join("\n"),
+      output: [
+        "=== Python Simulation ===",
+        simulatedOutput || "No output",
+        "",
+        `=== Execution Time ===\n${executionTime}ms`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
       passed: true,
       executionTime,
     };
@@ -214,6 +272,8 @@ export async function executePython(
 // Main execution function that routes to appropriate language executor
 import { runInPythonWorker } from "./python-worker";
 
+import { executeGo } from "./go-execution";
+
 export async function executeCode(
   code: string,
   language: string,
@@ -229,13 +289,7 @@ export async function executeCode(
     case "py":
       return executePython(code, testCases);
     case "go":
-      return {
-        output:
-          "Go execution is coming soon! For now, try JavaScript, TypeScript, or Python.",
-        error: "Go execution not yet implemented",
-        passed: false,
-        executionTime: 0,
-      };
+      return executeGo(code, testCases);
     default:
       return {
         output: "",
