@@ -83,7 +83,9 @@ export function Header() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary transition-all duration-200 group-hover:shadow-lg">
               <Code2 className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold enterprise-gradient">Lupleg</span>
+            <span className="text-xl font-semibold enterprise-gradient">
+              Lupleg
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -132,8 +134,8 @@ export function Header() {
             {isSignedIn && <NotificationsDropdown />}
 
             {/* Premium badge */}
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="hidden sm:inline-flex enterprise-glass border-primary/20"
             >
               <GraduationCap className="h-3 w-3 mr-1 text-primary" />
@@ -148,17 +150,17 @@ export function Header() {
                 ) : (
                   <div className="flex items-center space-x-2">
                     <SignInButton mode="modal">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="rounded-full hover:bg-secondary"
                       >
                         Sign In
                       </Button>
                     </SignInButton>
                     <SignInButton mode="modal">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         Get Started
@@ -243,7 +245,10 @@ export function Header() {
                     <div className="p-6 border-t bg-muted/50">
                       <div className="space-y-3">
                         <SignInButton mode="modal">
-                          <Button variant="outline" className="w-full rounded-full">
+                          <Button
+                            variant="outline"
+                            className="w-full rounded-full"
+                          >
                             Sign In
                           </Button>
                         </SignInButton>

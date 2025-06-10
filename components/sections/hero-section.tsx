@@ -111,7 +111,8 @@ export function HeroSection() {
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Industry-leading curriculum designed by experts. Build real-world
-              projects and advance your career with enterprise-grade learning paths.
+              projects and advance your career with enterprise-grade learning
+              paths.
             </p>
 
             {/* CTA Buttons */}
@@ -212,10 +213,7 @@ export function HeroSection() {
             <div className="enterprise-card p-8 md:p-12">
               <div className="flex justify-center mb-6">
                 {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-5 w-5 text-primary fill-current"
-                  />
+                  <Star key={i} className="h-5 w-5 text-primary fill-current" />
                 ))}
               </div>
 
