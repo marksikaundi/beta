@@ -22,7 +22,14 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Code,
   Play,
@@ -53,11 +60,10 @@ export default function LabPage() {
   );
   const validateSolution = useMutation(api.labs.validateSolution);
   const router = useRouter();
-  
-  // Get recommended challenges
-  const recommendedChallenges = useQuery(api.challenge_progress.getRecommendedChallenges);
-  // Get user completion stats
-  const userStats = useQuery(api.challenge_progress.getUserStats);
+
+  // Get lab completions and labs for recommendations
+  const labCompletions = useQuery(api.labs.getUserCompletions) || [];
+  const allLabs = useQuery(api.labs.list) || [];
 
   const [language, setLanguage] = useState<"javascript" | "python">(
     "javascript"
@@ -569,10 +575,10 @@ export default function LabPage() {
 
       {/* Completion Success Modal */}
       {isCompleted && (
-        <LabCompletionSuccess 
+        <LabCompletionSuccess
           lab={lab}
-          recommendedChallenges={recommendedChallenges || []}
-          userStats={userStats}
+          allLabs={allLabs}
+          labCompletions={labCompletions}
           onContinue={() => setIsCompleted(false)}
           router={router}
         />
@@ -582,19 +588,41 @@ export default function LabPage() {
 }
 
 // Component for displaying completion success with recommended challenges
-function LabCompletionSuccess({ 
-  lab, 
-  recommendedChallenges,
-  userStats,
+function LabCompletionSuccess({
+  lab,
+  allLabs,
+  labCompletions,
   onContinue,
-  router 
-}: { 
-  lab: any, 
-  recommendedChallenges: any[],
-  userStats: any,
-  onContinue: () => void,
-  router: any 
+  router,
+}: {
+  lab: any;
+  allLabs: any[];
+  labCompletions: any[];
+  onContinue: () => void;
+  router: any;
 }) {
+  // Calculate some simple stats
+  const totalCompleted = labCompletions.length;
+  let totalPoints = 0;
+  const byDifficulty = { Easy: 0, Medium: 0, Hard: 0 };
+
+  labCompletions.forEach((completion) => {
+    const completedLab = allLabs.find((l) => l._id === completion.labId);
+    if (completedLab) {
+      totalPoints += completedLab.points || 0;
+
+      if (completedLab.difficulty) {
+        byDifficulty[completedLab.difficulty as keyof typeof byDifficulty]++;
+      }
+    }
+  });
+
+  // Get recommendations (labs user hasn't completed yet)
+  const completedLabIds = new Set(labCompletions.map((c) => c.labId));
+  const recommendedChallenges = allLabs
+    .filter((l) => !completedLabIds.has(l._id) && l._id !== lab._id)
+    .slice(0, 4);
+
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <Card className="w-full max-w-3xl mx-auto">
@@ -607,38 +635,41 @@ function LabCompletionSuccess({
             You've earned {lab.points} points for completing "{lab.title}"
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* User stats */}
-          {userStats && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b">
-              <div className="text-center p-2">
-                <p className="text-xl font-bold">{userStats.totalCompleted}</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
-              </div>
-              <div className="text-center p-2">
-                <p className="text-xl font-bold">{userStats.totalPoints}</p>
-                <p className="text-xs text-muted-foreground">Points</p>
-              </div>
-              <div className="text-center p-2">
-                <p className="text-xl font-bold">{userStats.streak}</p>
-                <p className="text-xs text-muted-foreground">Day Streak</p>
-              </div>
-              <div className="text-center p-2">
-                <p className="text-xl font-bold">{userStats.byDifficulty?.Easy || 0}/{userStats.byDifficulty?.Medium || 0}/{userStats.byDifficulty?.Hard || 0}</p>
-                <p className="text-xs text-muted-foreground">Easy/Med/Hard</p>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b">
+            <div className="text-center p-2">
+              <p className="text-xl font-bold">{totalCompleted}</p>
+              <p className="text-xs text-muted-foreground">Completed</p>
             </div>
-          )}
-          
+            <div className="text-center p-2">
+              <p className="text-xl font-bold">{totalPoints}</p>
+              <p className="text-xs text-muted-foreground">Points</p>
+            </div>
+            <div className="text-center p-2">
+              <p className="text-xl font-bold">1</p>
+              <p className="text-xs text-muted-foreground">Day Streak</p>
+            </div>
+            <div className="text-center p-2">
+              <p className="text-xl font-bold">
+                {byDifficulty.Easy}/{byDifficulty.Medium}/{byDifficulty.Hard}
+              </p>
+              <p className="text-xs text-muted-foreground">Easy/Med/Hard</p>
+            </div>
+          </div>
+
           {/* Recommended challenges */}
-          {recommendedChallenges && recommendedChallenges.length > 0 && (
+          {recommendedChallenges.length > 0 && (
             <div>
               <h3 className="text-lg font-medium mb-3">Continue Learning</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recommendedChallenges.slice(0, 4).map((challenge) => (
-                  <Card key={challenge._id} className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => router.push(`/lab?id=${challenge._id}`)}>
+                {recommendedChallenges.map((challenge) => (
+                  <Card
+                    key={challenge._id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => router.push(`/lab?id=${challenge._id}`)}
+                  >
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <Badge
@@ -654,10 +685,14 @@ function LabCompletionSuccess({
                         </Badge>
                         <div className="flex items-center gap-1 text-muted-foreground">
                           <Award className="h-4 w-4" />
-                          <span className="text-sm">{challenge.points} pts</span>
+                          <span className="text-sm">
+                            {challenge.points} pts
+                          </span>
                         </div>
                       </div>
-                      <CardTitle className="text-base">{challenge.title}</CardTitle>
+                      <CardTitle className="text-base">
+                        {challenge.title}
+                      </CardTitle>
                     </CardHeader>
                   </Card>
                 ))}
@@ -665,7 +700,7 @@ function LabCompletionSuccess({
             </div>
           )}
         </CardContent>
-        
+
         <CardFooter className="flex justify-between">
           <Button variant="outline" onClick={() => router.push("/challenges")}>
             <ChevronLeft className="h-4 w-4 mr-2" /> All Challenges
@@ -682,13 +717,13 @@ function LabCompletionSuccess({
 // Helper function for difficulty colors
 function getDifficultyColor(difficulty: string) {
   switch (difficulty) {
-    case 'Easy':
-      return 'text-green-600 border-green-600';
-    case 'Medium':
-      return 'text-yellow-600 border-yellow-600';
-    case 'Hard':
-      return 'text-red-600 border-red-600';
+    case "Easy":
+      return "text-green-600 border-green-600";
+    case "Medium":
+      return "text-yellow-600 border-yellow-600";
+    case "Hard":
+      return "text-red-600 border-red-600";
     default:
-      return '';
+      return "";
   }
 }

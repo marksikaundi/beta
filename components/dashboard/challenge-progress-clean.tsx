@@ -1,3 +1,4 @@
+// filepath: /Users/marksikaundi/Documents/progress/101/beta/components/dashboard/challenge-progress.tsx
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";

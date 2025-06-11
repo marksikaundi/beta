@@ -110,7 +110,7 @@ export default function ChallengesPage() {
 
   // Extract all unique categories
   const allCategories = Array.from(
-    new Set(labs.map(lab => lab.category).filter(Boolean) as string[])
+    new Set(labs.map((lab) => lab.category).filter(Boolean) as string[])
   ).sort();
 
   // Filter labs based on search query and filters
@@ -127,9 +127,9 @@ export default function ChallengesPage() {
 
     // Tag filter
     const tagMatches = !tagFilter || (lab.tags && lab.tags.includes(tagFilter));
-    
+
     // Category filter
-    const categoryMatches = 
+    const categoryMatches =
       !categoryFilter || (lab.category && lab.category === categoryFilter);
 
     return searchMatches && difficultyMatches && tagMatches && categoryMatches;
@@ -170,7 +170,7 @@ export default function ChallengesPage() {
               <SelectItem value="Hard">Hard</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {/* Category filter */}
           <Select
             value={categoryFilter || ""}
@@ -181,7 +181,7 @@ export default function ChallengesPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Categories</SelectItem>
-              {allCategories.map(category => (
+              {allCategories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>
@@ -205,27 +205,37 @@ export default function ChallengesPage() {
           <div className="space-y-10">
             {/* If no category filter is active, group by category */}
             {!categoryFilter ? (
-              allCategories.map(category => {
-                const categoryLabs = filteredLabs.filter(lab => lab.category === category);
+              allCategories.map((category) => {
+                const categoryLabs = filteredLabs.filter(
+                  (lab) => lab.category === category
+                );
                 if (categoryLabs.length === 0) return null;
-                
+
                 return (
                   <div key={category} className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-2xl font-bold">{category}</h2>
                       {categoryLabs.length > 3 && (
-                        <Button variant="outline" size="sm" onClick={() => setCategoryFilter(category)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCategoryFilter(category)}
+                        >
                           View All <ChevronRight className="h-4 w-4 ml-1" />
                         </Button>
                       )}
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                       {categoryLabs
                         .sort((a, b) => (a.order || 999) - (b.order || 999))
                         .slice(0, 6)
                         .map((lab) => (
-                          <ChallengeCard key={lab._id} lab={lab} router={router} />
+                          <ChallengeCard
+                            key={lab._id}
+                            lab={lab}
+                            router={router}
+                          />
                         ))}
                     </div>
                   </div>
@@ -241,25 +251,20 @@ export default function ChallengesPage() {
                   ))}
               </div>
             )}
-            
+
             {/* Show uncategorized challenges if they exist */}
-            {!categoryFilter && filteredLabs.some(lab => !lab.category) && (
+            {!categoryFilter && filteredLabs.some((lab) => !lab.category) && (
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold">Other Challenges</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                   {filteredLabs
-                    .filter(lab => !lab.category)
+                    .filter((lab) => !lab.category)
                     .map((lab) => (
                       <ChallengeCard key={lab._id} lab={lab} router={router} />
                     ))}
                 </div>
               </div>
             )}
-          </div>
-        )}
-                </CardFooter>
-              </Card>
-            ))}
           </div>
         )}
       </div>

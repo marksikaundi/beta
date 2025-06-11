@@ -16,9 +16,7 @@ import { Loader2, CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function InitPage() {
-  // Using the string format for the action to avoid TypeScript errors
-  // This will work once the Convex types are generated
-  const seedChallenges = useAction("seed_challenges:seed");
+  const seedChallengesAction = useAction(api.labs_seed.seedChallenges);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{
     success?: boolean;
@@ -28,7 +26,7 @@ export default function InitPage() {
   const handleSeed = async () => {
     setIsLoading(true);
     try {
-      const result = await seedChallenges();
+      const result = await seedChallengesAction();
       setResult(result);
     } catch (error) {
       setResult({

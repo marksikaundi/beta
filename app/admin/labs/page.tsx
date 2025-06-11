@@ -5,13 +5,13 @@ import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import Link from "next/link";
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  FileCode, 
-  Clock, 
-  Eye, 
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  FileCode,
+  Clock,
+  Eye,
   Filter,
   Search,
   Tag,
@@ -21,7 +21,7 @@ import {
   Award,
   FileText,
   BarChart4,
-  Download
+  Download,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -90,12 +90,11 @@ interface Lab {
   tags: string[];
   category?: string;
   order?: number;
-  prerequisites?: string[];
+  prerequisites?: Id<"labs">[];
   points: number;
   timeLimit: number;
   isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdBy: string;
 }
 
 export default function AdminLabsPage() {
@@ -112,11 +111,15 @@ export default function AdminLabsPage() {
   const updateLab = useMutation(api.labs_admin.updateLab);
   const deleteLab = useMutation(api.labs_admin.deleteLab);
 
-  const handleCreateLab = async (
-    labData: Omit<Lab, "_id" | "_creationTime" | "createdAt" | "updatedAt">
-  ) => {
+  const handleCreateLab = async (labData: any) => {
     try {
-      await createLab(labData);
+      // Add the createdBy field if it's not present
+      const completeLabData = {
+        ...labData,
+        createdBy: "admin", // You might want to get the actual user ID here
+      };
+
+      await createLab(completeLabData);
       setIsCreateDialogOpen(false);
       toast.success("Lab created successfully");
     } catch (error) {
@@ -125,13 +128,17 @@ export default function AdminLabsPage() {
     }
   };
 
-  const handleUpdateLab = async (
-    labData: Omit<Lab, "_id" | "_creationTime" | "createdAt" | "updatedAt">
-  ) => {
+  const handleUpdateLab = async (labData: any) => {
     if (!selectedLab) return;
 
     try {
-      await updateLab({ id: selectedLab._id, ...labData });
+      // Add the createdBy field if it's not present
+      const completeLabData = {
+        ...labData,
+        createdBy: selectedLab.createdBy || "admin",
+      };
+
+      await updateLab({ id: selectedLab._id, ...completeLabData });
       setSelectedLab(null);
       setIsEditDialogOpen(false);
       toast.success("Lab updated successfully");
@@ -152,7 +159,7 @@ export default function AdminLabsPage() {
       }
     }
   };
-  
+
   const handleDuplicateLab = (lab: Lab) => {
     const duplicatedLab = {
       ...lab,
@@ -174,7 +181,7 @@ export default function AdminLabsPage() {
     // Difficulty filter
     const difficultyMatches =
       !difficultyFilter || lab.difficulty === difficultyFilter;
-      
+
     // Category filter
     const categoryMatches =
       !categoryFilter || (lab.category && lab.category === categoryFilter);
@@ -184,10 +191,10 @@ export default function AdminLabsPage() {
 
   // Stats
   const totalLabs = labs.length;
-  const publishedLabs = labs.filter(lab => lab.isPublished).length;
-  const easyLabs = labs.filter(lab => lab.difficulty === "Easy").length;
-  const mediumLabs = labs.filter(lab => lab.difficulty === "Medium").length;
-  const hardLabs = labs.filter(lab => lab.difficulty === "Hard").length;
+  const publishedLabs = labs.filter((lab) => lab.isPublished).length;
+  const easyLabs = labs.filter((lab) => lab.difficulty === "Easy").length;
+  const mediumLabs = labs.filter((lab) => lab.difficulty === "Medium").length;
+  const hardLabs = labs.filter((lab) => lab.difficulty === "Hard").length;
 
   return (
     <div className="container py-8">
@@ -210,7 +217,9 @@ export default function AdminLabsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Challenges</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Challenges
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalLabs}</div>
@@ -218,7 +227,9 @@ export default function AdminLabsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Published</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Published
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{publishedLabs}</div>
@@ -226,23 +237,33 @@ export default function AdminLabsPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Easy</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Easy
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">{easyLabs}</div>
+              <div className="text-2xl font-bold text-green-500">
+                {easyLabs}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Medium</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Medium
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-500">{mediumLabs}</div>
+              <div className="text-2xl font-bold text-yellow-500">
+                {mediumLabs}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Hard</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Hard
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-500">{hardLabs}</div>
@@ -261,7 +282,7 @@ export default function AdminLabsPage() {
               className="pl-10"
             />
           </div>
-          
+
           <Select
             value={difficultyFilter || ""}
             onValueChange={(value) => setDifficultyFilter(value || null)}
@@ -276,7 +297,7 @@ export default function AdminLabsPage() {
               <SelectItem value="Hard">Hard</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {/* Category filter */}
           <Select
             value={categoryFilter || ""}
@@ -287,7 +308,11 @@ export default function AdminLabsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Categories</SelectItem>
-              {Array.from(new Set(labs.map(lab => lab.category).filter(Boolean) as string[])).map(category => (
+              {Array.from(
+                new Set(
+                  labs.map((lab) => lab.category).filter(Boolean) as string[]
+                )
+              ).map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>
@@ -356,11 +381,12 @@ export default function AdminLabsPage() {
 
                 <CardContent className="pb-3">
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {lab.tags && lab.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {lab.tags &&
+                      lab.tags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
                   </div>
                   {lab.category && (
                     <div className="mb-3">
@@ -414,9 +440,7 @@ export default function AdminLabsPage() {
                       >
                         Copy Link
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDuplicateLab(lab)}
-                      >
+                      <DropdownMenuItem onClick={() => handleDuplicateLab(lab)}>
                         Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -451,12 +475,12 @@ export default function AdminLabsPage() {
                     <TableCell className="font-medium">{lab.title}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={
+                        className={
                           lab.difficulty === "Easy"
-                            ? "success"
+                            ? "bg-green-500 text-white"
                             : lab.difficulty === "Medium"
-                            ? "warning"
-                            : "destructive"
+                            ? "bg-yellow-500 text-white"
+                            : "bg-red-500 text-white"
                         }
                       >
                         {lab.difficulty}
@@ -466,11 +490,17 @@ export default function AdminLabsPage() {
                     <TableCell>{lab.timeLimit} min</TableCell>
                     <TableCell>
                       {lab.isPublished ? (
-                        <Badge variant="outline" className="bg-green-500/10 text-green-500">
+                        <Badge
+                          variant="outline"
+                          className="bg-green-500/10 text-green-500"
+                        >
                           <CheckCircle className="h-3 w-3 mr-1" /> Published
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500">
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-500/10 text-yellow-500"
+                        >
                           <XCircle className="h-3 w-3 mr-1" /> Draft
                         </Badge>
                       )}
@@ -491,7 +521,9 @@ export default function AdminLabsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`/lab?id=${lab._id}`, "_blank")}
+                          onClick={() =>
+                            window.open(`/lab?id=${lab._id}`, "_blank")
+                          }
                           title="Preview"
                         >
                           <Eye className="h-4 w-4" />
@@ -533,93 +565,6 @@ export default function AdminLabsPage() {
       )}
 
       {isEditDialogOpen && selectedLab && (
-        <LabFormDialog
-          isOpen={isEditDialogOpen}
-          onClose={() => {
-            setIsEditDialogOpen(false);
-            setSelectedLab(null);
-          }}
-          onSubmit={handleUpdateLab}
-          initialData={selectedLab}
-          mode="edit"
-        />
-      )}
-    </div>
-  );
-}
-
-  return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Labs Management</h1>
-          <p className="text-muted-foreground">
-            Create and manage coding challenges
-          </p>
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Lab
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {labs.map((lab) => (
-          <Card key={lab._id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>{lab.title}</CardTitle>
-                  <CardDescription>{lab.description}</CardDescription>
-                </div>
-                <Badge variant={lab.isPublished ? "default" : "secondary"}>
-                  {lab.isPublished ? "Published" : "Draft"}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <FileCode className="h-4 w-4" />
-                  <span>{lab.difficulty}</span>
-                  <Clock className="h-4 w-4 ml-2" />
-                  <span>{lab.timeLimit}m</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedLab(lab);
-                      setIsEditDialogOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteLab(lab._id)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <LabFormDialog
-        isOpen={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSubmit={handleCreateLab}
-        mode="create"
-      />
-
-      {selectedLab && (
         <LabFormDialog
           isOpen={isEditDialogOpen}
           onClose={() => {
