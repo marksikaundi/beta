@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, action } from "./_generated/server";
 import { v } from "convex/values";
 
 // Sample challenges for seeding the database
@@ -392,7 +392,7 @@ function fizzBuzz(n) {
 ];
 
 // Mutation to seed the database with sample challenges
-export const seedChallenges = mutation({
+export const seedChallengesMutation = mutation({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -428,6 +428,55 @@ export const seedChallenges = mutation({
         success: true,
         message: `Successfully added ${results.length} sample challenges to the database.`,
       };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      };
+    }
+  },
+});
+
+// Add action version of seedChallenges
+export const seedChallenges = action({
+  handler: async (ctx) => {
+    try {
+      // Use mutation to execute the database changes
+      return await ctx.runMutation(async ({ db, auth }) => {
+        const identity = await auth.getUserIdentity();
+        if (!identity) {
+          return { success: false, message: "Not authenticated" };
+        }
+
+        // Check if we already have challenges to avoid duplicates
+        const existingChallenges = await db.query("labs").collect();
+        if (existingChallenges.length > 0) {
+          return {
+            success: true,
+            message: `Database already has ${existingChallenges.length} challenges. No new challenges were added to avoid duplicates.`,
+          };
+        }
+
+        // Add all sample challenges
+        const now = new Date().toISOString();
+        const results = [];
+
+        for (const challenge of sampleChallenges) {
+          const labId = await db.insert("labs", {
+            ...challenge,
+            createdAt: now,
+            updatedAt: now,
+            createdBy: identity.tokenIdentifier,
+          });
+          results.push(labId);
+        }
+
+        return {
+          success: true,
+          message: `Successfully added ${results.length} sample challenges to the database.`,
+        };
+      });
     } catch (error) {
       return {
         success: false,
