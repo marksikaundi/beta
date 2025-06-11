@@ -8,6 +8,7 @@ import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { ContinueLearning } from "@/components/dashboard/continue-learning";
 import { StudyStreak } from "@/components/dashboard/study-streak";
 import { RecommendedTracks } from "@/components/dashboard/recommended-tracks";
+import { ChallengeProgress } from "@/components/dashboard/challenge-progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -173,6 +174,9 @@ export default function DashboardPage() {
                   <RecommendedTracks />
                 </CardContent>
               </Card>
+
+              {/* Challenge Progress Card - New Addition */}
+              <ChallengeProgress />
             </div>
           </div>
         </div>
