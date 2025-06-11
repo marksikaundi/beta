@@ -440,6 +440,9 @@ export default defineSchema({
     hints: v.array(v.string()),
     constraints: v.array(v.string()),
     tags: v.array(v.string()),
+    category: v.optional(v.string()),
+    order: v.optional(v.number()),
+    prerequisites: v.optional(v.array(v.id("labs"))),
     points: v.number(),
     timeLimit: v.number(),
     isPublished: v.boolean(),
@@ -448,20 +451,29 @@ export default defineSchema({
     updatedAt: v.string(),
   })
     .index("by_difficulty", ["difficulty"])
-    .index("by_published", ["isPublished"]),
+    .index("by_published", ["isPublished"])
+    .index("by_category", ["category"])
+    .index("by_category_order", ["category", "order"]),
 
   // Lab completions to track user progress
   labCompletions: defineTable({
     labId: v.id("labs"),
     userId: v.string(),
     completedAt: v.string(),
+    updatedAt: v.string(),
     code: v.string(),
     language: v.string(),
     executionTime: v.optional(v.number()),
+    attempts: v.number(),
+    category: v.optional(v.string()),
+    difficulty: v.optional(v.string()),
+    points: v.optional(v.number()),
   })
     .index("by_user", ["userId"])
     .index("by_lab", ["labId"])
-    .index("by_user_and_lab", ["userId", "labId"]),
+    .index("by_user_lab", ["userId", "labId"])
+    .index("by_category", ["category"])
+    .index("by_user_category", ["userId", "category"]),
 
   // Invites table to track user invitations
   invites: defineTable({

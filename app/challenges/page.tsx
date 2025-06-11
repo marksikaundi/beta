@@ -34,16 +34,83 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+// Challenge Card Component
+interface ChallengeCardProps {
+  lab: any;
+  router: any;
+}
+
+function ChallengeCard({ lab, router }: ChallengeCardProps) {
+  return (
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <Badge
+            className={`mb-2 ${
+              lab.difficulty === "Easy"
+                ? "bg-green-500"
+                : lab.difficulty === "Medium"
+                ? "bg-yellow-500"
+                : "bg-red-500"
+            }`}
+          >
+            {lab.difficulty}
+          </Badge>
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Award className="h-4 w-4" />
+            <span className="text-sm">{lab.points} pts</span>
+          </div>
+        </div>
+        <CardTitle className="text-xl">{lab.title}</CardTitle>
+        <CardDescription className="line-clamp-2">
+          {lab.description}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="pb-3">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {lab.tags &&
+            lab.tags.map((tag: string) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+        </div>
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Clock className="h-4 w-4 mr-1" />
+          <span>{lab.timeLimit} min</span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="pt-2 pb-4">
+        <Button
+          onClick={() => router.push(`/lab?id=${lab._id}`)}
+          className="w-full"
+        >
+          Solve Challenge
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
 export default function ChallengesPage() {
   const router = useRouter();
   const labs = useQuery(api.labs.list) || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   // Extract all unique tags from all labs
   const allTags = Array.from(
     new Set(labs.flatMap((lab) => lab.tags || []))
+  ).sort();
+
+  // Extract all unique categories
+  const allCategories = Array.from(
+    new Set(labs.map(lab => lab.category).filter(Boolean) as string[])
   ).sort();
 
   // Filter labs based on search query and filters
@@ -60,8 +127,12 @@ export default function ChallengesPage() {
 
     // Tag filter
     const tagMatches = !tagFilter || (lab.tags && lab.tags.includes(tagFilter));
+    
+    // Category filter
+    const categoryMatches = 
+      !categoryFilter || (lab.category && lab.category === categoryFilter);
 
-    return searchMatches && difficultyMatches && tagMatches;
+    return searchMatches && difficultyMatches && tagMatches && categoryMatches;
   });
 
   return (
@@ -99,19 +170,20 @@ export default function ChallengesPage() {
               <SelectItem value="Hard">Hard</SelectItem>
             </SelectContent>
           </Select>
-
+          
+          {/* Category filter */}
           <Select
-            value={tagFilter || ""}
-            onValueChange={(value) => setTagFilter(value || null)}
+            value={categoryFilter || ""}
+            onValueChange={(value) => setCategoryFilter(value || null)}
           >
             <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Tag" />
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Tags</SelectItem>
-              {allTags.map((tag) => (
-                <SelectItem key={tag} value={tag}>
-                  {tag}
+              <SelectItem value="">All Categories</SelectItem>
+              {allCategories.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -130,60 +202,61 @@ export default function ChallengesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-            {filteredLabs.map((lab) => (
-              <Card
-                key={lab._id}
-                className="overflow-hidden hover:shadow-md transition-shadow"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <Badge
-                      variant={
-                        lab.difficulty === "Easy"
-                          ? "success"
-                          : lab.difficulty === "Medium"
-                          ? "warning"
-                          : "destructive"
-                      }
-                      className="mb-2"
-                    >
-                      {lab.difficulty}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <Award className="h-4 w-4" />
-                      <span className="text-sm">{lab.points} pts</span>
+          <div className="space-y-10">
+            {/* If no category filter is active, group by category */}
+            {!categoryFilter ? (
+              allCategories.map(category => {
+                const categoryLabs = filteredLabs.filter(lab => lab.category === category);
+                if (categoryLabs.length === 0) return null;
+                
+                return (
+                  <div key={category} className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-2xl font-bold">{category}</h2>
+                      {categoryLabs.length > 3 && (
+                        <Button variant="outline" size="sm" onClick={() => setCategoryFilter(category)}>
+                          View All <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                      {categoryLabs
+                        .sort((a, b) => (a.order || 999) - (b.order || 999))
+                        .slice(0, 6)
+                        .map((lab) => (
+                          <ChallengeCard key={lab._id} lab={lab} router={router} />
+                        ))}
                     </div>
                   </div>
-                  <CardTitle className="text-xl">{lab.title}</CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {lab.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="pb-3">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {lab.tags &&
-                      lab.tags.map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>{lab.timeLimit} min</span>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="pt-2 pb-4">
-                  <Button
-                    onClick={() => router.push(`/lab?id=${lab._id}`)}
-                    className="w-full"
-                  >
-                    Solve Challenge
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
+                );
+              })
+            ) : (
+              // If category filter is active, show all matching labs
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                {filteredLabs
+                  .sort((a, b) => (a.order || 999) - (b.order || 999))
+                  .map((lab) => (
+                    <ChallengeCard key={lab._id} lab={lab} router={router} />
+                  ))}
+              </div>
+            )}
+            
+            {/* Show uncategorized challenges if they exist */}
+            {!categoryFilter && filteredLabs.some(lab => !lab.category) && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold">Other Challenges</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  {filteredLabs
+                    .filter(lab => !lab.category)
+                    .map((lab) => (
+                      <ChallengeCard key={lab._id} lab={lab} router={router} />
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
                 </CardFooter>
               </Card>
             ))}

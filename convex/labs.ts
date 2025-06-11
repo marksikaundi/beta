@@ -63,13 +63,37 @@ export const validateSolution = mutation({
 
     // If all tests pass, record the completion
     if (passed) {
-      await ctx.db.insert("labCompletions", {
-        labId: args.labId,
-        userId: identity.tokenIdentifier,
-        completedAt: new Date().toISOString(),
-        code: args.code,
-        language: args.language,
-      });
+      // Check if the user has already completed this lab
+      const existingCompletion = await ctx.db
+        .query("labCompletions")
+        .withIndex("by_user_lab", (q) => 
+          q.eq("userId", identity.tokenIdentifier).eq("labId", args.labId)
+        )
+        .first();
+      
+      if (existingCompletion) {
+        // Update the existing completion
+        await ctx.db.patch(existingCompletion._id, {
+          updatedAt: new Date().toISOString(),
+          code: args.code,
+          language: args.language,
+          attempts: (existingCompletion.attempts || 1) + 1,
+        });
+      } else {
+        // Create a new completion record
+        await ctx.db.insert("labCompletions", {
+          labId: args.labId,
+          userId: identity.tokenIdentifier,
+          completedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          code: args.code,
+          language: args.language,
+          attempts: 1,
+          category: lab.category,
+          difficulty: lab.difficulty,
+          points: lab.points,
+        });
+      }
     }
 
     return {

@@ -88,6 +88,9 @@ interface Lab {
   hints: string[];
   constraints: string[];
   tags: string[];
+  category?: string;
+  order?: number;
+  prerequisites?: string[];
   points: number;
   timeLimit: number;
   isPublished: boolean;
@@ -102,6 +105,7 @@ export default function AdminLabsPage() {
   const [view, setView] = useState<"grid" | "table">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const labs = useQuery(api.labs.list) || [];
   const createLab = useMutation(api.labs_admin.createLab);
@@ -148,6 +152,16 @@ export default function AdminLabsPage() {
       }
     }
   };
+  
+  const handleDuplicateLab = (lab: Lab) => {
+    const duplicatedLab = {
+      ...lab,
+      title: `${lab.title} (Copy)`,
+      isPublished: false, // Default to unpublished for safety
+    };
+    setSelectedLab(duplicatedLab);
+    setIsCreateDialogOpen(true);
+  };
 
   // Filter labs based on search query and filters
   const filteredLabs = labs.filter((lab) => {
@@ -160,8 +174,12 @@ export default function AdminLabsPage() {
     // Difficulty filter
     const difficultyMatches =
       !difficultyFilter || lab.difficulty === difficultyFilter;
+      
+    // Category filter
+    const categoryMatches =
+      !categoryFilter || (lab.category && lab.category === categoryFilter);
 
-    return searchMatches && difficultyMatches;
+    return searchMatches && difficultyMatches && categoryMatches;
   });
 
   // Stats
@@ -182,11 +200,6 @@ export default function AdminLabsPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" asChild>
-              <Link href="/admin/init-challenges">
-                <Download className="h-4 w-4 mr-2" /> Initialize Samples
-              </Link>
-            </Button>
             <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" /> Create Challenge
             </Button>
@@ -263,6 +276,24 @@ export default function AdminLabsPage() {
               <SelectItem value="Hard">Hard</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Category filter */}
+          <Select
+            value={categoryFilter || ""}
+            onValueChange={(value) => setCategoryFilter(value || null)}
+          >
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Categories</SelectItem>
+              {Array.from(new Set(labs.map(lab => lab.category).filter(Boolean) as string[])).map(category => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <div className="flex">
             <Button
@@ -303,14 +334,13 @@ export default function AdminLabsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <Badge
-                      variant={
+                      className={`mb-2 ${
                         lab.difficulty === "Easy"
-                          ? "success"
+                          ? "bg-green-500"
                           : lab.difficulty === "Medium"
-                          ? "warning"
-                          : "destructive"
-                      }
-                      className="mb-2"
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      }`}
                     >
                       {lab.difficulty}
                     </Badge>
@@ -332,6 +362,13 @@ export default function AdminLabsPage() {
                       </Badge>
                     ))}
                   </div>
+                  {lab.category && (
+                    <div className="mb-3">
+                      <Badge variant="secondary" className="text-xs">
+                        {lab.category}
+                      </Badge>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
@@ -376,6 +413,11 @@ export default function AdminLabsPage() {
                         }}
                       >
                         Copy Link
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDuplicateLab(lab)}
+                      >
+                        Duplicate
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -442,6 +484,7 @@ export default function AdminLabsPage() {
                             setSelectedLab(lab);
                             setIsEditDialogOpen(true);
                           }}
+                          title="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -449,13 +492,23 @@ export default function AdminLabsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => window.open(`/lab?id=${lab._id}`, "_blank")}
+                          title="Preview"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleDuplicateLab(lab)}
+                          title="Duplicate"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDeleteLab(lab._id)}
+                          title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
