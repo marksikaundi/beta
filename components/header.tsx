@@ -36,9 +36,15 @@ const navigationItems = [
     authRequired: true,
   },
   {
+    name: "Challenges",
+    href: "/challenges",
+    icon: Code2,
+    description: "Coding challenges & problems",
+  },
+  {
     name: "Lab",
     href: "/lab",
-    icon: Code2,
+    icon: Zap,
     description: "Interactive courses & lessons",
   },
   {

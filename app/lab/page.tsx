@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,7 @@ export default function LabPage() {
       : "skip"
   );
   const validateSolution = useMutation(api.labs.validateSolution);
+  const router = useRouter();
 
   const [language, setLanguage] = useState<"javascript" | "python">(
     "javascript"
@@ -63,11 +64,21 @@ export default function LabPage() {
   const [showHints, setShowHints] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  // Navigate back to challenges page
+  const handleBackToChallenges = () => {
+    router.push("/challenges");
+  };
+
   // Loading and error states
   if (!labId) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p className="text-destructive">No lab ID provided</p>
+        <div className="text-center">
+          <p className="text-destructive mb-4">No challenge ID provided</p>
+          <Button onClick={handleBackToChallenges}>
+            <ChevronLeft className="h-4 w-4 mr-2" /> Back to Challenges
+          </Button>
+        </div>
       </div>
     );
   }
@@ -139,6 +150,15 @@ export default function LabPage() {
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToChallenges}
+              className="gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Challenges
+            </Button>
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
               <h1 className="font-semibold">{lab.title}</h1>
@@ -149,6 +169,10 @@ export default function LabPage() {
             >
               {lab.difficulty}
             </Badge>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Award className="h-4 w-4 mr-1" />
+              <span>{lab.points} points</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -456,12 +480,28 @@ export default function LabPage() {
                                 of {executionResult.testResults.length} tests
                                 passed
                               </div>
-                              {executionResult.passed && !isCompleted && (
-                                <div className="mt-2 flex items-center justify-center gap-1.5 text-green-600">
-                                  <Award className="h-4 w-4" />
-                                  <span className="text-sm">
-                                    Challenge completed! +{lab.points} points
-                                  </span>
+                              {executionResult.passed && (
+                                <div className="mt-4 p-4 border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20 rounded-lg">
+                                  <div className="flex items-center justify-center gap-2 text-green-600 mb-3">
+                                    <CheckCircle className="h-5 w-5" />
+                                    <span className="font-medium">
+                                      Challenge completed! +{lab.points} points
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-center gap-3">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleBackToChallenges}
+                                    >
+                                      <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+                                      Back to Challenges
+                                    </Button>
+                                    <Button size="sm">
+                                      Next Challenge
+                                      <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                    </Button>
+                                  </div>
                                 </div>
                               )}
                             </div>
